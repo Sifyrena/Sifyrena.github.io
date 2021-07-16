@@ -582,7 +582,7 @@ function drawPlayPause(x, y, l){
   translate(x, y);
   fill(255);
   stroke(255);
-  if (!paused){
+  if (paused){
     triangle(-l/2, -l/2, -l/2, l/2, l/2, 0);
   } else {
     rect(-l/2, -l/2, l, l);
