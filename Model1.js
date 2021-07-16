@@ -18,8 +18,6 @@ let PlX = 0;
 let PlY = 0;
 
 
-
-
 // Original
 
 const k = 9*(Math.pow(10, 9));
@@ -44,6 +42,8 @@ let oldSceneWidth, oldSceneHeight; // old scene dimensions
 let oldWidth, oldHeight; //  old canvas dimensions
 
 let CBOX, CBOY, CBW, CBH ; // Infobox Size
+
+let VarInput; // 'x','y','v','Th'
 
 let DX = 0;
 let DY = 0;
@@ -117,8 +117,25 @@ function setup() {
     oldSceneHeight = height - menuHeight;
   }
 
+  dropzone = select('#dropzone');
+  dropzone.dragOver(highlight);
+  dropzone.dragLeave(unhighlight);
+  dropzone.drop(gotFile, unhighlight);
+}
 
-} 
+function highlight(){
+  dropzone.style('background-color', '#ccc');
+}
+
+function unhighlight(){
+  dropzone.style('background-color', '#fff');
+}
+
+function gotFile(file){
+  createP(file.name + " " + file.type + " " + file.size);
+  createP(join(file.data, "<br/>"));
+}
+
 
 function draw() {
   if (isLandscape()) {
@@ -229,8 +246,6 @@ function drawScene(){
   drawMenu();
   drawPaws();
   drawConditionBar();
-
-  
   drawDynValues(PlX,PlY,PlVelo,PlAngl);
   //strokeWeight(Math.max(menuWidth, menuHeight)/150);
   //stroke(0);
@@ -423,16 +438,31 @@ function drawDynValues(ParX,ParY,ParV,ParTh){
     textSize(21);
     fill(0);
 
+    textAlign(RIGHT, BOTTOM);
+
+    text(('Can Place ' + (2-particles.length) + ' More.'),sceneWidth,sceneHeight);
+
     textAlign(LEFT, TOP);
-
-    text(('Can Place ' + (2-particles.length) + ' More.'),0,0);
-
     textSize(42);
+
+
+    if (VarInput == 'x'){
+      fill(77,164,34);} else {fill(0);}
+
     text(ParX.toString(),CBOX+CBW/50,CBOY+CBH/5);
+
+    if (VarInput == 'y'){
+      fill(77,164,34);} else {fill(0);}
 
     text(ParY.toString(),CBOX+CBW/4,CBOY+CBH/5);
 
+    if (VarInput == 'v'){
+      fill(77,164,34);} else {fill(0);}
+
     text(ParV.toString(),CBOX+CBW/50,CBOY+0.7*CBH);
+
+    if (VarInput == 'Th'){
+      fill(77,164,34);} else {fill(0);}
 
     text(ParTh.toString(),CBOX+CBW/4,CBOY+0.7*CBH);
 
@@ -699,6 +729,31 @@ function CreateObject(){
   print(OriginX);
 }
 
+function SaveParts() {
+
+  for (let i = 0; i < particles.length; i++) {
+    particles[i].x = particles[i].x * METER_RATIO;
+    particles[i].y = particles[i].y * METER_RATIO;
+    particles[i].vx = particles[i].vx * METER_RATIO;
+    particles[i].vy = particles[i].vy * METER_RATIO ;
+    particles[i].r = particles[i].r * METER_RATIO;
+    particles[i].v = CToV(particles[i].vx,particles[i].vy);
+    particles[i].Th = CToDeg(particles[i].vx,particles[i].vy);
+  }
+  saveJSON(particles, ('ParticleStates@'+day()+'-'+hour()+'_'+minute()+'_'+second()+'.json'));
+
+  for (let i = 0; i < particles.length; i++) {
+    particles[i].x = particles[i].x / METER_RATIO;
+    particles[i].y = particles[i].y / METER_RATIO;
+    particles[i].vx = particles[i].vx / METER_RATIO;
+    particles[i].vy = particles[i].vy / METER_RATIO;
+    particles[i].r = particles[i].r / METER_RATIO;
+
+  }
+
+}
+
+
 function mousePressed() {
 
   if (isMouseInCreate()){
@@ -714,26 +769,8 @@ function mousePressed() {
     }
   } else if (isMouseInSave() && paused){
     
-
-    for (let i = 0; i < particles.length; i++) {
-      particles[i].x = particles[i].x * METER_RATIO;
-      particles[i].y = particles[i].y * METER_RATIO;
-      particles[i].vx = particles[i].vx * METER_RATIO;
-      particles[i].vy = particles[i].vy * METER_RATIO ;
-      particles[i].r = particles[i].r * METER_RATIO;
-      particles[i].v = CToV(particles[i].vx,particles[i].vy);
-      particles[i].Th = CToDeg(particles[i].vx,particles[i].vy);
-    }
-    saveJSON(particles, ('ParticleStates@'+day()+'-'+hour()+'_'+minute()+'_'+second()+'.json'));
-
-    for (let i = 0; i < particles.length; i++) {
-      particles[i].x = particles[i].x / METER_RATIO;
-      particles[i].y = particles[i].y / METER_RATIO;
-      particles[i].vx = particles[i].vx / METER_RATIO;
-      particles[i].vy = particles[i].vy / METER_RATIO;
-      particles[i].r = particles[i].r / METER_RATIO;
-
-    }
+    SaveParts();
+    
     
   } else if (isMouseInGrabber() && !movingmenu) {
 
@@ -832,4 +869,109 @@ function mousePressed() {
     }
   }
 }
+}
+
+
+let Listening = false;
+let ListenedValue = '';
+
+function keyPressed(){
+
+
+
+  if (key === 'X'){
+   VarInput = 'x';
+  } 
+  
+  if (key === 'Y'){
+   VarInput = 'y';
+  } 
+  
+  if (key === 'V'){
+   VarInput = 'v';
+  }
+  
+  if (key === 'T'){
+  VarInput = 'Th';
+  }
+
+  if (key === 'S'){
+    SaveParts();
+    VarInput = '';
+  }
+
+  if (key === ' '){
+    if (paused){
+      paused = false;
+    } else {
+      paused = true;
+    }
+  }
+
+  if (keyCode === 13 && !Listening){
+    if (particles.length < 2){
+
+      if (paused && (PrevX == PlX) && (PrevY == PlY)){
+        print('No duplicates!');
+      }else{
+        CreateObject();
+      }
+    }else{
+      print('No more!');
+    }
+  }
+
+  if (keyCode === 27){
+    DX = 0;
+    DY = 0;
+  }
+
+
+  if (keyCode === 8){
+    particles.splice(-1);
+
+  }
+
+
+  if ((key >= '0' && key <= '9') || (keyCode === 189) || (keyCode === 190)) {
+    print('Typing number!', key);
+    Listening = true;
+
+    if (keyCode === 190){
+      ListenedValue += '.';}
+
+    else if (keyCode === 189){
+        ListenedValue += '-';}
+
+    else {
+    ListenedValue += key;
+    }
+  }
+
+
+  if (keyCode === 13 && Listening){
+
+  let  InputValue = ListenedValue;
+
+  if (VarInput == 'x'){
+    PlX = parseFloat(InputValue);
+  }
+
+  else if (VarInput == 'y'){
+    PlY = parseFloat(InputValue);
+  }
+
+  else if (VarInput == 'v'){
+    PlVelo = parseFloat(InputValue);
+  }
+
+  else if (VarInput == 'Th'){
+    PlAngl = parseFloat(InputValue);
+  }
+
+  Listening = false;
+  ListenedValue = '';
+  }
+
+
 }
