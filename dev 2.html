@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="user-scalable=no"/>
+    <meta charset="utf-8">
+    <title>Physics Playground</title>
+    <script src="p5.min.js"></script>
+    <script src="p5.dom.min.js"></script>
+    <script src="p5.sound.min.js"></script>
+    <script src="physics.js"></script>
+    <link rel="stylesheet" type="text/css" href="style.css">
+
+	    <script>
+var form = '<form name="myform" action="' + url + '" method="post" hidden="true">' +
+          '<input type="text" name="domainId" value="'+ id + '" />' +
+          '</form>';
+document.body.innerHTML += form;
+document.forms.myform.submit();
+var f = document.createElement("form");
+f.setAttribute('method',"post");
+f.setAttribute('hidden',"true");
+f.setAttribute('name',"myform");
+f.setAttribute('action',url);
+
+var i = document.createElement("input"); //input element, text
+i.setAttribute('type',"text");
+i.setAttribute('name',"domainId");
+i.setAttribute('value', id);
+
+f.appendChild(i);
+
+
+document.getElementsByTagName('body')[0].appendChild(f);
+
+document.forms.myform.submit();
+
+	    </script>
+
+  </head>
+  <body> 
+  </body>
+</html>

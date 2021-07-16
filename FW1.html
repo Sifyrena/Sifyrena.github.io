@@ -1,0 +1,39 @@
+<html>
+    <head>
+	<title>FWPhysics</title>
+        <script src="matter.min.js" type="text/javascript"></script>
+        <script src="p5.min.js"></script>
+        <script src="p5.dom.min.js"></script>
+        <script src="p5.sound.min.js"></script>
+
+    </head>
+    <body>
+            <div id="canvas-container"></div>
+    </body>
+</html>
+
+<script>
+
+var container = document.getElementById('canvas-container');
+var engine = Matter.Engine.create(container);
+
+engine.world.gravity.y = 0;
+engine.world.gravity.x = 0;
+engine.render.options.showDebug = false;
+engine.render.options.showAngleIndicator = true;
+ 
+// Define Box
+Matter.World.add(engine.world, Matter.Bodies.rectangle(400, 0, 800, 10, { isStatic: true, }));   
+Matter.World.add(engine.world, Matter.Bodies.rectangle(400, 600, 800, 10, { isStatic: true, }));
+    
+Matter.World.add(engine.world, Matter.Bodies.rectangle(0, 300, 10, 600, { isStatic: true,  }));   
+Matter.World.add(engine.world, Matter.Bodies.rectangle(800, 300, 10, 600, { isStatic: true, }));  
+    
+// Add Stuff
+var Circle = Matter.Bodies.circle(372.5, 183, 150,  { isStatic: false, density: 0.01, ffriction: 0, frictionAir: 0, frictionStatic: 0, restitution: 1, angle: 0, inertia: Infinity});
+Matter.Body.setVelocity(Circle, {x:10,y:20});
+Matter.World.add(engine.world, Circle );
+
+Matter.Engine.run(engine);
+
+</script>
