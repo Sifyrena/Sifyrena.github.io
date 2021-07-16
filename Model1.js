@@ -443,7 +443,12 @@ function drawDynValues(ParX,ParY,ParV,ParTh){
     text(('Can Place ' + (2-particles.length) + ' More.'),sceneWidth,sceneHeight);
 
     textAlign(LEFT, TOP);
-    textSize(42);
+
+
+    if (Listening){
+      textSize(35);
+    } else {
+    textSize(42);}
 
 
     if (VarInput == 'x'){
@@ -948,27 +953,27 @@ function keyPressed(){
     }
   }
 
-
-  if (keyCode === 13 && Listening){
-
+  if (Listening){
   let  InputValue = ListenedValue;
 
-  if (VarInput == 'x'){
-    PlX = parseFloat(InputValue);
+    if (VarInput == 'x'){
+      PlX = parseFloat(InputValue);
+    }
+
+    else if (VarInput == 'y'){
+      PlY = parseFloat(InputValue);
+    }
+
+    else if (VarInput == 'v'){
+      PlVelo = parseFloat(InputValue);
+    }
+
+    else if (VarInput == 'Th'){
+      PlAngl = parseFloat(InputValue);
+    }
   }
 
-  else if (VarInput == 'y'){
-    PlY = parseFloat(InputValue);
-  }
-
-  else if (VarInput == 'v'){
-    PlVelo = parseFloat(InputValue);
-  }
-
-  else if (VarInput == 'Th'){
-    PlAngl = parseFloat(InputValue);
-  }
-
+  if (keyCode === 13 && Listening){
   Listening = false;
   ListenedValue = '';
   }
