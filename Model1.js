@@ -508,7 +508,7 @@ function DegToY(v,Th){
 
   Ang = Th / 180 * Pi;
 
-  return v*sin(Ang);
+  return -1*v*sin(Ang);
 }
 
 
