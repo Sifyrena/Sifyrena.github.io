@@ -928,14 +928,14 @@ function keyPressed(){
   }
 
 
-  if ((key >= '0' && key <= '9') || (keyCode === 189) || (keyCode === 190)) {
+  if ((key >= '0' && key <= '9') || (keyCode === 189) || (keyCode === 190) || (keyCode === 109) || (keyCode === 110) ) {
     print('Typing number!', key);
     Listening = true;
 
-    if (keyCode === 190){
+    if (keyCode === 190 || keyCode === 110){
       ListenedValue += '.';}
 
-    else if (keyCode === 189){
+    else if (keyCode === 189 || keyCode === 109){
         ListenedValue += '-';}
 
     else {
