@@ -32,6 +32,7 @@ let METER_RATIO; // PlaceHolder Value. Will be updated by draw. centimetres per 
 const NUM_SECTIONS = 10;
 const MENU_RATIO = NUM_SECTIONS;
 let particles = [];
+let particlesCM = [];
 let vectors = [];
 
 let paused = true;
@@ -682,8 +683,8 @@ function CreateObject(){
   PrevX = PlX;
   PrevY = PlY;
 
-  let PixX = PlX / metersInPixels;
-  let PixY = PlY / metersInPixels;
+  let PixX = PlX / METER_RATIO;
+  let PixY = PlY / METER_RATIO;
 
   particles.push({
     x: PixX+OriginX,
@@ -713,8 +714,27 @@ function mousePressed() {
     }
   } else if (isMouseInSave() && paused){
     
-    saveJSON(particles, 'particles.json');
 
+    for (let i = 0; i < particles.length; i++) {
+      particles[i].x = particles[i].x * METER_RATIO;
+      particles[i].y = particles[i].y * METER_RATIO;
+      particles[i].vx = particles[i].vx * METER_RATIO;
+      particles[i].vy = particles[i].vy * METER_RATIO ;
+      particles[i].r = particles[i].r * METER_RATIO;
+      particles[i].v = CToV(particles[i].vx,particles[i].vy);
+      particles[i].Th = CToDeg(particles[i].vx,particles[i].vy);
+    }
+    saveJSON(particles, ('ParticleStates@'+day()+'-'+hour()+'_'+minute()+'_'+second()+'.json'));
+
+    for (let i = 0; i < particles.length; i++) {
+      particles[i].x = particles[i].x / METER_RATIO;
+      particles[i].y = particles[i].y / METER_RATIO;
+      particles[i].vx = particles[i].vx / METER_RATIO;
+      particles[i].vy = particles[i].vy / METER_RATIO;
+      particles[i].r = particles[i].r / METER_RATIO;
+
+    }
+    
   } else if (isMouseInGrabber() && !movingmenu) {
 
       if (originalbox){
@@ -735,7 +755,7 @@ function mousePressed() {
 
   } else if (PARTICLE_MODES.includes(drawingMode) && (particles.length < 2)) {
     let r = SphCM / METER_RATIO;
-    let mass = Math.PI*Math.pow(r, 2);
+    let mass = 1;
     let charge = 0.1;
     let vx;
     let vy;
