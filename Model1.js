@@ -143,7 +143,7 @@ function draw() {
     menuHeight = height;
     menuWidth = height / MENU_RATIO;
 
-    if (isBoardWide){
+    if (!isBoardWide()){
 	
 	sceneWidth = width - menuWidth;
 	sceneHeight = sceneWidth * BoGY/BoGX;
@@ -160,7 +160,7 @@ function draw() {
     menuHeight = width / MENU_RATIO;
 
 
-    if (isBoardWide){
+    if (!isBoardWide()){
 	
 	sceneWidth = width
 	sceneHeight = sceneWidth * BoGY/BoGX;
@@ -319,14 +319,14 @@ function drawMenu(){
   if (isLandscape()) {
     // draw menu on the right getSide()
     //line(sceneWidth, 0, sceneWidth, height);
-    rect(sceneWidth, 0, menuWidth, menuHeight);
+    rect(width - menuWidth, 0, menuWidth, menuHeight);
 
     for (let i = 0; i < NUM_SECTIONS+1; i++){
       stroke(0)
-      line(sceneWidth, i * getSide(), width, i * getSide());
+      line(width - menuWidth, i * getSide(), width, i * getSide());
       if (i == drawingMode){
         fill(0, 0, 0);
-        rect(sceneWidth,i * getSide() , menuWidth, getSide());
+        rect(width - menuWidth,i * getSide() , menuWidth, getSide());
       }
     }
 
@@ -602,7 +602,14 @@ function drawX(x, y, l){
 
 
 function isBoardWide(){
-  return BoGY*width >=  BoGX*height; 
+
+  if (isLandscape()){
+    return BoGY*(width-menuWidth) >=  BoGX*height; 
+  } else {
+    return BoGY*(width) >=  BoGX*(height-menuHeight);
+  }
+
+  
 }
 
 
@@ -707,16 +714,10 @@ function windowResized() {
   oldSceneHeight = sceneHeight;
 }
 
-
-let PrevX, PrevY;
-
 function CreateObject(){
 
   vX = DegToX(PlVelo,PlAngl);
   vY = DegToY(PlVelo,PlAngl);
-
-  PrevX = PlX;
-  PrevY = PlY;
 
   let PixX = PlX / METER_RATIO;
   let PixY = PlY / METER_RATIO;
@@ -763,12 +764,7 @@ function mousePressed() {
 
   if (isMouseInCreate()){
     if (particles.length < 2){
-
-      if (paused && (PrevX == PlX) && (PrevY == PlY)){
-        print('No duplicates!');
-      }else{
         CreateObject();
-      }
     }else{
       print('No more!');
     }
@@ -915,12 +911,7 @@ function keyPressed(){
 
   if (keyCode === 13 && !Listening){
     if (particles.length < 2){
-
-      if (paused && (PrevX == PlX) && (PrevY == PlY)){
-        print('No duplicates!');
-      }else{
         CreateObject();
-      }
     }else{
       print('No more!');
     }
@@ -932,9 +923,8 @@ function keyPressed(){
   }
 
 
-  if (keyCode === 8){
+  if (keyCode === 8 && !Listening){
     particles.splice(-1);
-
   }
 
 
@@ -954,6 +944,11 @@ function keyPressed(){
   }
 
   if (Listening){
+
+    if (keyCode === 8){
+      ListenedValue = ListenedValue.substring(0, ListenedValue.length - 1);
+    }
+
   let  InputValue = ListenedValue;
 
     if (VarInput == 'x'){
