@@ -17,7 +17,6 @@ let PlAngl = 0;
 let PlX = 0;
 let PlY = 0;
 
-
 // Original
 
 const k = 9*(Math.pow(10, 9));
@@ -208,7 +207,14 @@ function drawScene(){
 
   fill(255);
 
+  stroke(194,146,100);
+  strokeWeight(Math.max(menuWidth, menuHeight)/50);
+
   rect(0,0,sceneWidth,sceneHeight);
+
+
+
+  noStroke();
 
   drawGrids();
 
