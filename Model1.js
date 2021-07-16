@@ -101,7 +101,7 @@ let mouseHasBeenPressed = false;
 let tailX, tailY;
 
 function setup() {
-  createCanvas(window.innerWidth, window.innerHeight);
+  cnv = createCanvas(window.innerWidth, window.innerHeight);
   oldWidth = width;
   oldHeight = height;
   if (isLandscape()) {
@@ -299,7 +299,7 @@ let MenuItemDrawingFunctions = [
 ];
 
 function drawMenu(){
-  fill(100, 100, 100);
+  fill(135, 135, 135);
   if (isLandscape()) {
     // draw menu on the right getSide()
     //line(sceneWidth, 0, sceneWidth, height);
@@ -309,7 +309,7 @@ function drawMenu(){
       stroke(0)
       line(sceneWidth, i * getSide(), width, i * getSide());
       if (i == drawingMode){
-        fill(255, 255, 255);
+        fill(0, 0, 0);
         rect(sceneWidth,i * getSide() , menuWidth, getSide());
       }
     }
@@ -326,7 +326,7 @@ function drawMenu(){
     for (let i = 0; i < NUM_SECTIONS+1; i++){
       line(i * getSide() , height-menuHeight, i * getSide(), height);
       if (i == drawingMode){
-        fill(255, 255, 255);
+        fill(0, 0, 0);
         rect(i*getSide(), height - menuHeight, getSide(), menuHeight);
       }
     }
@@ -395,7 +395,7 @@ function drawConditionBar(){
 
     textAlign(LEFT, BOTTOM);
 
-    textSize(18);
+    textSize(21);
 
     if (particles.length >= 2){
       fill(50);
@@ -419,11 +419,14 @@ function drawConditionBar(){
 function drawDynValues(ParX,ParY,ParV,ParTh){
 
   if (!movingmenu){
-    textSize(42);
+    textSize(21);
     fill(0);
 
     textAlign(LEFT, TOP);
 
+    text(('Can Place ' + (2-particles.length) + ' More.'),0,0);
+
+    textSize(42);
     text(ParX.toString(),CBOX+CBW/50,CBOY+CBH/5);
 
     text(ParY.toString(),CBOX+CBW/4,CBOY+CBH/5);
@@ -523,8 +526,8 @@ function drawErasor(x, y, l){
   push();
   translate(x, y);
   rotate(angle);
-  fill(0);
-  stroke(0);
+  fill(255);
+  stroke(255);
   strokeWeight(l/10);
   rect(-l/2, -l/2, l * 3/2, l);
   noFill();
@@ -535,8 +538,8 @@ function drawErasor(x, y, l){
 function drawPlayPause(x, y, l){
   push();
   translate(x, y);
-  fill(0);
-  stroke(0);
+  fill(255);
+  stroke(255);
   if (!paused){
     triangle(-l/2, -l/2, -l/2, l/2, l/2, 0);
   } else {
@@ -547,7 +550,7 @@ function drawPlayPause(x, y, l){
 
 function drawX(x, y, l){
   push();
-  stroke(0);
+  stroke(255);
   strokeWeight(10);
   translate(x, y);
   line(-l/2, -l/2, l/2, l/2);
@@ -708,6 +711,9 @@ function mousePressed() {
     }else{
       print('No more!');
     }
+  } else if (isMouseInSave() && paused){
+    
+    saveJSON(particles, 'particles.json');
 
   } else if (isMouseInGrabber() && !movingmenu) {
 
