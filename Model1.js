@@ -1216,6 +1216,7 @@ function mousePressed() {
         vectors = [];
         XLog = [];
         YLog = []; 
+        Dumped = false;
         
       } else {
         drawingMode = item;
