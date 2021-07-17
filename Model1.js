@@ -271,6 +271,7 @@ function drawScene(){
   for (let i = 0; i < vectors.length; i++){
     stroke(0);
   }
+  drawTrail();
 
   for (let i = 0; i < particles.length; i++){
     let c;
@@ -283,6 +284,7 @@ function drawScene(){
     }
     drawParticle(particles[i].x, particles[i].y, particles[i].r, c);
   }
+
   drawVel();
 
   stroke(0);
@@ -303,7 +305,7 @@ function drawScene(){
 
   if (!isMouseInMenu()){
     if (PARTICLE_MODES.indexOf(drawingMode) != -1){
-      let radius = 10;
+      let radius = 1/METER_RATIO;
       let c;
       if (drawingMode === POSITIVE_PARTICLE_MODE){
         c = 'rgba(0, 0, 255, 0.5)';
@@ -336,6 +338,8 @@ function drawScene(){
     }
     
     else if (drawingMode == ERASOR_MODE && mouseIsPressed){
+      XLog = [];
+      YLog = [];
       drawErasor(mouseX, mouseY, Math.min(menuWidth/7, menuHeight/7));
       let r = Math.min(menuWidth/7, menuHeight/7);
       if (mousePressed){
@@ -559,10 +563,6 @@ function drawAngular(){
     PlAngl = round(CToDeg(DispX,DispY),1);
 
     fill('rgba(255,255,0,0.6)');
-
-
-    
-
   }
 
 }
@@ -579,9 +579,40 @@ function drawVel(){
     let LY = particles[i].y;
     drawVector(LX, LY, PVX, PVY);
   }
-  
+}
 
+let XLog = [];
+let YLog = [];
 
+const TrailLength = 350;
+
+function drawTrail(){
+
+  if (particles == []){
+    XLog = [];
+    YLog = [];
+    return;
+  } else {
+
+    if (!paused){
+      for (let i = 0; i < particles.length; i++) {
+        XLog.push(particles[i].x);
+        YLog.push(particles[i].y);
+      }
+    }
+
+    if (XLog.length >= TrailLength*particles.length){
+      XLog = XLog.slice(-TrailLength*particles.length);
+      YLog = YLog.slice(-TrailLength*particles.length);
+    }
+
+    for (let i = 0; i < XLog.length; i++)
+    {
+      noStroke();
+      fill('rgba(5,8,9,'+i/TrailLength/particles.length+')')
+      ellipse(XLog[i],YLog[i],metersInPixels*0.1*SphCM);
+    }
+  }
 }
 
 function drawDynValues(ParX,ParY,ParV,ParTh){
@@ -898,6 +929,8 @@ function windowResized() {
 
 function CreateObject(){
 
+  XLog = [];
+  YLog = [];
   vX = DegToX(PlVelo,PlAngl);
   vY = DegToY(PlVelo,PlAngl);
 
@@ -1008,6 +1041,8 @@ function mousePressed() {
       
 
       if (!isMouseBusy() && !movingmenu){
+        XLog = [];
+        YLog = [];
         particles.push({
           x: mouseX,
           y: mouseY,
@@ -1049,6 +1084,8 @@ function mousePressed() {
       } else if (item === DELETE_ALL){
         particles = [];
         vectors = [];
+        XLog = [];
+        YLog = [];  
       } else {
         drawingMode = item;
       }
@@ -1115,6 +1152,8 @@ function keyPressed(){
 
 
   if (keyCode === 8 && !Listening){
+    XLog = [];
+    YLog = [];
     particles.splice(-1);
   }
 
