@@ -77,6 +77,9 @@ const PosChargeColor = color(229,184,73);
 const NegChargeColor = color(15,59,192);
 */
 
+
+const Cap = 2;
+
 const POSITIVE_PARTICLE_MODE = 0;
 const NEUTRAL_PARTICLE_MODE = 1;
 const NEGATIVE_PARTICLE_MODE = 2;
@@ -525,9 +528,8 @@ function drawMenuRemaining(){
 
   textAlign(LEFT, TOP);
 
-  const Cap = 2;
+ 
   
-
   if (isLandscape()) {
     // draw menu on the right getSide()
     //line(sceneWidth, 0, sceneWidth, height);
@@ -625,11 +627,15 @@ function drawVel(){
 let XLog = [];
 let YLog = [];
 
-const TrailLength = 350;
+const GlobalTrailLength = 500;
+let TrailLength = 180;
 
 function drawTrail(){
 
-  if (particles == []){
+  TrailLength = min(TrailLength,round(GlobalTrailLength/particles.length));
+
+
+  if (particles == [] || particles.length >= 10){
     XLog = [];
     YLog = [];
     return;
@@ -1025,6 +1031,8 @@ function SaveParts() {
 
 function mousePressed() {
 
+  
+
   if ((VarInput == 'Th' || VarInput == 'v') && Listening){
 
     if (VarInput == 'Th')
@@ -1052,7 +1060,7 @@ function mousePressed() {
 
   } else if (!Listening){
     if (isMouseInCreate()){
-      if (particles.length < 2){
+      if (particles.length < Cap){
           CreateObject();
       }else{
         print('No more!');
@@ -1088,7 +1096,7 @@ function mousePressed() {
       paused = true;
       VarInput = 'Th';
     
-    } else if (PARTICLE_MODES.includes(drawingMode) && (particles.length < 2)) {
+    } else if (PARTICLE_MODES.includes(drawingMode) && (particles.length <= Cap)) {
       let r = SphCM / METER_RATIO;
       let mass = 1;
       let charge = 0.1;
@@ -1119,6 +1127,12 @@ function mousePressed() {
 
       }
       
+      
+      /*function is_touch_enabled() {
+        return ( 'ontouchstart' in window ) || 
+              ( navigator.maxTouchPoints > 0 ) || 
+              ( navigator.msMaxTouchPoints > 0 );
+      }*/
 
       if (!isMouseBusy() && !movingmenu){
         XLog = [];
@@ -1218,7 +1232,7 @@ function keyPressed(){
   }
 
   if (keyCode === 13 && !Listening){
-    if (particles.length < 2){
+    if (particles.length < Cap){
         CreateObject();
     }else{
       print('No more!');
