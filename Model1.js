@@ -71,6 +71,9 @@ let drawingMode = 4;
 
 let CircOX, CircOY;
 
+let ReturnPoint = [[],[],[],[]];
+let Dumped = false;
+
 /*
 const PlasticColor = color(255,0,0);
 const PosChargeColor = color(229,184,73);
@@ -239,6 +242,22 @@ function draw() {
 function drawScene(){
 
 
+  if (particles.length == Cap && !Dumped){
+
+    print("Can save now!")
+    Dumped = true;
+
+    ReturnPoint = [[],[],[],[]];
+
+    for (let i = 0; i < Cap; i++) {
+      ReturnPoint[0].push(particles[i].x);
+      ReturnPoint[1].push(particles[i].y);
+      ReturnPoint[2].push(particles[i].vx);
+      ReturnPoint[3].push(particles[i].vy);
+    }
+  }
+
+
   background(195,120,10);
 
 
@@ -346,6 +365,7 @@ function drawScene(){
     else if (drawingMode == ERASOR_MODE && mouseIsPressed){
       XLog = [];
       YLog = [];
+      Dumped = false;
       drawErasor(mouseX, mouseY, Math.min(menuWidth/7, menuHeight/7));
       let r = Math.min(menuWidth/7, menuHeight/7);
       if (mousePressed){
@@ -1001,7 +1021,23 @@ function CreateObject(){
     vy: vY
   });
 
-  print(OriginX);
+}
+
+function QuickCreateObject(x,y,vX,vY){
+
+  XLog = [];
+  YLog = [];
+  
+  particles.push({
+    x: x,
+    y: y,
+    r: SphCM / METER_RATIO,
+    mass: 1,
+    charge: 0,
+    vx: vX,
+    vy: vY
+  });
+
 }
 
 function SaveParts() {
@@ -1179,7 +1215,8 @@ function mousePressed() {
         particles = [];
         vectors = [];
         XLog = [];
-        YLog = [];  
+        YLog = []; 
+        
       } else {
         drawingMode = item;
       }
@@ -1217,6 +1254,19 @@ function keyPressed(){
   Listening = true;
   paused = true;
   }
+
+  if (key === 'R'){
+    
+    VarInput = '';
+
+      if (Dumped){
+        particles = [];
+        for (let i = 0; i < ReturnPoint[0].length; i++) {
+          QuickCreateObject(ReturnPoint[0][i],ReturnPoint[1][i],ReturnPoint[2][i],ReturnPoint[3][i]);
+        }
+      }
+
+    }
 
   if (key === 'S'){
     SaveParts();
