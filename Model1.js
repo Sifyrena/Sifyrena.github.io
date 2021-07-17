@@ -323,8 +323,8 @@ function drawScene(){
       }
       if (!Listening && !movingmenu){
       
-      let PVX = radius*cos(PlAngl);
-      let PVY = radius*sin(PlAngl);
+      let PVX = radius*cos(PlAngl*RadAng);
+      let PVY = -1*radius*sin(PlAngl*RadAng);
       drawVector(mouseX, mouseY, mouseX+ PVX, mouseY+PVY);
           
       drawParticle(mouseX, mouseY, radius, color('rgba(255, 0, 0, 0.5)'));}
