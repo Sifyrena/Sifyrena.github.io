@@ -297,6 +297,7 @@ function drawScene(){
   drawDynValues(PlX,PlY,PlVelo,PlAngl);
   drawMenuRemaining();
   drawAngular();
+  drawVelSelect();
   drawMeterScale();
 
   //strokeWeight(Math.max(menuWidth, menuHeight)/150);
@@ -462,7 +463,6 @@ function drawConditionBar(){
     fill('rgba(100,150,196, 0.95)')
     rect(CBOX+CBW-35,CBOY,35,35);
 
-
     textSize(metersInPixels/1);
     textAlign(CENTER, CENTER);
     fill('rgba(0,0,0, 0.75)');
@@ -541,28 +541,67 @@ let DispX, DispY;
 
 function drawAngular(){
 
-  let CircR = min(sceneHeight,sceneWidth)/4;
+  let CircR = min(sceneHeight,sceneWidth)/3;
 
-  CircOX = CBOX+CBW + CircR/2;
-  CircOY = CBOY + CBH/2;
+  CircOX = sceneWidth/2;
+  CircOY = sceneHeight/2;
 
   
 
   if (VarInput == 'Th' && Listening){
-    fill('rgba(150,150,150,0.5)');
+
+
+    fill(0);
+    textSize(metersInPixels);
+    textAlign(CENTER,BOTTOM);
+    text('Pick an angle. Click to Confirm.',sceneWidth/2,sceneHeight/3)
+
+    fill('rgba(50,50,50,0.75)');
     ellipse(CircOX,CircOY,CircR);
 
-
-    fill('rgba(0,255,0,0.6)');
+    fill('rgba(0,255,0,1)');
 
     arc(CircOX,CircOY,CircR,CircR,-1*PlAngl*PI/180,0);
 
     DispX = mouseX - CircOX;
     DispY = - mouseY + CircOY;
 
-    PlAngl = round(CToDeg(DispX,DispY),1);
+    PlAngl = round(CToDeg(DispX,DispY)*10)/10;
 
     fill('rgba(255,255,0,0.6)');
+  }
+
+}
+
+const VCap = 10;
+
+function drawVelSelect(){
+
+
+
+  if (VarInput == 'v' && Listening){
+
+      
+    fill(0);
+    textSize(metersInPixels);
+    textAlign(CENTER,BOTTOM);
+    text('Pick a speed. Click to Confirm.',sceneWidth/2,sceneHeight/2)
+
+    fill('rgba(50,50,50,0.75)');
+    rect(sceneWidth/4,sceneHeight/2,sceneWidth/2,metersInPixels)
+
+    if (mouseX<=sceneWidth/4){
+      PlVelo = 0;
+    } else if (mouseX>=3*sceneWidth/4){
+      PlVelo = VCap;
+    } else{
+      
+      PlVelo = round((mouseX - sceneWidth/4)/(sceneWidth/2)*VCap*100)/100;
+    }
+
+    fill('rgba(240,240,0,1)');
+    rect(sceneWidth/4,sceneHeight/2,PlVelo/VCap*sceneWidth/2,metersInPixels);
+
   }
 
 }
@@ -864,13 +903,20 @@ function isMouseInMenu(){
 }
 
 function isMouseInCreate(){
-  return ((mouseX > CBOX + 0.5*CBW) && (mouseX < CBOX + 0.5*CBW + CBW/5) && (mouseY > CBOY+ CBH/4) && (mouseY < CBOY+ CBH/4 + CBW/5))
+  return ((mouseX > CBOX + 0.5*CBW) && (mouseX < CBOX + 0.5*CBW + CBW/5) && (mouseY > CBOY+ CBH/4) && (mouseY < CBOY+ CBH/4 + CBW/5));
 }
 
 function isMouseInSave(){
-  return ((mouseX > CBOX + 0.76*CBW) && (mouseX < CBOX + 0.76*CBW + CBW/5) && (mouseY > CBOY+ CBH/4) && (mouseY < CBOY+ CBH/4 + CBW/5))
+  return ((mouseX > CBOX + 0.76*CBW) && (mouseX < CBOX + 0.76*CBW + CBW/5) && (mouseY > CBOY+ CBH/4) && (mouseY < CBOY+ CBH/4 + CBW/5));
 }
 
+function isMouseInV(){
+  return ((mouseX > CBOX + 0.02*CBW) && (mouseX < CBOX + 0.02*CBW + CBW/5) && (mouseY > CBOY+ CBH*0.7) && (mouseY < CBOY+ CBH*0.7 + CBH/4));
+}
+
+function isMouseInT(){
+  return ((mouseX > CBOX + 0.25*CBW) && (mouseX < CBOX + 0.25*CBW + CBW/5) && (mouseY > CBOY+ CBH*0.7) && (mouseY < CBOY+ CBH*0.7 + CBH/4));
+}
 
 /*
 function MouseInDyn(){
@@ -897,7 +943,7 @@ function MouseInDyn(){
 } */
 
 function isMouseBusy(){
-  return (isMouseInCreate() || isMouseInSave() || isMouseInMenu() || isMouseInGrabber());
+  return (isMouseInCreate() || isMouseInSave() || isMouseInMenu() || isMouseInGrabber()|| isMouseInV()|| isMouseInT());
 }
 
 function isMouseInGrabber(){
@@ -976,7 +1022,8 @@ function SaveParts() {
 
 
 function mousePressed() {
-  if (VarInput == 'Th' && Listening){
+
+  if ((VarInput == 'Th' || VarInput == 'v') && Listening){
     Listening = false;
   } else if (!Listening){
     if (isMouseInCreate()){
@@ -986,9 +1033,7 @@ function mousePressed() {
         print('No more!');
       }
     } else if (isMouseInSave() && paused){
-      
       SaveParts();
-      
       
     } else if (isMouseInGrabber() && !movingmenu) {
 
@@ -1008,6 +1053,16 @@ function mousePressed() {
       print('Moved Menu!', DX, DY);
 
 
+    }else if(isMouseInV()) {
+      Listening = true;
+      paused = true;
+      VarInput = 'v';
+
+    } else if(isMouseInT()) {
+      Listening = true;
+      paused = true;
+      VarInput = 'Th';
+    
     } else if (PARTICLE_MODES.includes(drawingMode) && (particles.length < 2)) {
       let r = SphCM / METER_RATIO;
       let mass = 1;
@@ -1198,15 +1253,6 @@ function keyPressed(){
     else if (VarInput == 'y'){
       PlY = InputValue;
     }
-
-    else if (VarInput == 'v'){
-      PlVelo = InputValue;
-    }
-
-    else if (VarInput == 'Th'){
-      PlAngl = InputValue;
-    }
-  
 
   if (keyCode === 13){
   Listening = false;
