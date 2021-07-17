@@ -17,6 +17,20 @@ let PlAngl = 0;
 let PlX = 0;
 let PlY = 0;
 
+
+// Placement Helpers Specific to Task 1
+
+let PlV1 = 3;
+let PlA1 = 0;
+let PlX1 = 0;
+let PlY1 = 0;
+
+let PlV2 = 3;
+let PlA2 = 180;
+let PlX2 = 0;
+let PlY2 = 0;
+
+
 // Original
 
 const k = 9*(Math.pow(10, 9));
@@ -54,6 +68,8 @@ let originalbox = true;
 
 let metersInPixels;
 let drawingMode = 4;
+
+let CircOX, CircOY;
 
 /*
 const PlasticColor = color(255,0,0);
@@ -101,7 +117,9 @@ let mouseHasBeenPressed = false;
 let tailX, tailY;
 
 function setup() {
-  cnv = createCanvas(window.innerWidth, window.innerHeight);
+  var cnv = createCanvas(window.innerWidth, window.innerHeight);
+  cnv.parent("myDiv");
+
   oldWidth = width;
   oldHeight = height;
   if (isLandscape()) {
@@ -116,10 +134,22 @@ function setup() {
     oldSceneHeight = height - menuHeight;
   }
 
-  dropzone = select('#dropzone');
-  dropzone.dragOver(highlight);
-  dropzone.dragLeave(unhighlight);
-  dropzone.drop(gotFile, unhighlight);
+   
+}
+
+function greet() {
+  const name = input.value();
+  greeting.html('hello ' + name + '!');
+  input.value('');
+
+  for (let i = 0; i < 200; i++) {
+    push();
+    fill(random(255), 255, 255);
+    translate(random(width), random(height));
+    rotate(random(2 * PI));
+    text(name, 0, 0);
+    pop();
+  }
 }
 
 function highlight(){
@@ -137,6 +167,7 @@ function gotFile(file){
 
 
 function draw() {
+
   if (isLandscape()) {
     // draw menu on the right getSide()
     menuHeight = height;
@@ -153,7 +184,7 @@ function draw() {
     }
 
     CBW = menuHeight/2;
-    CBH = menuHeight/5;
+    CBH = menuHeight/8;
   } else {
     menuWidth = width;
     menuHeight = width / MENU_RATIO;
@@ -169,7 +200,7 @@ function draw() {
 	sceneWidth = sceneHeight / BoGY*BoGX;
     }
     CBW = menuWidth/2;
-    CBH = menuWidth/5;
+    CBH = menuWidth/8;
 
 
   }
@@ -180,7 +211,6 @@ function draw() {
 
   METER_RATIO = metersInPixels / sceneWidth;
 
-
   OriginX = sceneWidth / 2;
   OriginY = sceneHeight / 2; 
 
@@ -190,6 +220,7 @@ function draw() {
 
   // DRAWING HAPPENS HERE
   drawScene();
+
 }
 
 // ###############
@@ -203,12 +234,14 @@ function draw() {
 
 
 function drawScene(){
+
+
   background(195,120,10);
 
-  fill(255);
 
-  stroke(194,146,100);
-  strokeWeight(Math.max(menuWidth, menuHeight)/50);
+  if (!Listening){
+  fill(253);
+} else {fill(190);}
 
   rect(0,0,sceneWidth,sceneHeight);
 
@@ -217,6 +250,12 @@ function drawScene(){
   noStroke();
 
   drawGrids();
+
+  noFill();
+  stroke(155,96,70);
+  strokeWeight(Math.max(menuWidth, menuHeight)/50);
+
+  rect(0,0,sceneWidth,sceneHeight);
 
   let num = 14;
   for (let i = 1; i < num-1; i++){
@@ -244,6 +283,7 @@ function drawScene(){
     }
     drawParticle(particles[i].x, particles[i].y, particles[i].r, c);
   }
+  drawVel();
 
   stroke(0);
   strokeWeight(Math.max(menuWidth, menuHeight)/150);
@@ -253,6 +293,10 @@ function drawScene(){
   drawPaws();
   drawConditionBar();
   drawDynValues(PlX,PlY,PlVelo,PlAngl);
+  drawMenuRemaining();
+  drawAngular();
+  drawMeterScale();
+
   //strokeWeight(Math.max(menuWidth, menuHeight)/150);
   //stroke(0);
   fill(0);
@@ -277,8 +321,13 @@ function drawScene(){
         radius *= 2;
         c = 'rgba(255, 0, 0, 0.5)';
       }
-
-      drawParticle(mouseX, mouseY, radius, color(c));
+      if (!Listening && !movingmenu){
+      
+      let PVX = radius*cos(PlAngl);
+      let PVY = radius*sin(PlAngl);
+      drawVector(mouseX, mouseY, mouseX+ PVX, mouseY+PVY);
+          
+      drawParticle(mouseX, mouseY, radius, color('rgba(255, 0, 0, 0.5)'));}
     }
 
     else if (drawingMode == VECTOR_MODE && mouseHasBeenPressed){
@@ -308,17 +357,39 @@ function drawScene(){
 }
 
 let MenuItemDrawingFunctions = [
-  (x, y, s) => drawParticle(x + s / 2, y + s / 2, s / 8, color(0, 0, 100)),
-  (x, y, s) => drawParticle(x + s / 2, y + s / 2, s / 8, color(100,0,0)),
-  (x, y, s) => drawParticle(x + s / 2, y + s / 2, s / 8, color(160, 128, 51)),
-  (x, y, s) => drawParticle(x + s / 2, y + s / 2, s / 4, color(0, 0, 100)),
+  (x, y, s) => drawParticle(x + s / 2, y + s / 2, s / 8, color(0, 0, 100,0)),
+  (x, y, s) => drawParticle(x + s / 2, y + s / 2, s / 8, color(100,0,0,0)),
+  (x, y, s) => drawParticle(x + s / 2, y + s / 2, s / 8, color(160, 128, 51,0)),
+  (x, y, s) => drawParticle(x + s / 2, y + s / 2, s / 4, color(0, 0, 100,0)),
   (x, y, s) => drawParticle(x + s / 2, y + s / 2, s / 4, color(255,0,0)),
-  (x, y, s) => drawParticle(x + s / 2, y + s / 2, s / 4, color(160, 128, 51)),
-  (x, y, s) => drawVector(x + s/7, y + 6/7 * s, x + 6/7 * s, y + s/7),
+  (x, y, s) => drawParticle(x + s / 2, y + s / 2, s / 4, color(160, 128, 51,0)),
+  (x, y, s) => drawParticle(x + s / 2, y + s / 2, s / 4, color(160, 128, 51,0)),
   (x, y, s) => drawErasor(x + s/2, y + s/2, s/7),
   (x, y, s) => drawPlayPause(x + s/2, y + s/2, s/2),
   (x, y, s) => drawX(x + s/2, y + s/2, s/2),
 ];
+
+function drawMeterScale(){
+  var x5, y5, x6, y6;
+  
+  x5 = sceneWidth - (2 * metersInPixels);
+  y5 = sceneHeight - (metersInPixels);
+  x6 = sceneWidth - metersInPixels;
+  y6 = y5;
+  
+  stroke(0);
+  line(x5, y5, x6, y6);
+  //line(x1, y1, x2, y2);
+  //line(x3, y3, x4, y4);
+  textSize(metersInPixels/2);
+  noStroke();
+  fill(0);
+
+  textAlign(RIGHT,TOP);
+  text("1 cm", x5 + metersInPixels, (y5+metersInPixels/6));
+ 
+}
+
 
 function drawMenu(){
   fill(135, 135, 135);
@@ -373,8 +444,6 @@ function drawGrids(){
   }
 }
 
-
-
 function drawConditionBar(){
     //  draw the menu on the Bottom Left
 
@@ -389,6 +458,12 @@ function drawConditionBar(){
     fill('rgba(100,150,196, 0.95)')
     rect(CBOX+CBW-35,CBOY,35,35);
 
+
+    textSize(metersInPixels/1);
+    textAlign(CENTER, CENTER);
+    fill('rgba(0,0,0, 0.75)');
+    text("✢",CBOX+CBW-17.5,CBOY+17.5);
+    
     fill(255);
     rect(CBOX+CBW/50,CBOY+CBH/5, CBW/5, CBH/4);
     rect(CBOX+CBW/4,CBOY+CBH/5, CBW/5,CBH/4);
@@ -398,7 +473,7 @@ function drawConditionBar(){
     fill(0);
 
     textAlign(CENTER, CENTER);
-    textSize(30);
+    textSize(metersInPixels/2);
 
 
     text('x',CBOX+CBW/10,CBOY+CBH*0.07);
@@ -409,15 +484,14 @@ function drawConditionBar(){
 
     text('θ',CBOX+CBW*0.32,CBOY+0.55*CBH);
 
-    rect(CBOX + 0.5*CBW, CBOY+ CBH/4, CBW/5, CBW/5);
-    rect(CBOX + 0.76*CBW, CBOY+ CBH/4, CBW/5, CBW/5);
+    rect(CBOX + 0.5*CBW, CBOY+ CBH/4, CBW/6, CBW/6);
+    rect(CBOX + 0.76*CBW, CBOY+ CBH/4, CBW/6, CBW/6);
 
 
     
+    textAlign(CENTER, CENTER);
 
-    textAlign(LEFT, BOTTOM);
-
-    textSize(21);
+    textSize(metersInPixels*2);
 
     if (particles.length >= 2){
       fill(50);
@@ -425,7 +499,7 @@ function drawConditionBar(){
       fill(250);
     }
 
-    text('CREATE',CBOX + 0.5*CBW , CBOY+ CBH/4+ CBW/5);
+    text('+',CBOX + 0.5*CBW +  CBW/12 , CBOY+ CBH/4 +  CBW/12);
 
     if (!paused){
       fill(50);
@@ -433,47 +507,134 @@ function drawConditionBar(){
       fill(250);
     }
 
-    text('SAVE',CBOX + 0.76*CBW, CBOY+ CBH/4 +CBW/5);
+    text('⇩',CBOX + 0.76*CBW +  CBW/12 , CBOY+ CBH/4 +  CBW/12);
 
     }
+}
+
+function drawMenuRemaining(){
+
+  fill(255);
+  textSize(metersInPixels/1.5);
+
+  textAlign(LEFT, TOP);
+
+  const Cap = 2;
+  
+
+  if (isLandscape()) {
+    // draw menu on the right getSide()
+    //line(sceneWidth, 0, sceneWidth, height);
+    text((Cap-particles.length),width-menuWidth,4*menuWidth);
+  } else {
+    text((Cap-particles.length),4*menuHeight,height-menuHeight);
+    }
+
+}
+
+
+let DispX, DispY;
+
+function drawAngular(){
+
+  let CircR = min(sceneHeight,sceneWidth)/4;
+
+  CircOX = CBOX+CBW + CircR/2;
+  CircOY = CBOY + CBH/2;
+
+  
+
+  if (VarInput == 'Th' && Listening){
+    fill('rgba(150,150,150,0.5)');
+    ellipse(CircOX,CircOY,CircR);
+
+
+    fill('rgba(0,255,0,0.6)');
+
+    arc(CircOX,CircOY,CircR,CircR,-1*PlAngl*PI/180,0);
+
+    DispX = mouseX - CircOX;
+    DispY = - mouseY + CircOY;
+
+    PlAngl = round(CToDeg(DispX,DispY),1);
+
+    fill('rgba(255,255,0,0.6)');
+
+
+    
+
+  }
+
+}
+
+
+function drawVel(){
+
+  for (let i = 0; i < particles.length; i++) {
+
+    let PVX = particles[i].vx * metersInPixels/4 + particles[i].x;
+    let PVY = particles[i].vy * metersInPixels/4 + particles[i].y;
+
+    let LX = particles[i].x;
+    let LY = particles[i].y;
+    drawVector(LX, LY, PVX, PVY);
+  }
+  
+
+
 }
 
 function drawDynValues(ParX,ParY,ParV,ParTh){
 
   if (!movingmenu){
-    textSize(21);
+    textSize(metersInPixels/1.2);
     fill(0);
-
-    textAlign(RIGHT, BOTTOM);
-
-    text(('Can Place ' + (2-particles.length) + ' More.'),sceneWidth,sceneHeight);
-
     textAlign(LEFT, TOP);
 
-
-    if (Listening){
-      textSize(35);
-    } else {
-    textSize(42);}
-
-
     if (VarInput == 'x'){
-      fill(77,164,34);} else {fill(0);}
+      fill(77,164,34);
+      if (Listening){
+        fill(200,0,0);}
+      } else {
+        fill(0);
+      }
+    
+
+
 
     text(ParX.toString(),CBOX+CBW/50,CBOY+CBH/5);
 
     if (VarInput == 'y'){
-      fill(77,164,34);} else {fill(0);}
+      fill(77,164,34);
+      if (Listening){
+        fill(200,0,0);
+      }
+    } else {
+        fill(0);
+      }
+    
 
     text(ParY.toString(),CBOX+CBW/4,CBOY+CBH/5);
 
     if (VarInput == 'v'){
-      fill(77,164,34);} else {fill(0);}
+      fill(77,164,34);
+      if (Listening){
+        fill(200,0,0);
+      }} else {
+        fill(0);
+      }
+    
 
     text(ParV.toString(),CBOX+CBW/50,CBOY+0.7*CBH);
 
     if (VarInput == 'Th'){
-      fill(77,164,34);} else {fill(0);}
+      fill(77,164,34);
+      if (Listening){
+        fill(200,0,0);
+      }} else {
+        fill(0);
+      }
+    
 
     text(ParTh.toString(),CBOX+CBW/4,CBOY+0.7*CBH);
 
@@ -481,7 +642,7 @@ function drawDynValues(ParX,ParY,ParV,ParTh){
 }
 
 
-function CToDeg(vX,vY){
+function CToDeg(vX,vY){ // 0 to 360 Degrees!
 
     vMod = sqrt(vX*vX + vY*vY);
 
@@ -489,8 +650,27 @@ function CToDeg(vX,vY){
     return 0;
     }else{
 
-    Angle = acos(vX/vMod) / RadAng;
-    return Angle;
+    if (vX <= 0 && vY <= 0){
+      Angle = Pi + atan(vY/vX);
+    }
+
+    if (vX >= 0 && vY >= 0){
+      Angle = atan(vY/vX);
+    }
+
+    if (vX <= 0 && vY >= 0){
+      Angle = acos(vX/vMod);
+    }
+
+    if (vX >= 0 && vY <= 0){
+      Angle = asin(vY/vMod);
+    }
+
+
+
+    return Angle / RadAng;
+    
+
   }
 }
 
@@ -527,11 +707,10 @@ function drawPaws(){
 	    if (isLandscape()){
 	    textAlign(LEFT, TOP);
 
-	    textSize(150);
+      textSize(metersInPixels*8);
 	    text('Paused',0,0);
 
 	    }else{ 
-	    textSize(100);
 	    textAlign(LEFT, BOTTOM);
 
 	    text('Paused',0,sceneHeight);
@@ -582,7 +761,7 @@ function drawPlayPause(x, y, l){
   translate(x, y);
   fill(255);
   stroke(255);
-  if (!paused){
+  if (paused){
     triangle(-l/2, -l/2, -l/2, l/2, l/2, 0);
   } else {
     rect(-l/2, -l/2, l, l);
@@ -613,11 +792,8 @@ function isBoardWide(){
     return BoGY*(width-menuWidth) >=  BoGX*height; 
   } else {
     return BoGY*(width) >=  BoGX*(height-menuHeight);
-  }
-
-  
+  }  
 }
-
 
 function isLandscape(){
   return width >= height;
@@ -767,112 +943,115 @@ function SaveParts() {
 
 
 function mousePressed() {
-
-  if (isMouseInCreate()){
-    if (particles.length < 2){
-        CreateObject();
-    }else{
-      print('No more!');
-    }
-  } else if (isMouseInSave() && paused){
-    
-    SaveParts();
-    
-    
-  } else if (isMouseInGrabber() && !movingmenu) {
-
-      if (originalbox){
-        OrigX = mouseX;
-        OrigY = mouseY;
-        originalbox = false;
+  if (VarInput == 'Th' && Listening){
+    Listening = false;
+  } else if (!Listening){
+    if (isMouseInCreate()){
+      if (particles.length < 2){
+          CreateObject();
+      }else{
+        print('No more!');
       }
-      movingmenu = true;
-      print('Attempting to Move Infobox!', CBOX, CBOY)
-  } else if (movingmenu){
-    
-    DX = mouseX - OrigX;
-    DY = mouseY - OrigY;
+    } else if (isMouseInSave() && paused){
+      
+      SaveParts();
+      
+      
+    } else if (isMouseInGrabber() && !movingmenu) {
 
-    movingmenu = false;
-    print('Moved Menu!', DX, DY);
+        if (originalbox){
+          OrigX = mouseX;
+          OrigY = mouseY;
+          originalbox = false;
+        }
+        movingmenu = true;
+        print('Attempting to Move Infobox!', CBOX, CBOY)
+    } else if (movingmenu){
+      
+      DX = mouseX - OrigX;
+      DY = mouseY - OrigY;
 
-
-  } else if (PARTICLE_MODES.includes(drawingMode) && (particles.length < 2)) {
-    let r = SphCM / METER_RATIO;
-    let mass = 1;
-    let charge = 0.1;
-    let vx;
-    let vy;
-
-    vx = DegToX(PlVelo,PlAngl);
-    vy = DegToY(PlVelo,PlAngl);
-    
-    print('Drawing Particle with speeds,',vx, vy)
-
-    if (BIG_PARTICLES.includes(drawingMode)) {
-      mass *= 1;
-    }
+      movingmenu = false;
+      print('Moved Menu!', DX, DY);
 
 
-    if (NEGATIVE_PARTICLES.includes(drawingMode)) {
-      charge *= -1;
-    }
+    } else if (PARTICLE_MODES.includes(drawingMode) && (particles.length < 2)) {
+      let r = SphCM / METER_RATIO;
+      let mass = 1;
+      let charge = 0.1;
+      let vx;
+      let vy;
 
-    if (drawingMode == BIG_NEUTRAL_PARTICLE_MODE ) {
-      charge = 0;
+      vx = DegToX(PlVelo,PlAngl);
+      vy = DegToY(PlVelo,PlAngl);
+      
+      print('Drawing Particle with speeds,',vx, vy)
 
-    }
+      if (BIG_PARTICLES.includes(drawingMode)) {
+        mass *= 1;
+      }
 
-    if (drawingMode == NEUTRAL_PARTICLE_MODE) {
-      charge = 0;
 
-    }
-    
+      if (NEGATIVE_PARTICLES.includes(drawingMode)) {
+        charge *= -1;
+      }
 
-    if (!isMouseBusy() && !movingmenu){
-      particles.push({
-        x: mouseX,
-        y: mouseY,
-        r: r,
-        mass: mass,
-        charge: charge,
-        vx: vx,
-        vy: vy
-      });
-    
-    }
-  } else if (drawingMode == VECTOR_MODE){
-    if (!mouseHasBeenPressed && !isMouseInMenu()){
-      tailX = mouseX;
-      tailY = mouseY;
-      mouseHasBeenPressed = true;
-    } else if (!isMouseInMenu()) {
-      vectors.push(
-        {
-          tailX: tailX,
-          tailY: tailY,
-          headX: mouseX,
-          headY: mouseY,
-          x: mouseX - tailX,
-          y: mouseY - tailY
+      if (drawingMode == BIG_NEUTRAL_PARTICLE_MODE ) {
+        charge = 0;
+
+      }
+
+      if (drawingMode == NEUTRAL_PARTICLE_MODE) {
+        charge = 0;
+
+      }
+      
+
+      if (!isMouseBusy() && !movingmenu){
+        particles.push({
+          x: mouseX,
+          y: mouseY,
+          r: r,
+          mass: mass,
+          charge: charge,
+          vx: vx,
+          vy: vy
         });
-      mouseHasBeenPressed = false;
+      
+      }
+    } else if (drawingMode == VECTOR_MODE){
+      if (!mouseHasBeenPressed && !isMouseInMenu()){
+        tailX = mouseX;
+        tailY = mouseY;
+        mouseHasBeenPressed = true;
+      } else if (!isMouseInMenu()) {
+        vectors.push(
+          {
+            tailX: tailX,
+            tailY: tailY,
+            headX: mouseX,
+            headY: mouseY,
+            x: mouseX - tailX,
+            y: mouseY - tailY
+          });
+        mouseHasBeenPressed = false;
+      }
+    } else if (drawingMode == PLAY_PAUSE_MODE && !isMouseInMenu()){
+      paused = !paused
     }
-  } else if (drawingMode == PLAY_PAUSE_MODE && !isMouseInMenu()){
-    paused = !paused
-  }
 
 
-  if (isMouseInMenu()){
-  let item = getSelectedItem();
-  if (item > -1){
-    if (item === PLAY_PAUSE_MODE){
-      paused = !paused;
-    } else if (item === DELETE_ALL){
-      particles = [];
-      vectors = [];
-    } else {
-      drawingMode = item;
+    if (isMouseInMenu()){
+    let item = getSelectedItem();
+    if (item > -1){
+      if (item === PLAY_PAUSE_MODE){
+        paused = !paused;
+      } else if (item === DELETE_ALL){
+        particles = [];
+        vectors = [];
+      } else {
+        drawingMode = item;
+      }
     }
   }
 }
@@ -884,22 +1063,28 @@ let ListenedValue = '';
 
 function keyPressed(){
 
-
-
   if (key === 'X'){
    VarInput = 'x';
+   Listening = true;
+   paused = true;
   } 
   
   if (key === 'Y'){
    VarInput = 'y';
+   Listening = true;
+   paused = true;
   } 
   
   if (key === 'V'){
    VarInput = 'v';
+   Listening = true;
+   paused = true;
   }
   
   if (key === 'T'){
   VarInput = 'Th';
+  Listening = true;
+  paused = true;
   }
 
   if (key === 'S'){
@@ -934,9 +1119,10 @@ function keyPressed(){
   }
 
 
-  if ((key >= '0' && key <= '9') || (keyCode === 189) || (keyCode === 190) || (keyCode === 109) || (keyCode === 110) ) {
+  if (!VarInput == ''&&(key >= '0' && key <= '9') || (keyCode === 189) || (keyCode === 190) || (keyCode === 109) || (keyCode === 110)) {
     print('Typing number!', key);
     Listening = true;
+    paused = true;
 
     if (keyCode === 190 || keyCode === 110){
       ListenedValue += '.';}
@@ -955,29 +1141,38 @@ function keyPressed(){
       ListenedValue = ListenedValue.substring(0, ListenedValue.length - 1);
     }
 
-  let  InputValue = ListenedValue;
+    if (keyCode === 27){
+       ListenedValue = '0';
+       Listening = false;
+        }
 
-    if (VarInput == 'x'){
-      PlX = parseFloat(InputValue);
+  let InputValue = 0;
+
+  if (!ListenedValue == ''){
+     InputValue = parseFloat(ListenedValue);
+  }
+
+  if (VarInput == 'x'){
+      PlX = InputValue;
     }
 
     else if (VarInput == 'y'){
-      PlY = parseFloat(InputValue);
+      PlY = InputValue;
     }
 
     else if (VarInput == 'v'){
-      PlVelo = parseFloat(InputValue);
+      PlVelo = InputValue;
     }
 
     else if (VarInput == 'Th'){
-      PlAngl = parseFloat(InputValue);
+      PlAngl = InputValue;
     }
-  }
+  
 
-  if (keyCode === 13 && Listening){
+  if (keyCode === 13){
   Listening = false;
   ListenedValue = '';
   }
-
+ }
 
 }
