@@ -1096,7 +1096,7 @@ function mousePressed() {
       paused = true;
       VarInput = 'Th';
     
-    } else if (PARTICLE_MODES.includes(drawingMode) && (particles.length <= Cap)) {
+    } else if (PARTICLE_MODES.includes(drawingMode) && (particles.length < Cap)) {
       let r = SphCM / METER_RATIO;
       let mass = 1;
       let charge = 0.1;
