@@ -296,8 +296,10 @@ function drawScene(){
   drawConditionBar();
   drawDynValues(PlX,PlY,PlVelo,PlAngl);
   drawMenuRemaining();
+
   drawAngular();
   drawVelSelect();
+
   drawMeterScale();
 
   //strokeWeight(Math.max(menuWidth, menuHeight)/150);
@@ -1024,7 +1026,30 @@ function SaveParts() {
 function mousePressed() {
 
   if ((VarInput == 'Th' || VarInput == 'v') && Listening){
+
+    if (VarInput == 'Th')
+    {
+      DispX = mouseX - CircOX;
+      DispY = - mouseY + CircOY;
+  
+      PlAngl = round(CToDeg(DispX,DispY)*10)/10;
+    }
+
+    if (VarInput == 'v')
+    {
+      if (mouseX<=sceneWidth/4){
+        PlVelo = 0;
+      } else if (mouseX>=3*sceneWidth/4){
+        PlVelo = VCap;
+      } else{
+        
+        PlVelo = round((mouseX - sceneWidth/4)/(sceneWidth/2)*VCap*100)/100;
+      }
+    }
+
     Listening = false;
+
+
   } else if (!Listening){
     if (isMouseInCreate()){
       if (particles.length < 2){
