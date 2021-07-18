@@ -17,6 +17,7 @@ let PlAngl = 0;
 let PlX = 0;
 let PlY = 0;
 
+let AllowClickingCreate = false;
 
 // Placement Helpers Specific to Task 1
 
@@ -82,7 +83,11 @@ const PosChargeColor = color(229,184,73);
 const NegChargeColor = color(15,59,192);
 */
 
+// COULD HAVE DONE A LIST BUT I AM LAZY
+const AngTol = 3;
+const AngStep = 15;
 
+// NUMBER OF PARTICLES ADMITTED ON BOARD
 const Cap = 2;
 
 const POSITIVE_PARTICLE_MODE = 0;
@@ -90,11 +95,20 @@ const NEUTRAL_PARTICLE_MODE = 1;
 const NEGATIVE_PARTICLE_MODE = 2;
 const BIG_POSITIVE_PARTICLE_MODE = 3;
 const BIG_NEUTRAL_PARTICLE_MODE = 4;
+
+// NO LONGER USED
+
 const BIG_NEGATIVE_PARTICLE_MODE = 5;
 const VECTOR_MODE = 6;
+
+
+const RESET = 5;
+const REVERSE = 6;
 const ERASOR_MODE = 7;
 const PLAY_PAUSE_MODE = 8;
 const DELETE_ALL = 9;
+
+
 
 const PARTICLE_MODES = [
   POSITIVE_PARTICLE_MODE,
@@ -141,24 +155,9 @@ function setup() {
     oldSceneWidth = width;
     oldSceneHeight = height - menuHeight;
   }
-
-   
 }
 
-function greet() {
-  const name = input.value();
-  greeting.html('hello ' + name + '!');
-  input.value('');
 
-  for (let i = 0; i < 200; i++) {
-    push();
-    fill(random(255), 255, 255);
-    translate(random(width), random(height));
-    rotate(random(2 * PI));
-    text(name, 0, 0);
-    pop();
-  }
-}
 
 function highlight(){
   dropzone.style('background-color', '#ccc');
@@ -324,7 +323,6 @@ function drawScene(){
   }
 
   drawDynValues(PlX,PlY,PlVelo,PlAngl);
-  drawMenuRemaining();
 
   drawAngular();
   drawVelSelect();
@@ -355,7 +353,7 @@ function drawScene(){
         radius *= 2;
         c = 'rgba(255, 0, 0, 0.5)';
       }
-      if (!Listening && !isMouseBusy() && !movingmenu){
+      if (!Listening && !isMouseBusy() && !movingmenu && AllowClickingCreate){
       
       let PVX = radius*cos(PlAngl*RadAng);
       let PVY = -1*radius*sin(PlAngl*RadAng);
@@ -398,9 +396,9 @@ let MenuItemDrawingFunctions = [
   (x, y, s) => drawParticle(x + s / 2, y + s / 2, s / 8, color(100,0,0,0)),
   (x, y, s) => drawParticle(x + s / 2, y + s / 2, s / 8, color(160, 128, 51,0)),
   (x, y, s) => drawParticle(x + s / 2, y + s / 2, s / 4, color(0, 0, 100,0)),
-  (x, y, s) => drawParticle(x + s / 2, y + s / 2, s / 4, color(255,0,0)),
-  (x, y, s) => drawParticle(x + s / 2, y + s / 2, s / 4, color(160, 128, 51,0)),
-  (x, y, s) => drawParticle(x + s / 2, y + s / 2, s / 4, color(160, 128, 51,0)),
+  (x, y, s) => drawToy(x + s/2, y + s/2, s/2),
+  (x, y, s) => drawReset(x + s/2, y + s/2, s/2),
+  (x, y, s) => drawReverse(x + s/2, y + s/2, s/2),
   (x, y, s) => drawErasor(x + s/2, y + s/2, s/7),
   (x, y, s) => drawPlayPause(x + s/2, y + s/2, s/2),
   (x, y, s) => drawX(x + s/2, y + s/2, s/2),
@@ -413,9 +411,14 @@ function drawMeterScale(){
   y5 = sceneHeight - (metersInPixels);
   x6 = sceneWidth - metersInPixels;
   y6 = y5;
-  
+  strokeWeight(metersInPixels/15);
+
   stroke(0);
   line(x5, y5, x6, y6);
+
+  stroke(120,114,32);
+  line(OriginX-metersInPixels/6,OriginY,OriginX+metersInPixels/6,OriginY);
+  line(OriginX,OriginY-metersInPixels/6,OriginX,OriginY+metersInPixels/6);
   //line(x1, y1, x2, y2);
   //line(x3, y3, x4, y4);
   textSize(metersInPixels/2);
@@ -424,6 +427,8 @@ function drawMeterScale(){
 
   textAlign(RIGHT,TOP);
   text("1 cm", x5 + metersInPixels, (y5+metersInPixels/6));
+
+
  
 }
 
@@ -548,25 +553,6 @@ function drawConditionBar(){
     }
 }
 
-function drawMenuRemaining(){
-
-  fill(255);
-  textSize(metersInPixels/1.5);
-
-  textAlign(LEFT, TOP);
-
- 
-  
-  if (isLandscape()) {
-    // draw menu on the right getSide()
-    //line(sceneWidth, 0, sceneWidth, height);
-    text((Cap-particles.length),width-menuWidth,4*menuWidth);
-  } else {
-    text((Cap-particles.length),4*menuHeight,height-menuHeight);
-    }
-
-}
-
 
 let DispX, DispY;
 
@@ -597,9 +583,7 @@ function drawAngular(){
 
     PlAngl = round(CToDeg(DispX,DispY)*10)/10;
 
-    // COULD HAVE DONE A LIST BUT I AM LAZY
-    const AngTol = 3;
-    const AngStep = 15;
+
 
     if (PlAngl - (floor(PlAngl/AngStep))*AngStep<AngTol ){
       PlAngl = (floor(PlAngl/AngStep))*AngStep;
@@ -830,18 +814,11 @@ function drawPaws(){
     if (paused){
 
 	    fill('rgba(0,0,0,0.2)');
-
-	    if (isLandscape()){
-	    textAlign(LEFT, TOP);
-
-      textSize(metersInPixels*8);
+      textSize(min(metersInPixels*5,sceneWidth/6));
+      textAlign(LEFT, TOP);
+      
 	    text('Paused',0,0);
 
-	    }else{ 
-	    textAlign(LEFT, BOTTOM);
-
-	    text('Paused',0,sceneHeight);
-	    }
 
     }
 }
@@ -869,6 +846,54 @@ function drawParticle(x, y, r, c) {
   ellipse(x, y, 2 * r, 2 * r);
 }
 
+function drawToy(x,y,l){
+
+  noStroke();
+  fill(238,15,15);
+  ellipse(x, y, l);
+
+  textAlign(CENTER,CENTER);
+  fill(255);
+
+  textSize(metersInPixels*2);
+
+  if (particles.length < Cap){
+    text('+',x+l/4,y+l/4);
+  }
+  
+  textSize(metersInPixels);
+
+  textAlign(RIGHT,TOP);
+
+  text((Cap-particles.length),x+l,y-l);
+
+}
+
+
+function drawSave(x,y,l){
+
+  noStroke();
+  fill(238,15,15);
+  ellipse(x, y, l);
+
+  textAlign(CENTER,CENTER);
+  fill(255);
+
+  textSize(metersInPixels*2);
+
+  if (particles.length < Cap){
+    text('+',x+l/4,y+l/4);
+  }
+  
+  textSize(metersInPixels);
+
+  textAlign(RIGHT,TOP);
+
+  text((Cap-particles.length),x+l,y-l);
+
+}
+
+
 function drawErasor(x, y, l){
   let angle = PI/4;
   push();
@@ -883,6 +908,35 @@ function drawErasor(x, y, l){
   pop();
 }
 
+
+function drawReset(x,y,l){
+  push();
+  translate(x, y);
+  if (Dumped){
+  fill(255);
+  stroke(255);} else{
+  fill(122);
+  stroke(122);
+
+  }
+
+  strokeWeight(metersInPixels/5);
+  textSize(min(menuHeight,menuWidth)/1.2);
+  textAlign(CENTER,CENTER);
+  text('⟳',0,0);
+  pop();
+}
+
+function drawReverse(x, y, l){
+  push();
+  translate(x, y);
+  fill(255);
+  stroke(255);
+  triangle(l/2, -l/2, l/2, l/2, -l/2, 0);
+
+  pop();
+}
+
 function drawPlayPause(x, y, l){
   push();
   translate(x, y);
@@ -891,14 +945,15 @@ function drawPlayPause(x, y, l){
   if (paused){
     triangle(-l/2, -l/2, -l/2, l/2, l/2, 0);
   } else {
-    rect(-l/2, -l/2, l, l);
+    rect(-l/2, -l/2, l/4, l);
+    rect(l/4, -l/2, l/4, l);
   }
   pop();
 }
 
 function drawX(x, y, l){
   push();
-  stroke(255);
+  stroke(255,255,30);
   strokeWeight(10);
   translate(x, y);
   line(-l/2, -l/2, l/2, l/2);
@@ -944,7 +999,7 @@ function getSelectedItem(){
     }
   }
 
-  if (item < 7){
+  if (item < 5){
     item = 4;
   }
 
@@ -1145,7 +1200,10 @@ function SaveParts() {
 
 
 function mousePressed() {
-
+  if (mouseButton === RIGHT) {
+    AllowClickingCreate = !AllowClickingCreate;
+  }
+  else {
 
   if (Listening){
 
@@ -1161,7 +1219,16 @@ function mousePressed() {
       DispX = mouseX - CircOX;
       DispY = - mouseY + CircOY;
   
-      PlAngl = round(CToDeg(DispX,DispY)*10)/10;} else {
+      PlAngl = round(CToDeg(DispX,DispY)*10)/10;
+      if (PlAngl - (floor(PlAngl/AngStep))*AngStep<AngTol ){
+        PlAngl = (floor(PlAngl/AngStep))*AngStep;
+      }
+  
+      else if ((floor(PlAngl/AngStep)+1)*AngStep - PlAngl <AngTol){
+        PlAngl = (floor(PlAngl/AngStep)+1)*AngStep;
+      }
+    
+    } else {
         PlAngl = parseFloat(ListenedValue);
       }
     }
@@ -1220,7 +1287,7 @@ function mousePressed() {
       paused = true;
       VarInput = 'Th';
     
-    } else if (PARTICLE_MODES.includes(drawingMode) && (particles.length < Cap)) {
+    } else if (PARTICLE_MODES.includes(drawingMode) && (particles.length < Cap)&&AllowClickingCreate) {
       let r = SphCM / METER_RATIO;
       let mass = 1;
       let charge = 0.1;
@@ -1297,7 +1364,18 @@ function mousePressed() {
     if (isMouseInMenu()){
     let item = getSelectedItem();
     if (item > -1){
-      if (item === PLAY_PAUSE_MODE){
+
+      if (item === REVERSE){
+        ReverseParticle();
+      } else if (item === BIG_NEUTRAL_PARTICLE_MODE){
+        if (particles.length < Cap){
+          CreateObject();
+        }else{
+          print('No more!');
+        }
+      } else if (item === RESET){
+        RestoreParticle();
+      } else if (item === PLAY_PAUSE_MODE){
         paused = !paused;
       } else if (item === DELETE_ALL){
         particles = [];
@@ -1311,7 +1389,7 @@ function mousePressed() {
       }
     }
   }
-}
+}}
 }
 
 
@@ -1411,6 +1489,23 @@ function keyPressed(){
     YLog = []; 
     Dumped = false;
     
+  }
+
+  if (key === 'O'){
+
+    AllowClickingCreate = !AllowClickingCreate;
+    
+  }
+
+  if (key === 'F'){
+    PlAngl += 5;
+    PlAngl = (PlAngl%360);
+  }
+
+  if (key === 'G'){
+    PlAngl -= 5;
+    PlAngl = (PlAngl%360)
+    if (PlAngl<0){PlAngl+=360;}
   }
 
   if (key === 'S'){
