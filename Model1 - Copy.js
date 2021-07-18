@@ -71,9 +71,6 @@ let drawingMode = 4;
 
 let CircOX, CircOY;
 
-let ReturnPoint = [[],[],[],[]];
-let Dumped = false;
-
 /*
 const PlasticColor = color(255,0,0);
 const PosChargeColor = color(229,184,73);
@@ -242,22 +239,6 @@ function draw() {
 function drawScene(){
 
 
-  if (particles.length == Cap && !Dumped){
-
-    print("Can save now!")
-    Dumped = true;
-
-    ReturnPoint = [[],[],[],[]];
-
-    for (let i = 0; i < Cap; i++) {
-      ReturnPoint[0].push(particles[i].x);
-      ReturnPoint[1].push(particles[i].y);
-      ReturnPoint[2].push(particles[i].vx);
-      ReturnPoint[3].push(particles[i].vy);
-    }
-  }
-
-
   background(195,120,10);
 
 
@@ -328,6 +309,15 @@ function drawScene(){
   //stroke(0);
   fill(0);
 
+  if (particles.length == Cap && !Restorable){
+    ReturnPoint = [];
+    for (let i = 0; i < particles.length; i++) {
+      ReturnPoint.push(particles[i]);
+    }
+    Restorable = true;
+    print('Generated restore point!')
+  }
+
   if (!isMouseInMenu()){
     if (PARTICLE_MODES.indexOf(drawingMode) != -1){
       let radius = 1/METER_RATIO;
@@ -365,7 +355,6 @@ function drawScene(){
     else if (drawingMode == ERASOR_MODE && mouseIsPressed){
       XLog = [];
       YLog = [];
-      Dumped = false;
       drawErasor(mouseX, mouseY, Math.min(menuWidth/7, menuHeight/7));
       let r = Math.min(menuWidth/7, menuHeight/7);
       if (mousePressed){
@@ -1021,23 +1010,7 @@ function CreateObject(){
     vy: vY
   });
 
-}
-
-function QuickCreateObject(x,y,vX,vY){
-
-  XLog = [];
-  YLog = [];
-  
-  particles.push({
-    x: x,
-    y: y,
-    r: SphCM / METER_RATIO,
-    mass: 1,
-    charge: 0,
-    vx: vX,
-    vy: vY
-  });
-
+  print(OriginX);
 }
 
 function SaveParts() {
@@ -1063,12 +1036,13 @@ function SaveParts() {
   }
 
 }
+let ReturnPoint = [];
+let Listening = false;
+let ListenedValue = '';
+let Restorable = false;
 
 
-function mousePressed() {
-
-  
-
+function mousePressed(){
   if ((VarInput == 'Th' || VarInput == 'v') && Listening){
 
     if (VarInput == 'Th')
@@ -1085,8 +1059,7 @@ function mousePressed() {
         PlVelo = 0;
       } else if (mouseX>=3*sceneWidth/4){
         PlVelo = VCap;
-      } else{
-        
+      } else {
         PlVelo = round((mouseX - sceneWidth/4)/(sceneWidth/2)*VCap*100)/100;
       }
     }
@@ -1094,16 +1067,18 @@ function mousePressed() {
     Listening = false;
 
 
-  } else if (!Listening){
+  } 
+  if (!Listening){
     if (isMouseInCreate()){
+
       if (particles.length < Cap){
           CreateObject();
+        
       }else{
         print('No more!');
       }
     } else if (isMouseInSave() && paused){
       SaveParts();
-      
     } else if (isMouseInGrabber() && !movingmenu) {
 
         if (originalbox){
@@ -1114,19 +1089,15 @@ function mousePressed() {
         movingmenu = true;
         print('Attempting to Move Infobox!', CBOX, CBOY)
     } else if (movingmenu){
-      
       DX = mouseX - OrigX;
       DY = mouseY - OrigY;
-
       movingmenu = false;
       print('Moved Menu!', DX, DY);
 
-
-    }else if(isMouseInV()) {
+    } else if(isMouseInV()) {
       Listening = true;
       paused = true;
       VarInput = 'v';
-
     } else if(isMouseInT()) {
       Listening = true;
       paused = true;
@@ -1161,15 +1132,9 @@ function mousePressed() {
       if (drawingMode == NEUTRAL_PARTICLE_MODE) {
         charge = 0;
 
-      }
+	}}
       
-      
-      /*function is_touch_enabled() {
-        return ( 'ontouchstart' in window ) || 
-              ( navigator.maxTouchPoints > 0 ) || 
-              ( navigator.msMaxTouchPoints > 0 );
-      }*/
-
+    
       if (!isMouseBusy() && !movingmenu){
         XLog = [];
         YLog = [];
@@ -1182,31 +1147,20 @@ function mousePressed() {
           vx: vx,
           vy: vy
         });
+
+        if (particles.length == Cap){
+          ReturnPoint = [];
+          for (let i = 0; i < particles.length; i++) {
+            
+            ReturnPoint.push(particles[i]);
+          }
+        }
       
-      }
-    } else if (drawingMode == VECTOR_MODE){
-      if (!mouseHasBeenPressed && !isMouseInMenu()){
-        tailX = mouseX;
-        tailY = mouseY;
-        mouseHasBeenPressed = true;
-      } else if (!isMouseInMenu()) {
-        vectors.push(
-          {
-            tailX: tailX,
-            tailY: tailY,
-            headX: mouseX,
-            headY: mouseY,
-            x: mouseX - tailX,
-            y: mouseY - tailY
-          });
-        mouseHasBeenPressed = false;
-      }
     } else if (drawingMode == PLAY_PAUSE_MODE && !isMouseInMenu()){
       paused = !paused
     }
 
-
-    if (isMouseInMenu()){
+  if (isMouseInMenu()){
     let item = getSelectedItem();
     if (item > -1){
       if (item === PLAY_PAUSE_MODE){
@@ -1215,39 +1169,33 @@ function mousePressed() {
         particles = [];
         vectors = [];
         XLog = [];
-        YLog = []; 
-        Dumped = false;
-        
+        YLog = [];  
       } else {
         drawingMode = item;
       }
     }
-  }
-}
-}
+	}
+}}
 
-
-let Listening = false;
-let ListenedValue = '';
 
 function keyPressed(){
 
   if (key === 'X'){
-   VarInput = 'x';
-   Listening = true;
-   paused = true;
+  VarInput = 'x';
+  Listening = true;
+  paused = true;
   } 
   
   if (key === 'Y'){
-   VarInput = 'y';
-   Listening = true;
-   paused = true;
+  VarInput = 'y';
+  Listening = true;
+  paused = true;
   } 
   
   if (key === 'V'){
-   VarInput = 'v';
-   Listening = true;
-   paused = true;
+  VarInput = 'v';
+  Listening = true;
+  paused = true;
   }
   
   if (key === 'T'){
@@ -1257,17 +1205,19 @@ function keyPressed(){
   }
 
   if (key === 'R'){
-    
-    VarInput = '';
+      VarInput = '';
 
-      if (Dumped){
-        particles = [];
-        for (let i = 0; i < ReturnPoint[0].length; i++) {
-          QuickCreateObject(ReturnPoint[0][i],ReturnPoint[1][i],ReturnPoint[2][i],ReturnPoint[3][i]);
+      particles = [];
+
+      if (Restorable){
+        
+        for (let i = 0; i < ReturnPoint.length; i++) {
+          particles.push(ReturnPoint[i]);
         }
       }
-
-    }
+      Restorable = true;
+    
+  }
 
   if (key === 'S'){
     SaveParts();
@@ -1326,21 +1276,19 @@ function keyPressed(){
     }
 
     if (keyCode === 27){
-       ListenedValue = '0';
-       Listening = false;
+      ListenedValue = '0';
+      Listening = false;
         }
 
   let InputValue = 0;
 
   if (!ListenedValue == ''){
-     InputValue = parseFloat(ListenedValue);
+    InputValue = parseFloat(ListenedValue);
   }
 
   if (VarInput == 'x'){
       PlX = InputValue;
-    }
-
-    else if (VarInput == 'y'){
+    } else if (VarInput == 'y'){
       PlY = InputValue;
     }
 
@@ -1348,6 +1296,5 @@ function keyPressed(){
   Listening = false;
   ListenedValue = '';
   }
- }
-
+}
 }
