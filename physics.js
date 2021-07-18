@@ -3,7 +3,12 @@
 
 
 
-function update(dt, particles, vectors, width, height) { for (let i = 0; i < particles.length; i++) {
+function update(dt, particles, vectors, width, height) { 
+
+  /*
+  for (let i = 0; i < particles.length; i++) {
+
+
     let netField = netElectricField(particles, vectors, particles[i].x,
       particles[i].y, particles[i].r);
     // acceleration initial X and Y
@@ -13,7 +18,7 @@ function update(dt, particles, vectors, width, height) { for (let i = 0; i < par
     particles[i].vx += aiX * dt;
     particles[i].vy += aiY * dt;
   }
-
+  */
   // collision
   for (let i = 0; i < particles.length; i++) {
     if(particles.length > 1) {

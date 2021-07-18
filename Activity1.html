@@ -83,32 +83,32 @@
       </tr>
       <tr>
   
-      <td style="width: 100px;background-color: #cacfd2;"><b>x1</b></td>
-      <td style="width: 100px;background-color: #cacfd2;"><b>y1</b></td>
-      <td style="width: 100px;background-color: #cacfd2;"><b>x2</b></td>
-      <td style="width: 100px;background-color: #cacfd2;"><b>y2</b></td>
+      <td style="width: 100px;background-color: #96a06e;"><b>x1</b></td>
+      <td style="width: 100px;background-color: #96a06e;"><b>y1</b></td>
+      <td style="width: 100px;background-color: #e65014;"><b>x2</b></td>
+      <td style="width: 100px;background-color: #e65014;"><b>y2</b></td>
       </tr>
       <tr>
   
   
-      <td style="width: 100px;background-color: #cacfd2;"><p id="x1D", style="codefont">&nbsp;&nbsp;</p></td>
-      <td style="width: 100px;background-color: #cacfd2;"><p id="y1D", style="codefont">&nbsp;&nbsp;</p></td>
-      <td style="width: 100px;background-color: #cacfd2;"><p id="x2D", style="codefont">&nbsp;&nbsp;</p></td>
-      <td style="width: 100px;background-color: #cacfd2;"><p id="y2D", style="codefont">&nbsp;&nbsp;</p></td>
+      <td style="width: 100px;background-color: #bfcc8c;"><p id="x1D", style="codefont">&nbsp;&nbsp;</p></td>
+      <td style="width: 100px;background-color: #bfcc8c;"><p id="y1D", style="codefont">&nbsp;&nbsp;</p></td>
+      <td style="width: 100px;background-color: #ff5916;"><p id="x2D", style="codefont">&nbsp;&nbsp;</p></td>
+      <td style="width: 100px;background-color: #ff5916;"><p id="y2D", style="codefont">&nbsp;&nbsp;</p></td>
       </tr>
       <tr>
   
-      <td style="width: 100px;background-color: #cacfd2;">v1</td>
-      <td style="width: 100px;background-color: #cacfd2;">&theta;1</td>
-      <td style="width: 100px;background-color: #cacfd2;">v2</td>
-      <td style="width: 100px;background-color: #cacfd2;">&theta;2</td>
+      <td style="width: 100px;background-color: #96a06e;">v1</td>
+      <td style="width: 100px;background-color: #96a06e;">&theta;1</td>
+      <td style="width: 100px;background-color: #e65014;">v2</td>
+      <td style="width: 100px;background-color: #e65014;">&theta;2</td>
       </tr>
       <tr>
   
-      <td style="width: 100px;background-color: #cacfd2;"><p id="v1D", style="codefont">&nbsp;&nbsp;</p></td>
-      <td style="width: 100px;background-color: #cacfd2;"><p id="a1D", style="codefont">&nbsp;&nbsp;</p></td>
-      <td style="width: 100px;background-color: #cacfd2;"><p id="v2D", style="codefont">&nbsp;&nbsp;</p></td>
-      <td style="width: 100px;background-color: #cacfd2;"><p id="a2D", style="codefont">&nbsp;&nbsp;</p></td>
+      <td style="width: 100px;background-color: #bfcc8c;"><p id="v1D", style="codefont">&nbsp;&nbsp;</p></td>
+      <td style="width: 100px;background-color: #bfcc8c;"><p id="a1D", style="codefont">&nbsp;&nbsp;</p></td>
+      <td style="width: 100px;background-color: #ff5916;"><p id="v2D", style="codefont">&nbsp;&nbsp;</p></td>
+      <td style="width: 100px;background-color: #ff5916;"><p id="a2D", style="codefont">&nbsp;&nbsp;</p></td>
   
       
   
@@ -131,17 +131,62 @@
 
     </div>
 
+    <hr>
 
-<div style = "width: 400px;">
+<div style = "text-align: center;">
   <h2><strong>Upload Configurations</strong></h2>
-  <p id="dropzone"> Drag your file here.</p>
+  <p id="dropzone" style="background-color: #aaa;"><br><br><br><br><br><br> Drag and drop a configuration txt file here.<br><br><br><br><br><br></p>
 </div>
 
 
   
-  
-  
-
+<hr>
+<table class="center">
+  <thead>
+    <tr>
+      <th><h3>KEY</h3></th>
+      <th><h3>FUNCTION</h3></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>   Enter</td>
+      <td>   Initialise</td>
+    </tr>
+    <tr>
+      <td>   Spacebar</td>
+      <td>   Play/Pause</td>
+    </tr>
+    <tr>
+      <td>   J</td>
+      <td>   Reverse velocities</td>
+    </tr>
+    <tr>
+      <td>   A</td>
+      <td>   Speed up simulation 2x</td>
+    </tr>
+    <tr>
+      <td>   Z</td>
+      <td>   Slow down simulation 2x</td>
+    </tr>
+    <tr>
+      <td>   S</td>
+      <td>   Save current board to initial conditions</td>
+    </tr>
+    <tr>
+      <td>   R</td>
+      <td>   Refresh</td>
+    </tr>
+    <tr>
+      <td>   F</td>
+      <td>   Rotate active object by 5° CCW</td>
+    </tr>
+    <tr>
+      <td>   G</td>
+      <td>   Rotate active object by 5° CW</td>
+    </tr>
+  </tbody>
+  </table>
 
 
 <div style="height:20em" aria-hidden="true" ></div>
@@ -157,7 +202,7 @@
     color:#843C0C'>ckey</span></b></p>
     
     <p class=MsoNormal align=center style='text-align:center'><span
-    style='font-size:14.0pt;line-height:107%;font-family:"Verdana",sans-serif'>V0.1_Minimal</span></p>
+    style='font-size:14.0pt;line-height:107%;font-family:"Verdana",sans-serif'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;v0.1_Minimal</span></p>
     
     
     <p class=MsoNormal align=center style='text-align:center'><span

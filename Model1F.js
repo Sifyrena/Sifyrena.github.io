@@ -24,10 +24,10 @@ let AllowClickingCreate = false;
 let PlV1 = 3;
 let PlA1 = 0;
 let PlX1 = -5;
-let PlY1 = 0;
+let PlY1 = 2;
 
-let PlV2 = 3;
-let PlA2 = 180;
+let PlV2 = 0;
+let PlA2 = 0;
 let PlX2 = 5;
 let PlY2 = 0;
 
@@ -140,11 +140,6 @@ const NEGATIVE_PARTICLES = [NEGATIVE_PARTICLE_MODE, BIG_NEGATIVE_PARTICLE_MODE];
 let mouseHasBeenPressed = false;
 let tailX, tailY;
 
-function updatex1() {
-  var x = document.getElementById("x1").value;
-  PlX1 = x;
-}
-
 function PlayPause() {
   paused = !paused;
 }
@@ -163,6 +158,72 @@ function InitAll() {
   CreateBi();
 }
 
+function TBS(){
+
+  // FROM PARTICLE 1
+  PlX1 = round((particles[0].x-OriginX) * METER_RATIO*100)/100;
+  PlX2 = round((particles[1].x-OriginX) * METER_RATIO*100)/100;
+  PlY1 = round((-particles[0].y+OriginY) * METER_RATIO*100)/100;
+  PlY2 = round((-particles[1].y+OriginY) * METER_RATIO*100)/100;
+}
+
+
+function PushDynValue(){
+
+  let x1 = (particles[0].x-OriginX) * METER_RATIO;
+  let y1 = (OriginY-particles[0].y) * METER_RATIO;
+
+  let x2 = (particles[1].x-OriginX) * METER_RATIO;
+  let y2 = (OriginY-particles[1].y) * METER_RATIO;
+
+  x1 = round(x1*100)/100;
+  x2 = round(x2*100)/100;
+
+  y1 = round(y1*100)/100;
+  y2 = round(y2*100)/100;
+
+
+  document.getElementById("x1D").innerHTML = x1;
+  document.getElementById("x2D").innerHTML = x2;
+  document.getElementById("y1D").innerHTML = y1;
+  document.getElementById("y2D").innerHTML = y2;
+
+
+  let v1 = CToV(particles[0].vx,particles[0].vy) ;
+  let v2 = CToV(particles[1].vx,particles[1].vy) ;
+
+  let a1 = CToDeg(particles[0].vx,-particles[0].vy);
+  let a2 = CToDeg(particles[1].vx,-particles[1].vy);
+
+  v1 = round(v1*100)/100;
+  v2 = round(v2*100)/100;
+
+  a1 = round(a1*10)/10;
+  a2 = round(a2*10)/10;
+
+  document.getElementById("v1D").innerHTML = v1;
+  document.getElementById("v2D").innerHTML = v2;
+  document.getElementById("a1D").innerHTML = a1;
+  document.getElementById("a2D").innerHTML = a2;
+}
+
+
+function PushAngles(){
+  document.getElementById("a1").setAttribute('value', PlA1);
+  document.getElementById("a2").setAttribute('value', PlA2);
+
+  particles[0].vx = PlV1*cos(PlA1*RadAng);
+  particles[0].vy = -1*PlV1*sin(PlA1*RadAng);
+  particles[1].vx = PlV2*cos(PlA2*RadAng);
+  particles[1].vy = -1*PlV2*sin(PlA2*RadAng);
+}
+
+function PullAngles(){
+
+  PlA1 = CToDeg(particles[0].vx,-particles[0].vy);
+  PlA2 = CToDeg(particles[1].vx,-particles[1].vy);
+
+}
 
 function UpdateAll() {
   document.getElementById("x1").setAttribute('value', PlX1);
@@ -207,9 +268,7 @@ function setup() {
   dropzone.dragOver(highlight);
   dropzone.dragLeave(unhighlight);
   dropzone.drop(gotFile, unhighlight);
-
 }
-
 
 function gotFile(file) {
   // If it's an image file
@@ -274,7 +333,7 @@ function highlight(){
 }
 
 function unhighlight(){
-  dropzone.style('background-color', '#fff');
+  dropzone.style('background-color', '#aaa');
 }
 
 
@@ -413,14 +472,7 @@ function drawScene(){
   drawTrail();
 
   for (let i = 0; i < particles.length; i++){
-    let c;
-    if (particles[i].charge > 0){
-      c = color(10, 10, 122);
-    } else if (particles[i].charge < 0) {
-      c = color(122, 10, 10);
-    } else {
-      c = color(255,0,0);
-    }
+    let c = color(150+80*i,160-80*i,110-90*i);
     drawParticle(particles[i].x, particles[i].y, particles[i].r, c);
   }
 
@@ -435,7 +487,7 @@ function drawScene(){
   drawPaws();
 
   PushDynValue();
-  
+
   /* RELEGATED TO HTML
   drawConditionBar();
 
@@ -474,13 +526,19 @@ function drawScene(){
         radius *= 2;
         c = 'rgba(255, 0, 0, 0.5)';
       }
-      if (!Listening && !isMouseBusy() && !movingmenu && AllowClickingCreate){
+      if (!Listening && !isMouseBusy() && !movingmenu && (Moving == 'A' || Moving == 'B')){
       
-      let PVX = radius*cos(PlAngl*RadAng);
-      let PVY = -1*radius*sin(PlAngl*RadAng);
-      drawVector(mouseX, mouseY, mouseX+ PVX, mouseY+PVY);
+      let PVX, PVY;
+      if (Moving == 'A'){
+       PVX = radius*cos(PlA1*RadAng);
+       PVY = -1*radius*sin(PlA1*RadAng);
+      } else {
+         PVX = radius*cos(PlA2*RadAng);
+         PVY = -1*radius*sin(PlA2*RadAng);
+      }
+      drawVector(mouseX, mouseY, mouseX + PVX, mouseY+PVY);
           
-      drawParticle(mouseX, mouseY, radius, color('rgba(255, 0, 0, 0.5)'));}
+      drawParticle(mouseX, mouseY, radius, color('rgba(8, 8, 8, 0.5)'));}
     }
 
     else if (drawingMode == VECTOR_MODE && mouseHasBeenPressed){
@@ -548,54 +606,7 @@ function drawMeterScale(){
 
   textAlign(RIGHT,TOP);
   text("1 cm", x5 + metersInPixels, (y5+metersInPixels/6));
-
-
- 
 }
-
-
-function PushDynValue(){
-
-  let x1 = (particles[0].x-OriginX) * METER_RATIO;
-  let y1 = (OriginY-particles[0].y) * METER_RATIO;
-
-  let x2 = (particles[1].x-OriginX) * METER_RATIO;
-  let y2 = (OriginY-particles[1].y) * METER_RATIO;
-
-  x1 = round(x1*100)/100;
-  x2 = round(x2*100)/100;
-
-  y1 = round(y1*100)/100;
-  y2 = round(y2*100)/100;
-
-
-  document.getElementById("x1D").innerHTML = x1;
-  document.getElementById("x2D").innerHTML = x2;
-  document.getElementById("y1D").innerHTML = y1;
-  document.getElementById("y2D").innerHTML = y2;
-
-
-  let v1 = CToV(particles[0].vx,particles[0].vy) ;
-  let v2 = CToV(particles[1].vx,particles[1].vy) ;
-
-  let a1 = CToDeg(particles[0].vx,particles[0].vy);
-  let a2 = CToDeg(particles[1].vx,particles[1].vy);
-
-  v1 = round(v1*100)/100;
-  v2 = round(v2*100)/100;
-
-  a1 = round(a1*10)/10;
-  a2 = round(a2*10)/10;
-
-  document.getElementById("v1D").innerHTML = v1;
-  document.getElementById("v2D").innerHTML = v2;
-  document.getElementById("a1D").innerHTML = a1;
-  document.getElementById("a2D").innerHTML = a2;
-
-
-}
-
-
 
 function drawMenu(){
   fill(135, 135, 135);
@@ -1456,186 +1467,55 @@ function SaveParts() {
 
 
 let Erasing = false;
+let Moving = '';
 
-function mousePressed() {
+
+/*
+function mouseWheel(event) {
+  print(event.delta);
+  //move the square according to the vertical scroll amount
+
+}*/
+
+function mouseClicked() {
 
 
-  if (Listening){
+  if (Moving == 'A'){
 
-    if (VarInput == 'x' || VarInput == 'y'){
+    if (!isMouseInObjB()){
+    particles[0].x = mouseX;
+    particles[0].y = mouseY;
+    TBS();
+    UpdateAll();}
 
-      GiveXY();
+    Moving = '';
+  } else if (isMouseInObjA()){
+    paused = true;
+    Moving = 'A';
+    PullAngles();
+
 
     }
 
-    if (VarInput == 'Th'){
+   if (Moving == 'B'){
+    if (!isMouseInObjA()){
+    particles[1].x = mouseX;
+    particles[1].y = mouseY;
+    TBS();
+    UpdateAll();}
+    Moving = '';
 
-      if (ListenedValue == ''){
-      DispX = mouseX - CircOX;
-      DispY = - mouseY + CircOY;
-  
-      PlAngl = round(CToDeg(DispX,DispY)*10)/10;
-      if (PlAngl - (floor(PlAngl/AngStep))*AngStep<AngTol ){
-        PlAngl = (floor(PlAngl/AngStep))*AngStep;
-      }
-  
-      else if ((floor(PlAngl/AngStep)+1)*AngStep - PlAngl <AngTol){
-        PlAngl = (floor(PlAngl/AngStep)+1)*AngStep;
-      }
+    } else if (isMouseInObjB()){
+    paused = true;
+    Moving = 'B';
+    PullAngles();
     
-    } else {
-        PlAngl = parseFloat(ListenedValue);
-      }
-    }
-
-    if (VarInput == 'v')
-    {
-      if (ListenedValue == ''){
-      if (mouseX<=sceneWidth/4){
-        PlVelo = 0;
-      } else if (mouseX>=3*sceneWidth/4){
-        PlVelo = VCap;
-      } else{
-        
-        PlVelo = round((mouseX - sceneWidth/4)/(sceneWidth/2)*VCap*100)/100;
-      }} else {PlVelo = parseFloat(ListenedValue);}
-    }
-
-    Listening = false;
 
 
-  } else if (!Listening){
-    if (isMouseInCreate()){
-      if (particles.length < Cap){
-          CreateObject();
-      }else{
-        print('No more!');
-      }
-    } else if (isMouseInSave() && paused){
-      SaveParts();
-      
-    } else if (isMouseInGrabber() && !movingmenu) {
-
-        if (originalbox){
-          OrigX = mouseX;
-          OrigY = mouseY;
-          originalbox = false;
-        }
-        movingmenu = true;
-        print('Attempting to Move Infobox!', CBOX, CBOY)
-    } else if (movingmenu){
-      
-      DX = mouseX - OrigX;
-      DY = mouseY - OrigY;
-
-      movingmenu = false;
-      print('Moved Menu!', DX, DY);
-
-    
-    } else if (PARTICLE_MODES.includes(drawingMode) && (particles.length < Cap)&&AllowClickingCreate) {
-      let r = SphCM / METER_RATIO;
-      let mass = 1;
-      let charge = 0.1;
-      let vx;
-      let vy;
-
-      vx = DegToX(PlVelo,PlAngl);
-      vy = DegToY(PlVelo,PlAngl);
-      
-      print('Drawing Particle with speeds,',vx, vy)
-
-      if (BIG_PARTICLES.includes(drawingMode)) {
-        mass *= 1;
-      }
-
-      if (NEGATIVE_PARTICLES.includes(drawingMode)) {
-        charge *= -1;
-      }
-
-      if (drawingMode == BIG_NEUTRAL_PARTICLE_MODE ) {
-        charge = 0;
-
-      }
-
-      if (drawingMode == NEUTRAL_PARTICLE_MODE) {
-        charge = 0;
-
-      }
-      
-      
-      /*function is_touch_enabled() {
-        return ( 'ontouchstart' in window ) || 
-              ( navigator.maxTouchPoints > 0 ) || 
-              ( navigator.msMaxTouchPoints > 0 );
-      }*/
-
-      if (!isMouseBusy() && !movingmenu){
-        XLog = [];
-        YLog = [];
-      
-      }
-    } else if (drawingMode == VECTOR_MODE){
-      if (!mouseHasBeenPressed && !isMouseInMenu()){
-        tailX = mouseX;
-        tailY = mouseY;
-        mouseHasBeenPressed = true;
-      } else if (!isMouseInMenu()) {
-        vectors.push(
-          {
-            tailX: tailX,
-            tailY: tailY,
-            headX: mouseX,
-            headY: mouseY,
-            x: mouseX - tailX,
-            y: mouseY - tailY
-          });
-        mouseHasBeenPressed = false;
-      }
-    } else if (drawingMode == PLAY_PAUSE_MODE && !isMouseInMenu()){
-      paused = !paused
-    }
-
-
-    if (isMouseInMenu()){
-    let item = getSelectedItem();
-    if (item > -1){
-
-      if (item === REVERSE){
-        ReverseParticle();
-      } else if (item === BIG_NEUTRAL_PARTICLE_MODE){
-        if (particles.length < Cap){
-          CreateObject();
-        }else{
-          print('No more!');
-        }
-        
-      } else if (item === RESET){
-        RestoreParticle();
-      } else if (item === ERASOR_MODE){
-        if (Erasing){
-          drawingMode = BIG_NEUTRAL_PARTICLE_MODE;
-          Erasing = false;
-        } else {
-          Erasing = true;
-          drawingMode = item;
-        }
-
-      } else if (item === PLAY_PAUSE_MODE){
-        paused = !paused;
-      } else if (item === DELETE_ALL){
-        particles = [];
-        vectors = [];
-        XLog = [];
-        YLog = []; 
-        Dumped = false;
-        
-      } else {
-        drawingMode = item;
-      }
-    }
   }
+ 
 }
-}
+    
 
 
 let Listening = false;
@@ -1652,6 +1532,11 @@ function keyPressed(){
     VarInput = '';
 
     RestoreParticle();
+
+    TBS();
+    PullAngles();
+    print('WTF');
+    UpdateAll();
 
     }
 
@@ -1697,19 +1582,38 @@ function keyPressed(){
   }
 
   if (key === 'F'){
-    PlAngl += 5;
-    PlAngl = (PlAngl%360);
+
+    if (Moving == 'A'){
+    PlA1 += 5;
+    PlA1 = (PlA1%360)
+
+    } else {
+      PlA2 += 5;
+      PlA2 = (PlA2%360)
+    }
+    PushAngles();
   }
 
   if (key === 'G'){
-    PlAngl -= 5;
-    PlAngl = (PlAngl%360)
-    if (PlAngl<0){PlAngl+=360;}
+
+    if (Moving == 'A'){
+    PlA1 -= 5;
+    PlA1 = (PlA1%360)
+    if (PlA1<0){PlA1+=360;}
+    } else {
+      PlA2 -= 5;
+      PlA2 = (PlA2%360)
+      if (PlA2<0){PlA2+=360;}
+    }
+
+    PushAngles();
   }
 
   if (key === 'S'){
-    SaveParts();
-    VarInput = '';
+    TBS();
+    PullAngles();
+    print('WTF');
+    UpdateAll();
   }
 
   if (key === ' '){
@@ -1731,11 +1635,7 @@ function keyPressed(){
   }
 
 
-  if (keyCode === 8 && !Listening){
-    XLog = [];
-    YLog = [];
-    particles.splice(-1);
-  }
+
 
 
 }

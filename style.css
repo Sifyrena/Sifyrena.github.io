@@ -15,19 +15,12 @@ canvas {
 }
 
 table{
-  border-collapse: collapse;
-  border: 1px solid #ddd;
   table-layout: fixed;
-  font-family: "Courier New",monospace !important;	
 }
 
 th, td {
   text-align: left;
   padding: 16px;
-}
-
-tr:nth-child(even) {
-  background-color: #f2f2a2;
 }
 
 button {
@@ -57,12 +50,13 @@ table.floater {
     margin-left:auto; 
     margin-right:auto;
 	position:fixed;
-	width: 20%;
+	width: 25%;
 	left: 0;
 	bottom: 50%;
 	opacity: 0.87;
-	font-weight: heavy;
+	font-weight: bold;
 	font-size: 1.2em;
+	font-family: "Fira Code", "Courier New", "Courier", monospace;
 	
     background: transparent;
   }
@@ -70,5 +64,7 @@ table.floater {
  table.center {
     margin-left:auto; 
     margin-right:auto;
+	font-family: "Fira Code", "Courier New", "Courier", monospace;
+	font-weight: bold;
   }
   
