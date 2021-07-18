@@ -1,0 +1,106 @@
+<!-- #######  YOU FOUND ME, CONGRATULATIONS #########-->
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="user-scalable=no"/>
+    <meta charset="utf-8">
+    <title>FW Physics Playground</title>
+    <script src="p5.min.js"></script>
+    <script src="p5.dom.min.js"></script>
+    <script src="p5.sound.min.js"></script>
+    <script src="physics.js"></script>
+    <script src="Model1F.js"></script>
+    <link rel="stylesheet" type="text/css" href="style.css">
+  </head>
+  <body> 
+  <div id="Simulator">
+    <h1 style="font-size: 1.5em; text-align: center;"><strong>Activity 1 - Newton's Laws</strong></h1>
+  </div>
+
+  <table style="height: 125px; margin-left: auto; margin-right: auto;" width="529">
+    <tbody>
+    <tr>
+    <td style="width: 125.25px; text-align: center;" colspan="4">
+    <h3>Initial Condition</h3>
+    </td>
+    <td style="background-color: #cacfd2;" colspan="4">
+    <h3>Current Condition</h3>
+    </td>
+    </tr>
+    <tr>
+    <td style="width: 125.25px; text-align: center;">x1</td>
+    <td style="width: 125.25px; text-align: center;">y1</td>
+    <td style="width: 125.25px; text-align: center;">x2</td>
+    <td style="width: 125.25px; text-align: center;">y2</td>
+    <td style="width: 125.25px;background-color: #cacfd2;">x1</td>
+    <td style="width: 125.25px;background-color: #cacfd2;">y1</td>
+    <td style="width: 125.25px;background-color: #cacfd2;">x2</td>
+    <td style="width: 125.25px;background-color: #cacfd2;">y2</td>
+    </tr>
+    <tr>
+    <td style="width: 125.25px; text-align: center;">
+      <input type="number" step="0.01" id="x1" value="0.2"></td>
+
+    <td style="width: 125.25px; text-align: center;">
+    <input type="number" step="0.01" id="y1" value="0.2"></td>
+
+    <td style="width: 125.25px; text-align: center;">
+      <input type="number" step="0.01" id="x2" value="5"></td>
+
+    <td style="width: 125.25px; text-align: center;">
+      <input type="number" step="0.01" id="y2" value="0"></td>
+
+    <td style="width: 125.25px;background-color: #cacfd2;">&nbsp;</td>
+    <td style="width: 125.25px;background-color: #cacfd2;">&nbsp;</td>
+    <td style="width: 125.25px;background-color: #cacfd2;">&nbsp;</td>
+    <td style="width: 125.25px;background-color: #cacfd2;">&nbsp;</td>
+    </tr>
+    <tr>
+    <td style="width: 125.25px; text-align: center;">v1</td>
+    <td style="width: 125.25px; text-align: center;">&theta;1</td>
+    <td style="width: 125.25px; text-align: center;">v2</td>
+    <td style="width: 125.25px; text-align: center;">&theta;2</td>
+    <td style="width: 125.25px;background-color: #cacfd2;">v1</td>
+    <td style="width: 125.25px;background-color: #cacfd2;">&theta;1&nbsp;</td>
+    <td style="width: 125.25px;background-color: #cacfd2;">v2&nbsp;</td>
+    <td style="width: 125.25px;background-color: #cacfd2;">&theta;2</td>
+    </tr>
+    <tr>
+    <td style="width: 125.25px; text-align: center;">
+      <input type="number" step="0.5" id="v1" value="5"></td>
+    <td style="width: 125.25px; text-align: center;">
+      <input type="number" step="0.5" id="v2" value="5"></td>
+    <td style="width: 125.25px; text-align: center;">
+      <input type="number" step="1" id="a1" value="60"></td>
+    <td style="width: 125.25px; text-align: center;">
+      <input type="number" step="1" id="a2" value="120"></td>
+
+    <td style="width: 125.25px;background-color: #cacfd2;">&nbsp;</td>
+    <td style="width: 125.25px;background-color: #cacfd2;">&nbsp;</td>
+    <td style="width: 125.25px;background-color: #cacfd2;">&nbsp;</td>
+    <td style="width: 125.25px;background-color: #cacfd2;">&nbsp;</td>
+    </tr>
+    </tbody>
+    </table>
+
+    <button onclick="InitAll()">Reset</button>
+    <button onclick="PlayPause()">Play/Pause</button>
+    <button onclick="SaveParts()">Save</button>
+
+
+<div>
+  <h2><strong>Upload Configurations</strong></h2>
+  <p id="dropzone"> Drag your file here.</p>
+</div>
+
+
+  
+  
+  
+
+
+
+</body>
+
+  
+</html>

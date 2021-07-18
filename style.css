@@ -3,4 +3,4 @@ html, body {
   padding: 0;
   
 }
-canvas { position:fixed; top:0; left:0; z-index:1; }
+canvas { position:relative; top:0; left:0; z-index:-1; }

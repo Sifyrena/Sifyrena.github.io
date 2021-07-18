@@ -1198,6 +1198,7 @@ function SaveParts() {
 
 }
 
+let Erasing = false;
 
 function mousePressed() {
   if (mouseButton === RIGHT) {
@@ -1303,7 +1304,6 @@ function mousePressed() {
         mass *= 1;
       }
 
-
       if (NEGATIVE_PARTICLES.includes(drawingMode)) {
         charge *= -1;
       }
@@ -1373,8 +1373,18 @@ function mousePressed() {
         }else{
           print('No more!');
         }
+        
       } else if (item === RESET){
         RestoreParticle();
+      } else if (item === ERASOR_MODE){
+        if (Erasing){
+          drawingMode = BIG_NEUTRAL_PARTICLE_MODE;
+          Erasing = false;
+        } else {
+          Erasing = true;
+          drawingMode = item;
+        }
+
       } else if (item === PLAY_PAUSE_MODE){
         paused = !paused;
       } else if (item === DELETE_ALL){
