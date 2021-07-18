@@ -164,7 +164,7 @@ function InitAll() {
 
 
 function setup() {
-  var cnv = createCanvas(window.innerWidth, window.innerWidth/19*13);
+  var cnv = createCanvas(window.innerWidth*0.8, window.innerWidth*0.8/19*13);
   cnv.parent("Simulator");
 
   oldWidth = width;
@@ -1288,7 +1288,7 @@ function GiveXY(){
 }
 
 function windowResized() {
-  resizeCanvas(window.innerWidth, window.innerHeight);
+  resizeCanvas(window.innerWidth*0.8, window.innerWidth*0.8/19*13);
   for (let i = 0; i < particles.length; i++) {
     particles[i].x *= sceneWidth / oldSceneWidth;
     particles[i].y *= sceneHeight / oldSceneHeight;
@@ -1446,16 +1446,6 @@ function mousePressed() {
       movingmenu = false;
       print('Moved Menu!', DX, DY);
 
-
-    }else if(isMouseInV()) {
-      Listening = true;
-      paused = true;
-      VarInput = 'v';
-
-    } else if(isMouseInT()) {
-      Listening = true;
-      paused = true;
-      VarInput = 'Th';
     
     } else if (PARTICLE_MODES.includes(drawingMode) && (particles.length < Cap)&&AllowClickingCreate) {
       let r = SphCM / METER_RATIO;
@@ -1590,33 +1580,6 @@ body.addEventListener('keyup', checkTabPress);
 
 function keyPressed(){
 
-  if (key === 'X'){
-   VarInput = 'x';
-   VarInd = 0;
-   Listening = true;
-   paused = true;
-  } 
-  
-  if (key === 'Y'){
-   VarInput = 'y';
-   VarInd = 1;
-   Listening = true;
-   paused = true;
-  } 
-  
-  if (key === 'V'){
-   VarInput = 'v';
-   VarInd = 2;
-   Listening = true;
-   paused = true;
-  }
-  
-  if (key === 'T'){
-  VarInput = 'Th';
-  VarInd = 3;
-  Listening = true;
-  paused = true;
-  }
 
   if (key === 'R'){
     
@@ -1695,15 +1658,6 @@ function keyPressed(){
     CreateBi();
   }
 
-  if (keyCode === 9){ // Tab Rexn
-    VarInput = ListVars[VarInd];
-    VarInd += 1;
-    if (VarInd >= 4){
-      VarInd = VarInd - 4;
-    }
-    Listening = true;
-    paused = true;
-  }
 
   if (keyCode === 27){
     DX = 0;
@@ -1717,52 +1671,5 @@ function keyPressed(){
     particles.splice(-1);
   }
 
-
-  if (!VarInput == ''&&(key >= '0' && key <= '9') || (keyCode === 189) || (keyCode === 190) || (keyCode === 109) || (keyCode === 110)) {
-    print('Typing number!', key);
-    Listening = true;
-    paused = true;
-
-    if (keyCode === 190 || keyCode === 110){
-      ListenedValue += '.';}
-
-    else if (keyCode === 189 || keyCode === 109){
-        ListenedValue += '-';}
-
-    else {
-    ListenedValue += key;
-    }
-  }
-
-  if (Listening){
-
-    if (keyCode === 8){
-      ListenedValue = ListenedValue.substring(0, ListenedValue.length - 1);
-    }
-
-    if (keyCode === 27){
-       ListenedValue = '0';
-       Listening = false;
-        }
-
-  let InputValue = 0;
-
-  if (!ListenedValue == ''){
-     InputValue = parseFloat(ListenedValue);
-  }
-
-  if (VarInput == 'x'){
-      PlX = InputValue;
-    }
-
-    else if (VarInput == 'y'){
-      PlY = InputValue;
-    }
-
-  if (keyCode === 13){
-  Listening = false;
-  ListenedValue = '';
-  }
- }
 
 }
