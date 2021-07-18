@@ -1,3 +1,8 @@
+///// PHYSICS.JS
+/// ORIGINAL VERSION BY DIEGO LOPEZ.
+
+
+
 function update(dt, particles, vectors, width, height) { for (let i = 0; i < particles.length; i++) {
     let netField = netElectricField(particles, vectors, particles[i].x,
       particles[i].y, particles[i].r);

@@ -30,6 +30,8 @@ let PlA2 = 180;
 let PlX2 = 0;
 let PlY2 = 0;
 
+let dt = 1;
+
 
 // Original
 
@@ -221,7 +223,7 @@ function draw() {
   OriginY = sceneHeight / 2; 
 
   if (!paused){
-    update(1, particles, vectors, sceneWidth, sceneHeight);
+    update(dt, particles, vectors, sceneWidth, sceneHeight);
   }
 
   // DRAWING HAPPENS HERE
@@ -316,6 +318,11 @@ function drawScene(){
   drawMenu();
   drawPaws();
   drawConditionBar();
+
+  if ((VarInput == 'x' || VarInput == 'y') && Listening && (ListenedValue == '')){
+    GiveXY();
+  }
+
   drawDynValues(PlX,PlY,PlVelo,PlAngl);
   drawMenuRemaining();
 
@@ -348,7 +355,7 @@ function drawScene(){
         radius *= 2;
         c = 'rgba(255, 0, 0, 0.5)';
       }
-      if (!Listening && !movingmenu){
+      if (!Listening && !isMouseBusy() && !movingmenu){
       
       let PVX = radius*cos(PlAngl*RadAng);
       let PVY = -1*radius*sin(PlAngl*RadAng);
@@ -505,9 +512,9 @@ function drawConditionBar(){
     textSize(metersInPixels/2);
 
 
-    text('x',CBOX+CBW/10,CBOY+CBH*0.07);
+    text('x/cm',CBOX+CBW/10,CBOY+CBH*0.07);
 
-    text('y',CBOX+CBW*0.32,CBOY+CBH*0.07);
+    text('y/cm',CBOX+CBW*0.32,CBOY+CBH*0.07);
 
     text('v',CBOX+CBW/10,CBOY+0.55*CBH);
 
@@ -582,26 +589,43 @@ function drawAngular(){
 
     fill('rgba(50,50,50,0.75)');
     ellipse(CircOX,CircOY,CircR);
+   
 
-    fill('rgba(0,255,0,1)');
-
-    arc(CircOX,CircOY,CircR,CircR,-1*PlAngl*PI/180,0);
-
+    if (ListenedValue == ''){
     DispX = mouseX - CircOX;
     DispY = - mouseY + CircOY;
 
     PlAngl = round(CToDeg(DispX,DispY)*10)/10;
 
+    // COULD HAVE DONE A LIST BUT I AM LAZY
+    const AngTol = 3;
+    const AngStep = 15;
+
+    if (PlAngl - (floor(PlAngl/AngStep))*AngStep<AngTol ){
+      PlAngl = (floor(PlAngl/AngStep))*AngStep;
+    }
+
+    else if ((floor(PlAngl/AngStep)+1)*AngStep - PlAngl <AngTol){
+      PlAngl = (floor(PlAngl/AngStep)+1)*AngStep;
+    }
+
+    } else {
+
+    PlAngl = parseFloat(ListenedValue);
+    }
+
+    
+
     fill('rgba(255,255,0,0.6)');
+    arc(CircOX,CircOY,CircR,CircR,-1*PlAngl*PI/180,0);
   }
 
 }
 
 const VCap = 10;
+const Flipped = false;
 
 function drawVelSelect(){
-
-
 
   if (VarInput == 'v' && Listening){
 
@@ -614,14 +638,19 @@ function drawVelSelect(){
     fill('rgba(50,50,50,0.75)');
     rect(sceneWidth/4,sceneHeight/2,sceneWidth/2,metersInPixels)
 
-    if (mouseX<=sceneWidth/4){
-      PlVelo = 0;
-    } else if (mouseX>=3*sceneWidth/4){
-      PlVelo = VCap;
-    } else{
-      
-      PlVelo = round((mouseX - sceneWidth/4)/(sceneWidth/2)*VCap*100)/100;
-    }
+
+    if (ListenedValue == ''){
+      if (mouseX<=sceneWidth/4){
+        PlVelo = 0;
+      } else if (mouseX>=3*sceneWidth/4){
+        PlVelo = VCap;
+      } else{
+        
+        PlVelo = round((mouseX - sceneWidth/4)/(sceneWidth/2)*VCap*100)/100;
+
+      }
+    } else {
+      PlVelo = parseFloat(ListenedValue);}
 
     fill('rgba(240,240,0,1)');
     rect(sceneWidth/4,sceneHeight/2,PlVelo/VCap*sceneWidth/2,metersInPixels);
@@ -761,7 +790,7 @@ function CToDeg(vX,vY){ // 0 to 360 Degrees!
     }
 
     if (vX >= 0 && vY <= 0){
-      Angle = asin(vY/vMod);
+      Angle = asin(vY/vMod) + 2*Pi;
     }
 
 
@@ -1025,6 +1054,14 @@ function DecParticle(){
 
 }
 
+
+function GiveXY(){
+
+  PlX = round((mouseX - OriginX) * METER_RATIO*100)/100;
+  PlY = round((mouseY - OriginY) * METER_RATIO*100)/100;
+
+}
+
 function windowResized() {
   resizeCanvas(window.innerWidth, window.innerHeight);
   for (let i = 0; i < particles.length; i++) {
@@ -1110,18 +1147,28 @@ function SaveParts() {
 function mousePressed() {
 
 
-  if ((VarInput == 'Th' || VarInput == 'v') && Listening){
+  if (Listening){
 
-    if (VarInput == 'Th')
-    {
+    if (VarInput == 'x' || VarInput == 'y'){
+
+      GiveXY();
+
+    }
+
+    if (VarInput == 'Th'){
+
+      if (ListenedValue == ''){
       DispX = mouseX - CircOX;
       DispY = - mouseY + CircOY;
   
-      PlAngl = round(CToDeg(DispX,DispY)*10)/10;
+      PlAngl = round(CToDeg(DispX,DispY)*10)/10;} else {
+        PlAngl = parseFloat(ListenedValue);
+      }
     }
 
     if (VarInput == 'v')
     {
+      if (ListenedValue == ''){
       if (mouseX<=sceneWidth/4){
         PlVelo = 0;
       } else if (mouseX>=3*sceneWidth/4){
@@ -1129,7 +1176,7 @@ function mousePressed() {
       } else{
         
         PlVelo = round((mouseX - sceneWidth/4)/(sceneWidth/2)*VCap*100)/100;
-      }
+      }} else {PlVelo = parseFloat(ListenedValue);}
     }
 
     Listening = false;
@@ -1344,7 +1391,7 @@ function keyPressed(){
 
     VarInput = '';
 
-    AccParticle();
+    dt *= 2;
 
     }
 
@@ -1352,9 +1399,19 @@ function keyPressed(){
 
       VarInput = '';
   
-      DecParticle();
+      dt /= 2;
   
       }
+
+  if (key === 'C'){
+
+    particles = [];
+    vectors = [];
+    XLog = [];
+    YLog = []; 
+    Dumped = false;
+    
+  }
 
   if (key === 'S'){
     SaveParts();
