@@ -985,46 +985,6 @@ function isMouseInGrabber(){
 // #            #
 // ##############
 
-
-function RestoreParticle(){
-
-  if (Dumped){
-    particles = [];
-    for (let i = 0; i < ReturnPoint[0].length; i++) {
-      QuickCreateObject(ReturnPoint[0][i],ReturnPoint[1][i],ReturnPoint[2][i],ReturnPoint[3][i]);
-    }
-  }
-
-}
-
-function ReverseParticle(){
-
-  for (let i = 0; i < particles.length; i++) {
-    particles[i].vx*=-1;
-    particles[i].vy*=-1;
-  }
-
-}
-
-
-function AccParticle(){
-
-  for (let i = 0; i < particles.length; i++) {
-    particles[i].vx*=2;
-    particles[i].vy*=2;
-  }
-
-}
-
-function DecParticle(){
-
-  for (let i = 0; i < particles.length; i++) {
-    particles[i].vx*=0.5;
-    particles[i].vy*=0.5;
-  }
-
-}
-
 function windowResized() {
   resizeCanvas(window.innerWidth, window.innerHeight);
   for (let i = 0; i < particles.length; i++) {
@@ -1035,8 +995,6 @@ function windowResized() {
     particles[i].r *= sceneWidth / oldSceneWidth;
     // Math.sqrt(sceneWidth*sceneHeight / (oldSceneWidth * oldSceneHeight));
   }
-  ReturnPoint = [];
-  Dumped = false;
   oldWidth = width;
   oldHeight = height;
   oldSceneWidth = sceneWidth;
@@ -1109,6 +1067,7 @@ function SaveParts() {
 
 function mousePressed() {
 
+  
 
   if ((VarInput == 'Th' || VarInput == 'v') && Listening){
 
@@ -1271,54 +1230,28 @@ function mousePressed() {
 let Listening = false;
 let ListenedValue = '';
 
-const ListVars = ['x','y','v','Th'];
-let VarInd = 0;
-
-function checkTabPress(e) {
-  "use strict";
-  // pick passed event of global event object
-  e = e || event;
-  var activeElement;
-  if (e.keyCode == 9) {
-      // Here read the active selected link.
-      activeElement = document.activeElement;
-      // If HTML element is and anchor
-      if (activeElement.tagName.toLowerCase() == 'a')
-          // get its hyperlink
-          alert(activeElement.href);
-  }
-}
-
-var body = document.querySelector('body');
-body.addEventListener('keyup', checkTabPress);
-
-
 function keyPressed(){
 
   if (key === 'X'){
    VarInput = 'x';
-   VarInd = 0;
    Listening = true;
    paused = true;
   } 
   
   if (key === 'Y'){
    VarInput = 'y';
-   VarInd = 1;
    Listening = true;
    paused = true;
   } 
   
   if (key === 'V'){
    VarInput = 'v';
-   VarInd = 2;
    Listening = true;
    paused = true;
   }
   
   if (key === 'T'){
   VarInput = 'Th';
-  VarInd = 3;
   Listening = true;
   paused = true;
   }
@@ -1327,34 +1260,14 @@ function keyPressed(){
     
     VarInput = '';
 
-    RestoreParticle();
-
-    }
-
-
-  if (key === 'J'){
-  
-    VarInput = '';
-
-    ReverseParticle();
-
-    }
-
-  if (key === 'A'){
-
-    VarInput = '';
-
-    AccParticle();
-
-    }
-
-  if (key === 'Z'){
-
-      VarInput = '';
-  
-      DecParticle();
-  
+      if (Dumped){
+        particles = [];
+        for (let i = 0; i < ReturnPoint[0].length; i++) {
+          QuickCreateObject(ReturnPoint[0][i],ReturnPoint[1][i],ReturnPoint[2][i],ReturnPoint[3][i]);
+        }
       }
+
+    }
 
   if (key === 'S'){
     SaveParts();
@@ -1375,16 +1288,6 @@ function keyPressed(){
     }else{
       print('No more!');
     }
-  }
-
-  if (keyCode === 9){ // Tab Rexn
-    VarInput = ListVars[VarInd];
-    VarInd += 1;
-    if (VarInd >= 4){
-      VarInd = VarInd - 4;
-    }
-    Listening = true;
-    paused = true;
   }
 
   if (keyCode === 27){
