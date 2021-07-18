@@ -34,6 +34,8 @@ let PlY2 = 0;
 let dt = 1;
 
 
+const CanvasScale = 0.5;
+
 // Original
 
 const k = 9*(Math.pow(10, 9));
@@ -162,9 +164,28 @@ function InitAll() {
 }
 
 
+function UpdateAll() {
+  document.getElementById("x1").setAttribute('value', PlX1);
+  document.getElementById("y1").setAttribute('value', PlY1);
+  document.getElementById("x2").setAttribute('value', PlX2);
+  document.getElementById("y2").setAttribute('value', PlY2);
+
+  document.getElementById("v1").setAttribute('value', PlV1);
+  document.getElementById("a1").setAttribute('value', PlA1);
+  document.getElementById("v2").setAttribute('value', PlV2);
+  document.getElementById("a2").setAttribute('value', PlA2);
+}
+
+
+window.onkeydown = function(e) {
+  if(e.keyCode == 32 && e.target == document.body) {
+      e.preventDefault();
+      return false;
+  }
+};
 
 function setup() {
-  var cnv = createCanvas(window.innerWidth*0.8, window.innerWidth*0.8/19*13);
+  var cnv = createCanvas(window.innerWidth*CanvasScale, window.innerWidth*CanvasScale/19*13);
   cnv.parent("Simulator");
 
   oldWidth = width;
@@ -172,15 +193,54 @@ function setup() {
   if (isLandscape()) {
     menuHeight = height;
     menuWidth = height/MENU_RATIO;
-    oldSceneWidth = width - menuWidth;
+    oldSceneWidth = width;
     oldSceneHeight = height;
   } else {
     menuWidth = width;
     menuHeight = width/MENU_RATIO;
     oldSceneWidth = width;
-    oldSceneHeight = height - menuHeight;
+    oldSceneHeight = height;
+  }
+
+   
+  dropzone = select('#dropzone');
+  dropzone.dragOver(highlight);
+  dropzone.dragLeave(unhighlight);
+  dropzone.drop(gotFile, unhighlight);
+
+}
+
+
+function gotFile(file) {
+  // If it's an image file
+  print(file.type);
+  if (file.type === 'text') {
+    print('File Loaded');
+    print(file);
+
+    var lines = split(file.data,'\n');
+    var Vars1 = split(lines[0],',');
+    var Vars2 = split(lines[1],',');
+
+    PlX1 = Vars1[0];
+    PlY1 = Vars1[1];
+    PlV1 = Vars1[2];
+    PlA1 = Vars1[3];
+
+    PlX2 = Vars2[0];
+    PlY2 = Vars2[1];
+    PlV2 = Vars2[2];
+    PlA2 = Vars2[3];
+
+    CreateBi();
+
+
+  } else {
+    print('Not a valid text file!');
   }
 }
+
+
 
 function CreateBi(){
 
@@ -217,10 +277,6 @@ function unhighlight(){
   dropzone.style('background-color', '#fff');
 }
 
-function gotFile(file){
-  createP(file.name + " " + file.type + " " + file.size);
-  createP(join(file.data, "<br/>"));
-}
 
 let Initialized = false;
 
@@ -274,8 +330,8 @@ function draw() {
   OriginY = sceneHeight / 2; 
 
   if (!Initialized){
-
-  CreateBi();
+    UpdateAll();
+    CreateBi();
 
   Initialized = true;
 
@@ -306,7 +362,6 @@ function drawScene(){
 
   if (particles.length == Cap && !Dumped){
 
-    print("Can save now!")
     Dumped = true;
 
     ReturnPoint = [[],[],[],[]];
@@ -378,6 +433,8 @@ function drawScene(){
   noStroke();
   //drawMenu();
   drawPaws();
+
+  PushDynValue();
   
   /* RELEGATED TO HTML
   drawConditionBar();
@@ -495,6 +552,49 @@ function drawMeterScale(){
 
  
 }
+
+
+function PushDynValue(){
+
+  let x1 = (particles[0].x-OriginX) * METER_RATIO;
+  let y1 = (OriginY-particles[0].y) * METER_RATIO;
+
+  let x2 = (particles[1].x-OriginX) * METER_RATIO;
+  let y2 = (OriginY-particles[1].y) * METER_RATIO;
+
+  x1 = round(x1*100)/100;
+  x2 = round(x2*100)/100;
+
+  y1 = round(y1*100)/100;
+  y2 = round(y2*100)/100;
+
+
+  document.getElementById("x1D").innerHTML = x1;
+  document.getElementById("x2D").innerHTML = x2;
+  document.getElementById("y1D").innerHTML = y1;
+  document.getElementById("y2D").innerHTML = y2;
+
+
+  let v1 = CToV(particles[0].vx,particles[0].vy) ;
+  let v2 = CToV(particles[1].vx,particles[1].vy) ;
+
+  let a1 = CToDeg(particles[0].vx,particles[0].vy);
+  let a2 = CToDeg(particles[1].vx,particles[1].vy);
+
+  v1 = round(v1*100)/100;
+  v2 = round(v2*100)/100;
+
+  a1 = round(a1*10)/10;
+  a2 = round(a2*10)/10;
+
+  document.getElementById("v1D").innerHTML = v1;
+  document.getElementById("v2D").innerHTML = v2;
+  document.getElementById("a1D").innerHTML = a1;
+  document.getElementById("a2D").innerHTML = a2;
+
+
+}
+
 
 
 function drawMenu(){
@@ -931,9 +1031,10 @@ function CToDeg(vX,vY){ // 0 to 360 Degrees!
       Angle = acos(vX/vMod);
     }
 
-    if (vX >= 0 && vY <= 0){
+    if (vX > 0 && vY < 0){
       Angle = asin(vY/vMod) + 2*Pi;
     }
+
 
     return Angle / RadAng;
     
@@ -1287,8 +1388,10 @@ function GiveXY(){
 
 }
 
+
 function windowResized() {
-  resizeCanvas(window.innerWidth*0.8, window.innerWidth*0.8/19*13);
+  resizeCanvas(window.innerWidth*CanvasScale, window.innerWidth*CanvasScale/19*13);
+
   for (let i = 0; i < particles.length; i++) {
     particles[i].x *= sceneWidth / oldSceneWidth;
     particles[i].y *= sceneHeight / oldSceneHeight;
@@ -1346,25 +1449,7 @@ function QuickCreateObject(x,y,vX,vY){
 
 function SaveParts() {
 
-  for (let i = 0; i < particles.length; i++) {
-    particles[i].x = particles[i].x * METER_RATIO;
-    particles[i].y = particles[i].y * METER_RATIO;
-    particles[i].vx = particles[i].vx * METER_RATIO;
-    particles[i].vy = particles[i].vy * METER_RATIO ;
-    particles[i].r = particles[i].r * METER_RATIO;
-    particles[i].v = CToV(particles[i].vx,particles[i].vy);
-    particles[i].Th = CToDeg(particles[i].vx,particles[i].vy);
-  }
-  saveJSON(particles, ('ParticleStates@'+day()+'-'+hour()+'_'+minute()+'_'+second()+'.json'));
-
-  for (let i = 0; i < particles.length; i++) {
-    particles[i].x = particles[i].x / METER_RATIO;
-    particles[i].y = particles[i].y / METER_RATIO;
-    particles[i].vx = particles[i].vx / METER_RATIO;
-    particles[i].vy = particles[i].vy / METER_RATIO;
-    particles[i].r = particles[i].r / METER_RATIO;
-
-  }
+  saveStrings([[PlX1,PlY1,PlV1,PlA1],[PlX2,PlY2,PlV2,PlA2]], ('Config.txt'));
 
 }
 
@@ -1558,25 +1643,6 @@ let ListenedValue = '';
 
 const ListVars = ['x','y','v','Th'];
 let VarInd = 0;
-
-function checkTabPress(e) {
-  "use strict";
-  // pick passed event of global event object
-  e = e || event;
-  var activeElement;
-  if (e.keyCode == 9) {
-      // Here read the active selected link.
-      activeElement = document.activeElement;
-      // If HTML element is and anchor
-      if (activeElement.tagName.toLowerCase() == 'a')
-          // get its hyperlink
-          alert(activeElement.href);
-  }
-}
-
-var body = document.querySelector('body');
-body.addEventListener('keyup', checkTabPress);
-
 
 function keyPressed(){
 
