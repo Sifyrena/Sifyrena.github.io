@@ -1,13 +1,5 @@
-# Physics Playground
+# Welcome to FWPhys.com Offshoot #1
 
-Simple electrodynamics demo
 
-## Code organization
+[Go to PHYS 100/100G Activity 1](Activity1.html)
 
-Physics-related code is in `physics.js`.
-This file defines the `update()` which advances the state by a single timestep.
-The rest of the code is in `sketch.js` and it is split into four sections:
-* The definition of the `p5.js` functions `setup()` and `draw()`
-* Drawing functions
-* Useful helper functions
-* Events
