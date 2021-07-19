@@ -27,7 +27,7 @@ button {
   background-color: #4ABF50; /* Green */
   border: none;
   color: white;
-  padding: 15px 32px;
+  padding: 5px 10px;
   text-align: center;
   text-decoration: none;
   display: inline-block;
@@ -44,18 +44,38 @@ button:active {
 
 
 .styled {
-  border: 0;
-  padding: 0 20px;
-  display: inline-block;
-  vertical-align: middle;
+  border: none;
+  color: white;
+  padding: 35px 42px;
   text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 1em;
+  border-radius: 20px;
   color: #fff;
-  border-radius: 10px;
   background-color: rgba(180, 80, 50, 1);
 }
 
 .styled:hover {
   background-color: rgba(255, 160, 100, 1);
+}
+
+
+.styledB {
+  border: none;
+  color: white;
+  padding: 15px 12px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 1em;
+  border-radius: 20px;
+  color: #fff;
+  background-color: rgba(80, 80, 250, 1);
+}
+
+.styled:hoverB {
+  background-color: rgba(155, 160, 255, 1);
 }
 
 
@@ -97,6 +117,9 @@ table.floater {
   
   .row {
     display: flex;
+    margin-left:auto; 
+    margin-right:auto;
+
   }
   
   .column {

@@ -54,7 +54,7 @@ function update(dt, particles, vectors, width, height) {
 
     // to set the bounderies of the screen and make the particles bounce on the edges of the screen
 
-    /*
+    
     if (particles[i].x + particles[i].r >= width){
       particles[i].vx *= -1;
       particles[i].x = width - particles[i].r;
@@ -62,14 +62,14 @@ function update(dt, particles, vectors, width, height) {
       particles[i].vx *= -1;
       particles[i].x = particles[i].r;
     }
-    */
-
+   
+/*
    if (particles[i].x >= width){
     particles[i].x -= width;
   } else if (particles[i].x <= 0){
     particles[i].x += width;
   }
-
+ */
 
     if (particles[i].y + particles[i].r >= height){
       particles[i].vy *= -1;

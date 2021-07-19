@@ -26,15 +26,27 @@
 
       <tbody>
       <tr>
-      <td style=" text-align: center;" colspan="4">
+      <td style=" text-align: center;" colspan="5">
       <h3>Initial Condition</h3>
       </td>
       </tr>
       <tr>
       <td style="width: 100px; text-align: center;">x1</td>
       <td style="width: 100px; text-align: center;">y1</td>
+      <th rowspan="4" style="padding: 0; border-right: 2px dashed black;"></th>
       <td style="width: 100px; text-align: center;">x2</td>
       <td style="width: 100px; text-align: center;">y2</td>
+      <th style="width: 20px; text-align: center;;" rowspan="4">
+        <button onclick="InitAll()" class="styled">Go!</button>
+
+        <button onclick="PlayPause()" class = "styledB"> Play/Pause </button>
+
+        <button onclick="pullConditions()">Generate From Board</button>
+
+        
+        <button onclick="reset()">Reset</button>
+        <button onclick="SaveParts()">Download Config</button>
+      </th>
       </tr>
       <tr>
       <td style="width: 100px; text-align: center;size=10">
@@ -70,6 +82,8 @@
       </tr>
       </tbody>
       </table>
+
+
   </div>
 
   <div style = "text-align: center; max-width: 30%;" class = 'column'>
@@ -84,7 +98,7 @@
   
       <tbody>
       <tr>
-      <td style="background-color: #cacfd2; text-align: center;" colspan="4">
+      <td style="background-color: #eeeeee; text-align: center;" colspan="4">
       <h2 style="align: center">Current Condition</h2>
       </td>
       </tr>
@@ -98,10 +112,10 @@
       <tr>
   
   
-      <td style="width: 100px;background-color: #bfcc8c;"><p id="x1D", style="codefont">&nbsp;&nbsp;</p></td>
-      <td style="width: 100px;background-color: #bfcc8c;"><p id="y1D", style="codefont">&nbsp;&nbsp;</p></td>
-      <td style="width: 100px;background-color: #ff5916;"><p id="x2D", style="codefont">&nbsp;&nbsp;</p></td>
-      <td style="width: 100px;background-color: #ff5916;"><p id="y2D", style="codefont">&nbsp;&nbsp;</p></td>
+      <td style="width: 100px;background-color: #bfcc8c;padding: 0;font-weight: normal;"><p id="x1D", style="codefont">&nbsp;&nbsp;</p></td>
+      <td style="width: 100px;background-color: #bfcc8c;padding: 0;font-weight: normal;"><p id="y1D", style="codefont">&nbsp;&nbsp;</p></td>
+      <td style="width: 100px;background-color: #ff5916;padding: 0;font-weight: normal;"><p id="x2D", style="codefont">&nbsp;&nbsp;</p></td>
+      <td style="width: 100px;background-color: #ff5916;padding: 0;font-weight: normal;"><p id="y2D", style="codefont">&nbsp;&nbsp;</p></td>
       </tr>
       <tr>
   
@@ -112,35 +126,27 @@
       </tr>
       <tr>
   
-      <td style="width: 100px;background-color: #bfcc8c;"><p id="v1D", style="codefont">&nbsp;&nbsp;</p></td>
-      <td style="width: 100px;background-color: #bfcc8c;"><p id="a1D", style="codefont">&nbsp;&nbsp;</p></td>
-      <td style="width: 100px;background-color: #ff5916;"><p id="v2D", style="codefont">&nbsp;&nbsp;</p></td>
-      <td style="width: 100px;background-color: #ff5916;"><p id="a2D", style="codefont">&nbsp;&nbsp;</p></td>
+      <td style="width: 100px;background-color: #bfcc8c;padding: 0;font-weight: normal;"><p id="v1D", style="codefont">&nbsp;&nbsp;</p></td>
+      <td style="width: 100px;background-color: #bfcc8c;padding: 0;font-weight: normal;"><p id="a1D", style="codefont">&nbsp;&nbsp;</p></td>
+      <td style="width: 100px;background-color: #ff5916;padding: 0;font-weight: normal;"><p id="v2D", style="codefont">&nbsp;&nbsp;</p></td>
+      <td style="width: 100px;background-color: #ff5916;padding: 0;font-weight: normal;"><p id="a2D", style="codefont">&nbsp;&nbsp;</p></td>
   
       
       </tr>
       </tbody>
       </table>
 
-    <hr>
+
 
   <div style="width:400px; margin:0 auto;">
 
-    <button onclick="InitAll()">Reload</button>
-    <button onclick="PlayPause()">⏯Play/Pause</button>
-    <button onclick="SaveParts()">Save</button>
 
-
+<hr>
     </div>
 
-
-
-
-
-
-
+    <h2 style="font-size: 1.5em; text-align: center;"><strong>
+      Keyboard Shortcuts</strong></h2>
   
-<hr>
 <table class="center">
   <thead>
     <tr>

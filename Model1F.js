@@ -23,13 +23,13 @@ let AllowClickingCreate = false;
 
 let PlV1 = 3;
 let PlA1 = 0;
-let PlX1 = -5;
-let PlY1 = 2;
+let PlX1 = 5;
+let PlY1 = 10;
 
 let PlV2 = 0;
 let PlA2 = 0;
-let PlX2 = 5;
-let PlY2 = 0;
+let PlX2 = 15;
+let PlY2 = 12;
 
 let dt = 1;
 
@@ -145,6 +145,9 @@ function PlayPause() {
 }
 
 function InitAll() {
+  XLog = [];
+  YLog = [];
+
   PlX1 = document.getElementById("x1").value;
   PlY1 = document.getElementById("y1").value;
   PlA1 = document.getElementById("a1").value;
@@ -156,6 +159,7 @@ function InitAll() {
   PlV2 = document.getElementById("v2").value;
 
   CreateBi();
+  paused = false;
 }
 
 function TBS(){
@@ -388,8 +392,8 @@ function draw() {
 
   METER_RATIO = metersInPixels / sceneWidth;
 
-  OriginX = sceneWidth / 2;
-  OriginY = sceneHeight / 2; 
+  OriginX = 0;
+  OriginY = sceneHeight; 
 
   if (!Initialized){
     UpdateAll();
@@ -424,7 +428,7 @@ function drawScene(){
 
   if (particles.length == Cap && !Dumped){
 
-    Dumped = true;
+    Dumped = false;
 
     ReturnPoint = [[],[],[],[]];
 
@@ -598,11 +602,10 @@ function drawMeterScale(){
   stroke(0);
   line(x5, y5, x6, y6);
 
-  stroke(120,114,32);
+  stroke(0,0,0);
+  strokeWeight(metersInPixels/8);
   line(OriginX-metersInPixels/6,OriginY,OriginX+metersInPixels/6,OriginY);
   line(OriginX,OriginY-metersInPixels/6,OriginX,OriginY+metersInPixels/6);
-  //line(x1, y1, x2, y2);
-  //line(x3, y3, x4, y4);
   textSize(metersInPixels/2);
   noStroke();
   fill(0);
@@ -961,7 +964,9 @@ function drawTrail(){
     {
       noStroke();
       fill('rgba(5,8,9,'+i/TrailLength/particles.length+')')
-      ellipse(XLog[i],YLog[i],metersInPixels*0.1*SphCM);
+
+      let TrRad = 0.1*(i/XLog.length)*(i/XLog.length);
+      ellipse(XLog[i],YLog[i],metersInPixels*TrRad*SphCM);
     }
   }
 }
@@ -1304,7 +1309,7 @@ function isMouseInObjA(){
   OBY = particles[0].y;
   OBR = particles[0].r;
 
-  return ((OBX-mouseX)*(OBX-mouseX)+(OBX-mouseX)*(OBX-mouseX)<OBR*OBR);
+  return ((OBX-mouseX)*(OBX-mouseX)+(OBY-mouseY)*(OBY-mouseY)<OBR*OBR);
 }
 
 function isMouseInObjB(){
@@ -1312,7 +1317,7 @@ function isMouseInObjB(){
   OBY = particles[1].y;
   OBR = particles[1].r;
 
-  return ((OBX-mouseX)*(OBX-mouseX)+(OBX-mouseX)*(OBX-mouseX)<OBR*OBR);
+  return ((OBX-mouseX)*(OBX-mouseX)+(OBY-mouseY)*(OBY-mouseY)<OBR*OBR);
 }
 
 /*
@@ -1537,6 +1542,41 @@ function touchEnded() {
 }
 
 */
+function reset(){
+
+PlV1 = 3;
+PlA1 = 0;
+PlX1 = 5;
+PlY1 = 10;
+
+PlV2 = 0;
+PlA2 = 0;
+PlX2 = 15;
+PlY2 = 12;
+
+PushDynValue();
+UpdateAll();
+InitAll();
+paused = true;
+}
+
+function pullVelo(){
+
+  let v1 = CToV(particles[0].vx,particles[0].vy);
+  let v2 = CToV(particles[1].vx,particles[1].vy);
+
+  PlV1 = v1;
+  PlV2 = v2;
+
+}
+
+function pullConditions(){
+  TBS();
+  PullAngles();
+  pullVelo();
+  UpdateAll();
+
+}
 
 function mouseClicked() {
 
@@ -1549,7 +1589,8 @@ function mouseClicked() {
     TBS();
     UpdateAll();}
     Moving = '';
-    print('FW is here');
+    XLog = [];
+    YLog = [];
 
   } else if (isMouseInObjA()){
     paused = true;
@@ -1566,6 +1607,8 @@ function mouseClicked() {
     TBS();
     UpdateAll();}
     Moving = '';
+    XLog = [];
+    YLog = [];
 
     } else if (isMouseInObjB()){
     paused = true;
@@ -1593,12 +1636,7 @@ function keyPressed(){
     
     VarInput = '';
 
-    RestoreParticle();
-
-    TBS();
-    PullAngles();
-    print('WTF');
-    UpdateAll();
+    reset();
 
     }
 
@@ -1674,7 +1712,6 @@ function keyPressed(){
   if (key === 'S'){
     TBS();
     PullAngles();
-    print('WTF');
     UpdateAll();
   }
 
@@ -1687,7 +1724,8 @@ function keyPressed(){
   }
 
   if (keyCode === 13 && !Listening){
-    CreateBi();
+    UpdateAll();
+    InitAll();
   }
 
 
