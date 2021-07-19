@@ -90,6 +90,8 @@ let CircOX, CircOY;
 let ReturnPoint = [[],[],[],[]];
 let Dumped = false;
 
+let DiffWC = true;
+
 /*
 const PlasticColor = color(255,0,0);
 const PosChargeColor = color(229,184,73);
@@ -508,6 +510,7 @@ function drawScene(){
   for (let i = 0; i < particles.length; i++){
     let c = color(150+80*i,160-80*i,110-90*i);
     drawParticle(particles[i].x, particles[i].y, particles[i].r, c);
+    drawParticleCB(i,particles[i].x, particles[i].y)
   }
   drawAngularV();
   drawVel();
@@ -1228,6 +1231,22 @@ function drawParticle(x, y, r, c) {
   ellipse(x, y, 2 * r, 2 * r);
 }
 
+function drawParticleCB(i,x,y) {
+  
+  if (DiffWC){
+
+  if (DarkMode){
+    fill(0);
+  } else {
+    fill(255);
+  }
+  textSize(metersInPixels);
+  textAlign(RIGHT,CENTER);
+  text((i+1).toString(),x,y);
+  }
+
+}
+
 function drawToy(x,y,l){
 
   noStroke();
@@ -1525,7 +1544,7 @@ function windowResized() {
   }
   resizeCanvas(window.innerWidth*CanvasScale, window.innerWidth*CanvasScale/BoGX*BoGY);
 
-  /*
+  
   for (let i = 0; i < particles.length; i++) {
     particles[i].x *= sceneWidth / oldSceneWidth;
     particles[i].y *= sceneHeight / oldSceneHeight;
@@ -1535,13 +1554,14 @@ function windowResized() {
     particles[i].r *= sceneWidth / oldSceneWidth;
     // Math.sqrt(sceneWidth*sceneHeight / (oldSceneWidth * oldSceneHeight));
   }
-  */
+  //InitAll();
+  //paused = !paused;
+  
 
   TBS();
   PullAngles();
   pullVelo();
-  InitAll();
-  paused = !paused;
+
 
 
 
@@ -1829,6 +1849,12 @@ function keyPressed(){
   if (key === 'D'){
 
     DarkMode = !DarkMode;
+    
+  }
+
+  if (key === 'W'){
+
+    DiffWC = !DiffWC;
     
   }
 
