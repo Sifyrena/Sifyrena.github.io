@@ -32,7 +32,34 @@ button {
   text-decoration: none;
   display: inline-block;
   font-size: 1em;
+  border-radius: 20px;
 }
+button:hover {
+  background-color: rgba(128,128, 128, 1);
+}
+
+button:active {
+  background-color: #CFDA50; /* Green */
+}
+
+
+.styled {
+  border: 0;
+  padding: 0 20px;
+  display: inline-block;
+  vertical-align: middle;
+  text-align: center;
+  color: #fff;
+  border-radius: 10px;
+  background-color: rgba(180, 80, 50, 1);
+}
+
+.styled:hover {
+  background-color: rgba(255, 160, 100, 1);
+}
+
+
+
 
 .credits {
   background-color: white;
@@ -43,8 +70,8 @@ button {
 input[type="number"] {
     font-size:20px;
 	width: 65px; !important
-	
 }
+
 
 table.floater {
     margin-left:auto; 

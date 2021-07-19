@@ -268,7 +268,10 @@ function setup() {
   dropzone.dragOver(highlight);
   dropzone.dragLeave(unhighlight);
   dropzone.drop(gotFile, unhighlight);
+
 }
+
+
 
 function gotFile(file) {
   // If it's an image file
