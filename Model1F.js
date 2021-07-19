@@ -1475,12 +1475,12 @@ function mouseWheel(event) {
   print(event.delta);
   //move the square according to the vertical scroll amount
 
-}*/
+}
 
 
 function touchStarted() {
 
-
+  print('TouchStarted');
   if (Moving == 'A'){
 
   if (isMouseInObjA()){
@@ -1509,7 +1509,7 @@ function touchStarted() {
 
 function touchEnded() {
 
-
+  print('TouchEnded');
   if (Moving == 'A'){
 
     if (!isMouseInObjB()){
@@ -1533,7 +1533,7 @@ function touchEnded() {
  
 }
 
-
+*/
 
 function mouseClicked() {
 
@@ -1545,8 +1545,9 @@ function mouseClicked() {
     particles[0].y = mouseY;
     TBS();
     UpdateAll();}
-
     Moving = '';
+    print('FW is here');
+
   } else if (isMouseInObjA()){
     paused = true;
     Moving = 'A';
