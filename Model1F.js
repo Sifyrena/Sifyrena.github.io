@@ -44,7 +44,7 @@ let PlY2 = 12;
 
 let dt = 1;
 
-const CanvasScaleD = 0.64;
+const CanvasScaleD = 0.6;
 let CanvasScale = CanvasScaleD;
 
 // Original
@@ -58,6 +58,7 @@ let METER_RATIO; // PlaceHolder Value. Will be updated by draw. centimetres per 
 
 const NUM_SECTIONS = 10;
 const MENU_RATIO = NUM_SECTIONS;
+
 let particles = [];
 let particlesCM = [];
 let vectors = [];
@@ -90,7 +91,9 @@ let CircOX, CircOY;
 let ReturnPoint = [[],[],[],[]];
 let Dumped = false;
 
-let DiffWC = true;
+let DiffWC = false;
+let DTrail = true;
+let drawVelos = false;
 
 /*
 const PlasticColor = color(255,0,0);
@@ -512,7 +515,9 @@ function drawScene(){
   for (let i = 0; i < vectors.length; i++){
     stroke(0);
   }
-  drawTrail();
+
+  if (DTrail){
+  drawTrail();}
 
   for (let i = 0; i < particles.length; i++){
     let c = color(150+80*i,160-80*i,110-90*i);
@@ -973,7 +978,7 @@ function drawAngular(){
 }
 
 let CircR;
-let drawVelos = true;
+
 
 function drawAngularV(){
 
@@ -1065,11 +1070,11 @@ let XLog = [];
 let YLog = [];
 
 const GlobalTrailLength = 500;
-let TrailLength = 250;
+let TrailLength = 150;
 
 function drawTrail(){
 
-  const TrailMaxRad =  0.2;
+  const TrailMaxRad =  0.25;
   if (particles == [] || particles.length >= 10){
     XLog = [];
     YLog = [];
@@ -1859,6 +1864,14 @@ function keyPressed(){
   if (key === 'D'){
 
     DarkMode = !DarkMode;
+    
+  }
+
+  if (key === 'T'){
+
+    DTrail = !DTrail;
+	  XLog = [];
+	  YLog = [];
     
   }
 
