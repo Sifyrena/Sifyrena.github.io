@@ -68,3 +68,10 @@ table.floater {
 	font-weight: bold;
   }
   
+  .row {
+    display: flex;
+  }
+  
+  .column {
+    flex: 50%;
+  }

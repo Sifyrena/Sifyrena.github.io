@@ -333,7 +333,7 @@ function highlight(){
 }
 
 function unhighlight(){
-  dropzone.style('background-color', '#aaa');
+  dropzone.style('background-color', '#c4952d');
 }
 
 
@@ -1477,6 +1477,7 @@ function mouseWheel(event) {
 
 }*/
 
+
 function touchStarted() {
 
 
@@ -1489,6 +1490,7 @@ function touchStarted() {
 
 
     }
+  }
 
    if (Moving == 'B'){
     
@@ -1501,6 +1503,7 @@ function touchStarted() {
 
   }
  
+}
 }
 
 
