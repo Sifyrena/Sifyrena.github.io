@@ -1,7 +1,17 @@
 ///// PHYSICS.JS
 /// ORIGINAL VERSION BY DIEGO LOPEZ.
 
+const SFric = 0; // -kv^2
+const SBoun = 1; // Restitution of Wall
+const SReco = 1; // Restitution of Ball
 
+function SGN(x){
+
+  if (x == 0){
+    return 1;
+  } else {
+  return x/abs(x);}
+}
 
 function update(dt, particles, vectors, width, height) { 
 
@@ -20,7 +30,8 @@ function update(dt, particles, vectors, width, height) {
   }
   */
   // collision
-  for (let i = 0; i < particles.length; i++) {
+  for (let i = 0; i < particles.length; i++) 
+  {
     if(particles.length > 1) {
       for (let j = i + 1; j < particles.length; j++) {
         let dx = particles[j].x - particles[i].x;
@@ -32,9 +43,11 @@ function update(dt, particles, vectors, width, height) {
 
         let velDotDis = dvx * dx + dvy * dy;
 
-        // collision and modification velocity (see Diego's website for the full formula)
+        // collision and modification velocity (see Diego's website for the f ull formula)
         // checks if distance between particles = 0 and 
         if(d <= (particles[i].r + particles[j].r) && velDotDis < 0){ 
+
+
           // Start of computing lamda (as in the formula in the website)
           let disSquared = dx*dx + dy*dy;
 
@@ -48,6 +61,29 @@ function update(dt, particles, vectors, width, height) {
           particles[i].vy -= l/(particles[i].mass)*dy;
           particles[j].vx += l/(particles[j].mass)*dx;
           particles[j].vy += l/(particles[j].mass)*dy;
+
+
+/*// No spin no shear. FW's twist. 
+          let uax = particles[i].vx;
+          let uay = particles[i].vy;
+
+          let ubx = particles[j].vx;
+          let uby = particles[j].vy;
+
+          let ma = particles[i].mass;
+          let mb = particles[j].mass;
+
+
+        particles[i].vx = (SBoun*mb*(ubx-uax) + ma * uax + mb* ubx) / (ma + mb);
+
+        particles[i].vy = (SBoun*mb*(uby-uay) + ma * uay + mb* uby) / (ma + mb);
+
+
+        particles[j].vx = (SBoun*ma*(uax-ubx) + ma * uax + mb* ubx) / (ma + mb);
+
+        particles[j].vy = (SBoun*ma*(uay-uby) + ma * uay + mb* uby) / (ma + mb);
+*/
+
         }
       }
     }
@@ -56,10 +92,10 @@ function update(dt, particles, vectors, width, height) {
 
     
     if (particles[i].x + particles[i].r >= width){
-      particles[i].vx *= -1;
+      particles[i].vx *= -1 * SBoun;
       particles[i].x = width - particles[i].r;
     } else if (particles[i].x - particles[i].r <= 0){
-      particles[i].vx *= -1;
+      particles[i].vx *= -1 * SBoun;
       particles[i].x = particles[i].r;
     }
    
@@ -72,16 +108,28 @@ function update(dt, particles, vectors, width, height) {
  */
 
     if (particles[i].y + particles[i].r >= height){
-      particles[i].vy *= -1;
+      particles[i].vy *= -1 * SBoun;
       particles[i].y = height - particles[i].r;
 
     } else if (particles[i].y - particles[i].r <= 0){
-      particles[i].vy *= -1;
+      particles[i].vy *= -1 * SBoun;
       particles[i].y = particles[i].r;
     }
     particles[i].x += particles[i].vx * dt;
     particles[i].y += particles[i].vy * dt;
+
+    let vT = sqrt(particles[i].vx*particles[i].vx+particles[i].vy*particles[i].vy);
+
+    let SX = SGN(particles[i].vx);
+    let SY = SGN(particles[i].vy);
+
+    particles[i].vx = particles[i].vx - (SFric)*vT*abs(particles[i].vx) * dt * SX;
+    particles[i].vy = particles[i].vy - (SFric)*vT*abs(particles[i].vy) * dt * SY;
+
+
   }
+
+
 }
 
 // vectors here is only an array storing the vectorsElectricFields
