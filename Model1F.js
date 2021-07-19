@@ -244,7 +244,7 @@ function PullAngles(){
 
 }
 
-function UpdateAll() {
+function UpdateAll(){
   document.getElementById("x1").setAttribute('value', PlX1);
   document.getElementById("y1").setAttribute('value', PlY1);
   document.getElementById("x2").setAttribute('value', PlX2);
@@ -294,6 +294,13 @@ function setup() {
   dropzone.dragOver(highlight);
   dropzone.dragLeave(unhighlight);
   dropzone.drop(gotFile, unhighlight);
+
+
+  let CMX = BoGX * aCM;
+  let CMY = BoGY * aCM;
+  AttributeString = 'The size of the current table is ' + CMX.toString() + 'cm * ' + CMY.toString() + 'cm.';
+
+  document.getElementById("TBAt").innerHTML = AttributeString;
 
 }
 
@@ -1700,25 +1707,23 @@ function touchEnded() {
 */
 function reset(){
 
-Flipped = false;
-dt = 1;
+  Flipped = false;
+  dt = 1;
 
-PlVT = 6;
-PlV1 = PlVT;
-PlA1 = 0;
-PlX1 = 5;
-PlY1 = 10;
+  PlVT = 6;
+  PlV1 = PlVT;
+  PlA1 = 0;
+  PlX1 = 5;
+  PlY1 = 10;
 
-PlV2 = 0;
-PlA2 = 0;
-PlX2 = 15;
-PlY2 = 12;
-PlVT = sqrt(PlV1*PlV1 + PlV2*PlV2);
+  PlV2 = 0;
+  PlA2 = 0;
+  PlX2 = 15;
+  PlY2 = 12;
 
-PushDynValue();
-UpdateAll();
-InitAll();
-paused = true;
+  UpdateAll();
+  InitAll();
+  paused = true;
 }
 
 function pullVelo(){
