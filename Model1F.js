@@ -1477,6 +1477,61 @@ function mouseWheel(event) {
 
 }*/
 
+function touchStarted() {
+
+
+  if (Moving == 'A'){
+
+  if (isMouseInObjA()){
+    paused = true;
+    Moving = 'A';
+    PullAngles();
+
+
+    }
+
+   if (Moving == 'B'){
+    
+  if (isMouseInObjB()){
+    paused = true;
+    Moving = 'B';
+    PullAngles();
+    
+
+
+  }
+ 
+}
+
+
+function touchEnded() {
+
+
+  if (Moving == 'A'){
+
+    if (!isMouseInObjB()){
+    particles[0].x = mouseX;
+    particles[0].y = mouseY;
+    TBS();
+    UpdateAll();}
+
+    Moving = '';
+  } 
+
+   if (Moving == 'B'){
+    if (!isMouseInObjA()){
+    particles[1].x = mouseX;
+    particles[1].y = mouseY;
+    TBS();
+    UpdateAll();}
+    Moving = '';
+
+    } 
+ 
+}
+
+
+
 function mouseClicked() {
 
 
