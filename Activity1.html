@@ -12,41 +12,49 @@
     <script src="Model1F.js"></script>
     <link rel="stylesheet" type="text/css" href="style.css">
   </head>
-  <body style="background-color:#c3780a;"></body>>
+  <body style="background-color:#63380a; color: #fff;">
   <div id="Simulator">
-    <h1 style="font-size: 1.5em; text-align: center;"><strong>Activity 1 - Newton's Laws</strong></h1>
+    <h1 style="font-size: 2em; text-align: center;"><strong>Activity 1</strong></h1>
   
   </div>
 
 
-  <div class="row">
+  <div style="width:300px; margin:0 auto;">
+
+
+    <div class = 'floatingControl'>
+      <button onclick="InitAll()" class="styled">Go!</button>
+  
+      <button onclick="PlayPause()" class = "styledB"> Play/Pause </button>
+  
+      <button onclick="pullConditions()">Use Current Board</button>
+  
+      
+      <button onclick="reset()">Reset All</button>
+      <button onclick="SaveParts()">Download Config</button>
+    </div>
+  
+<hr>
+    </div>
+
+
+  <div class="row" style="max-width: 62%;">
     <div class="column">
 
     <table class="center">
 
       <tbody>
       <tr>
-      <td style=" text-align: center;" colspan="5">
-      <h3>Initial Condition</h3>
+      <td style=" text-align: center; font-family:'Avenir Next', 'Verdana', sans-serif;" colspan="5">
+      <h2>Initial Condition</h2>
       </td>
       </tr>
       <tr>
       <td style="width: 100px; text-align: center;">x1</td>
       <td style="width: 100px; text-align: center;">y1</td>
-      <th rowspan="4" style="padding: 0; border-right: 2px dashed black;"></th>
+      <th rowspan="4" style="padding: 0; border-right: 2px dashed white;"></th>
       <td style="width: 100px; text-align: center;">x2</td>
       <td style="width: 100px; text-align: center;">y2</td>
-      <th style="width: 20px; text-align: center;;" rowspan="4">
-        <button onclick="InitAll()" class="styled">Go!</button>
-
-        <button onclick="PlayPause()" class = "styledB"> Play/Pause </button>
-
-        <button onclick="pullConditions()">Generate From Board</button>
-
-        
-        <button onclick="reset()">Reset</button>
-        <button onclick="SaveParts()">Download Config</button>
-      </th>
       </tr>
       <tr>
       <td style="width: 100px; text-align: center;size=10">
@@ -86,9 +94,9 @@
 
   </div>
 
-  <div style = "text-align: center; max-width: 30%;" class = 'column'>
-    <h2><strong>Upload Configurations</strong></h2>
-    <p id="dropzone" style="background-color: #c4952d;"><br><br><br><br><br><br> Drag and drop a configuration txt file here.<br><br><br><br><br><br></p>
+  <div style = "text-align: center;" class = 'column'>
+    <h2><strong>Upload Config</strong></h2>
+    <p id="dropzone" style="background-color: #c4952d;"><br><br><br><br><br><br> Drag and drop a configuration txt file here. <br> (Currently does not work on mobile browsers).<br><br><br><br><br><br></p>
   </div>
 
 </div>
@@ -110,7 +118,6 @@
       <td style="width: 100px;background-color: #e65014;"><b>y2</b></td>
       </tr>
       <tr>
-  
   
       <td style="width: 100px;background-color: #bfcc8c;padding: 0;font-weight: normal;"><p id="x1D", style="codefont">&nbsp;&nbsp;</p></td>
       <td style="width: 100px;background-color: #bfcc8c;padding: 0;font-weight: normal;"><p id="y1D", style="codefont">&nbsp;&nbsp;</p></td>
@@ -136,18 +143,11 @@
       </tbody>
       </table>
 
-
-
-  <div style="width:400px; margin:0 auto;">
-
-
 <hr>
-    </div>
-
     <h2 style="font-size: 1.5em; text-align: center;"><strong>
       Keyboard Shortcuts</strong></h2>
   
-<table class="center">
+<table class="center" >
   <thead>
     <tr>
       <th><h3>KEY</h3></th>
@@ -157,7 +157,7 @@
   <tbody>
     <tr>
       <td>   Enter</td>
-      <td>   Initialise</td>
+      <td>   Initialise using given conditions</td>
     </tr>
     <tr>
       <td>   Spacebar</td>
@@ -165,23 +165,23 @@
     </tr>
     <tr>
       <td>   J</td>
-      <td>   Reverse velocities</td>
+      <td>   Reverse all velocities</td>
     </tr>
     <tr>
       <td>   A</td>
-      <td>   Speed up simulation 2x</td>
+      <td>   Speed up simulation by 2x</td>
     </tr>
     <tr>
       <td>   Z</td>
-      <td>   Slow down simulation 2x</td>
+      <td>   Slow down simulation by 2x</td>
     </tr>
     <tr>
       <td>   S</td>
-      <td>   Save current board to initial conditions</td>
+      <td>   Save current board as initial conditions</td>
     </tr>
     <tr>
       <td>   R</td>
-      <td>   Refresh</td>
+      <td>   Reset all to default</td>
     </tr>
     <tr>
       <td>   F</td>
@@ -191,6 +191,14 @@
       <td>   G</td>
       <td>   Rotate active object by 5° CW</td>
     </tr>
+    <tr>
+      <td>   V</td>
+      <td>   Toggle energy circle display</td>
+    </tr>
+    <tr>
+      <td>   D</td>
+      <td>   Toggle dark mode</td>
+    </tr>
   </tbody>
   </table>
 
@@ -198,7 +206,7 @@
 <div style="height:20em" aria-hidden="true" ></div>
 
 
-<div class=credits>
+<div class=credits style="color: black;">
   <a name="Credits"></a>
   <p class=MsoNormal align=center style='text-align:center'><b><span
     style='font-size:60.0pt;line-height:107%;font-family:"Verdana",sans-serif;

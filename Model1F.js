@@ -4,13 +4,21 @@ const SphCM = 2.00;
 const aCM = 1.90;
 const HoleDiamCM = 0.15;
 
-const BoGX = 19;
-const BoGY = 13;
+const BoGX = 21;
+const BoGY = 15;
 
 const BoSIX = BoGX * aCM
 
 
+let DarkMode;
+
+if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+  DarkMode = true;// dark mode
+} else {DarkMode = false;}
+
+
 // Placement Helpers
+
 
 let PlVelo =  5;
 let PlAngl = 0;
@@ -21,7 +29,10 @@ let AllowClickingCreate = false;
 
 // Placement Helpers Specific to Task 1
 
-let PlV1 = 3;
+
+let PlVT = 6;
+
+let PlV1 = PlVT;
 let PlA1 = 0;
 let PlX1 = 5;
 let PlY1 = 10;
@@ -33,8 +44,8 @@ let PlY2 = 12;
 
 let dt = 1;
 
-
-const CanvasScale = 0.5;
+const CanvasScaleD = 0.64;
+let CanvasScale = CanvasScaleD;
 
 // Original
 
@@ -158,6 +169,8 @@ function InitAll() {
   PlA2 = document.getElementById("a2").value;
   PlV2 = document.getElementById("v2").value;
 
+  PlVT = sqrt(PlV1*PlV1 + PlV2*PlV2);
+
   CreateBi();
   paused = false;
 }
@@ -250,7 +263,14 @@ window.onkeydown = function(e) {
 };
 
 function setup() {
-  var cnv = createCanvas(window.innerWidth*CanvasScale, window.innerWidth*CanvasScale/19*13);
+
+  if (window.innerWidth < 800){
+    CanvasScale = 1;
+  } else {
+    CanvasScale = CanvasScaleD;
+  }
+
+  var cnv = createCanvas(window.innerWidth*CanvasScale, window.innerWidth*CanvasScale/BoGX*BoGY);
   cnv.parent("Simulator");
 
   oldWidth = width;
@@ -297,6 +317,8 @@ function gotFile(file) {
     PlY2 = Vars2[1];
     PlV2 = Vars2[2];
     PlA2 = Vars2[3];
+
+    PlVT = sqrt(PlV1*PlV1 + PlV2*PlV2);
 
     CreateBi();
 
@@ -388,9 +410,13 @@ function draw() {
 
   CBOX = 0 + DX;
   CBOY = sceneHeight - menuHeight/5 + DY;
-  metersInPixels = BoSIX;
 
-  METER_RATIO = metersInPixels / sceneWidth;
+  
+
+  metersInPixels = BoSIX; // How Long the Scene is in CM
+
+  METER_RATIO = metersInPixels / sceneWidth; // How Long Each CM is in Pixels
+  CircR = min(sceneHeight,sceneWidth)/5;
 
   OriginX = 0;
   OriginY = sceneHeight; 
@@ -444,9 +470,10 @@ function drawScene(){
   background(195,120,10);
 
 
-  if (!Listening){
-  fill(253);
-} else {fill(190);}
+  if (DarkMode) {
+   fill(8); // dark mode
+} else {fill(253)};
+
 
   rect(0,0,sceneWidth,sceneHeight);
 
@@ -482,7 +509,7 @@ function drawScene(){
     let c = color(150+80*i,160-80*i,110-90*i);
     drawParticle(particles[i].x, particles[i].y, particles[i].r, c);
   }
-
+  drawAngularV();
   drawVel();
 
   stroke(0);
@@ -492,6 +519,7 @@ function drawScene(){
   noStroke();
   //drawMenu();
   drawPaws();
+  drawTimeScale();
 
   PushDynValue();
 
@@ -507,6 +535,7 @@ function drawScene(){
 
   drawVelSelect();
   */
+ 
   drawMeterScale();
 
   //strokeWeight(Math.max(menuWidth, menuHeight)/150);
@@ -543,9 +572,8 @@ function drawScene(){
          PVX = radius*cos(PlA2*RadAng);
          PVY = -1*radius*sin(PlA2*RadAng);
       }
-      drawVector(mouseX, mouseY, mouseX + PVX, mouseY+PVY);
-          
-      drawParticle(mouseX, mouseY, radius, color('rgba(8, 8, 8, 0.5)'));}
+      drawVector(mouseX, mouseY, mouseX + PVX, mouseY+PVY);   
+      drawParticle(mouseX, mouseY, radius, color('rgba(128, 128, 128, 0.5)'));}
     }
 
     else if (drawingMode == VECTOR_MODE && mouseHasBeenPressed){
@@ -593,26 +621,72 @@ let MenuItemDrawingFunctions = [
 function drawMeterScale(){
   var x5, y5, x6, y6;
   
-  x5 = sceneWidth - (2 * metersInPixels);
+  x5 = sceneWidth - (2*metersInPixels+1/METER_RATIO);
   y5 = sceneHeight - (metersInPixels);
-  x6 = sceneWidth - metersInPixels;
+  x6 = sceneWidth - 2*metersInPixels;
   y6 = y5;
   strokeWeight(metersInPixels/15);
 
-  stroke(0);
+  if (DarkMode) {
+    fill(255); // dark mode
+    stroke(255);
+ } else {fill(0);stroke(0);
+};
+  
+
   line(x5, y5, x6, y6);
 
-  stroke(0,0,0);
   strokeWeight(metersInPixels/8);
   line(OriginX-metersInPixels/6,OriginY,OriginX+metersInPixels/6,OriginY);
   line(OriginX,OriginY-metersInPixels/6,OriginX,OriginY+metersInPixels/6);
   textSize(metersInPixels/2);
   noStroke();
-  fill(0);
 
-  textAlign(RIGHT,TOP);
-  text("1 cm", x5 + metersInPixels, (y5+metersInPixels/6));
+
+  textAlign(LEFT,TOP);
+  text("1 cm", x5 , (y5+metersInPixels/6));
 }
+function drawTimeScale(){
+
+  if (DarkMode){
+    fill('rgba(255,255,255,0.95)');
+  } else {
+    fill('rgba(30,30,30,0.92)');
+  }
+
+  textSize(min(metersInPixels*2,sceneWidth/12));
+  if (!paused){
+
+    if (!abs(dt-1)<0.05){    
+    
+    textAlign(LEFT, TOP);
+    text(dt.toString()+'⨉',metersInPixels,metersInPixels);}
+
+    if (Flipped){
+      textAlign(RIGHT, TOP);
+      text('◀︎◀︎',sceneWidth-metersInPixels,metersInPixels);
+    }
+}
+}
+
+function drawPaws(){
+
+  if (paused){
+
+    if (DarkMode){
+      fill('rgba(255,255,255,0.8)');
+    } else {
+      fill('rgba(30,30,30,0.72)');
+    }
+    textSize(min(metersInPixels*5,sceneWidth/6));
+    textAlign(LEFT, TOP);
+    
+    text('𐄈 Paused',metersInPixels,metersInPixels);
+
+
+  }
+}
+
 
 function drawMenu(){
   fill(135, 135, 135);
@@ -655,7 +729,10 @@ function drawMenu(){
 
 function drawGrids(){
 
-  fill('rgba(2,2,2,0.5)');
+  if (DarkMode) {
+    fill(199); // dark mode
+ } else {fill(73)};
+
 
   let Grading = aCM / METER_RATIO;
   let HoleDiam = HoleDiamCM / METER_RATIO
@@ -832,7 +909,7 @@ let DispX, DispY;
 
 function drawAngular(){
 
-  let CircR = min(sceneHeight,sceneWidth)/3;
+  let CircR = min(sceneHeight,sceneWidth)/5;
 
   CircOX = sceneWidth/2;
   CircOY = sceneHeight/2;
@@ -880,8 +957,46 @@ function drawAngular(){
 
 }
 
+let CircR;
+let drawVelos = true;
+
+function drawAngularV(){
+
+  if (drawVelos){
+
+  CircOX = 0;
+  CircOY = sceneHeight;
+
+
+  if (DarkMode) {
+    stroke(253); // dark mode
+ } else {stroke(8)};
+  strokeWeight(metersInPixels/16);
+  fill('rgba(150,150,10,0.25)');
+  ellipse(CircOX,CircOY,CircR*2);
+
+
+  if (DarkMode) {
+    stroke(255,255,0);; // dark mode
+ } else {stroke(10,10,40);}
+  
+  strokeWeight(metersInPixels/3);
+
+  v1S = CToV(particles[0].vx,particles[0].vy);
+  v2S = CToV(particles[1].vx,particles[1].vy);
+
+  point(v1S/PlVT*CircR, sceneHeight - v2S/PlVT*CircR);
+
+
+  
+  
+}
+
+
+}
+
 const VCap = 10;
-const Flipped = false;
+let Flipped = false;
 
 function drawVelSelect(){
 
@@ -935,13 +1050,11 @@ let XLog = [];
 let YLog = [];
 
 const GlobalTrailLength = 500;
-let TrailLength = 180;
+let TrailLength = 250;
 
 function drawTrail(){
 
-  TrailLength = min(TrailLength,round(GlobalTrailLength/particles.length));
-
-
+  const TrailMaxRad =  0.2;
   if (particles == [] || particles.length >= 10){
     XLog = [];
     YLog = [];
@@ -963,9 +1076,13 @@ function drawTrail(){
     for (let i = 0; i < XLog.length; i++)
     {
       noStroke();
-      fill('rgba(5,8,9,'+i/TrailLength/particles.length+')')
 
-      let TrRad = 0.1*(i/XLog.length)*(i/XLog.length);
+      if (DarkMode) {
+        fill('rgba(255,248,249,'+i/TrailLength/particles.length+')');; // dark mode
+     } else {fill('rgba(5,8,9,'+i/TrailLength/particles.length+')');}
+
+    
+      let TrRad = TrailMaxRad*(i/XLog.length)*(i/XLog.length);
       ellipse(XLog[i],YLog[i],metersInPixels*TrRad*SphCM);
     }
   }
@@ -1085,30 +1202,19 @@ function DegToY(v,Th){
 }
 
 
-function drawPaws(){
-
-    if (paused){
-
-	    fill('rgba(0,0,0,0.2)');
-      textSize(min(metersInPixels*5,sceneWidth/6));
-      textAlign(LEFT, TOP);
-      
-	    text('|| Paused',metersInPixels,metersInPixels);
-
-
-    }
-}
-
 
 function drawVector(x1, y1, x2, y2){
   push();
-  stroke(0);
+  if (DarkMode) {
+    stroke(240);; // dark mode
+ } else {
+  stroke(15);}
   let theta = PI/6;
   translate(x1, y1);
   let angle = atan2(y2 - y1, x2 - x1);
   rotate(angle);
   let L = Math.sqrt((x1-x2)*(x1-x2) + (y1 - y2) * (y1-y2));
-  strokeWeight(1 + Math.log(L+1)/5);
+  strokeWeight(1 + Math.log(L+1)/2);
   line(0, 0, L, 0);
   line(L, 0, L - L/3 * cos(theta), L/3 * sin(theta));
   line(L, 0, L - L/3 * cos(theta), -L/3 * sin(theta))
@@ -1371,12 +1477,14 @@ function RestoreParticle(){
 
 }
 
+
 function ReverseParticle(){
 
   for (let i = 0; i < particles.length; i++) {
     particles[i].vx*=-1;
     particles[i].vy*=-1;
   }
+  Flipped = !Flipped;
 
 }
 
@@ -1409,22 +1517,45 @@ function GiveXY(){
 
 
 function windowResized() {
-  resizeCanvas(window.innerWidth*CanvasScale, window.innerWidth*CanvasScale/19*13);
 
+  if (window.innerWidth < 800){
+    CanvasScale = 1;
+  } else {
+    CanvasScale = CanvasScaleD;
+  }
+  resizeCanvas(window.innerWidth*CanvasScale, window.innerWidth*CanvasScale/BoGX*BoGY);
+
+  /*
   for (let i = 0; i < particles.length; i++) {
     particles[i].x *= sceneWidth / oldSceneWidth;
     particles[i].y *= sceneHeight / oldSceneHeight;
     particles[i].vx *= sceneWidth / oldSceneWidth;
     particles[i].vy *= sceneHeight / oldSceneHeight;
+    PlVT = sqrt(PlV1*PlV1 + PlV2*PlV2);
     particles[i].r *= sceneWidth / oldSceneWidth;
     // Math.sqrt(sceneWidth*sceneHeight / (oldSceneWidth * oldSceneHeight));
   }
+  */
+
+  TBS();
+  PullAngles();
+  pullVelo();
+  InitAll();
+  paused = !paused;
+
+
+
   ReturnPoint = [];
   Dumped = false;
   oldWidth = width;
   oldHeight = height;
   oldSceneWidth = sceneWidth;
   oldSceneHeight = sceneHeight;
+
+
+
+
+
 }
 
 function CreateObject(){
@@ -1544,7 +1675,11 @@ function touchEnded() {
 */
 function reset(){
 
-PlV1 = 3;
+Flipped = false;
+dt = 1;
+
+PlVT = 6;
+PlV1 = PlVT;
 PlA1 = 0;
 PlX1 = 5;
 PlY1 = 10;
@@ -1553,6 +1688,7 @@ PlV2 = 0;
 PlA2 = 0;
 PlX2 = 15;
 PlY2 = 12;
+PlVT = sqrt(PlV1*PlV1 + PlV2*PlV2);
 
 PushDynValue();
 UpdateAll();
@@ -1655,6 +1791,11 @@ function keyPressed(){
 
     dt *= 2;
 
+
+    if (abs(dt-1)<0.05){
+      dt = 1;
+    }
+
     }
 
   if (key === 'Z'){
@@ -1662,6 +1803,10 @@ function keyPressed(){
       VarInput = '';
   
       dt /= 2;
+
+      if (abs(dt-1)<0.05){
+        dt = 1;
+      }
   
       }
 
@@ -1672,6 +1817,18 @@ function keyPressed(){
     XLog = [];
     YLog = []; 
     Dumped = false;
+    
+  }
+
+  if (key === 'V'){
+
+    drawVelos = !drawVelos;
+    
+  }
+
+  if (key === 'D'){
+
+    DarkMode = !DarkMode;
     
   }
 

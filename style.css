@@ -5,14 +5,6 @@ html, body {
   font-family: "Avenir Next", "Verdana", sans-serif !important;
   
 }
-canvas {
-    padding-left: 0;
-    padding-right: 0;
-    margin-left: auto;
-    margin-right: auto;
-    display: block;
-    width: 800px;
-}
 
 table{
   table-layout: fixed;
@@ -24,16 +16,23 @@ th, td {
 }
 
 button {
-  background-color: #4ABF50; /* Green */
-  border: none;
+  background-color: #a65821; /* Green */
+  border:2px solid white;
   color: white;
-  padding: 5px 10px;
+  padding-top: 20px;
+  padding-bottom: 20px;
+  padding-right: 5px;
+
+  padding-left: 5px;
   text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 1em;
-  border-radius: 20px;
+  display: inline;
+  border-radius:10px;
+  width: 100%;
+  text-transform: uppercase;
+  font-size: 0.7em;
+  font-weight: bolder;
 }
+
 button:hover {
   background-color: rgba(128,128, 128, 1);
 }
@@ -44,40 +43,41 @@ button:active {
 
 
 .styled {
-  border: none;
+  border:2px solid white;
   color: white;
-  padding: 35px 42px;
+
+  padding-top: 40px;
+  padding-bottom: 40px;
   text-align: center;
   text-decoration: none;
   display: inline-block;
   font-size: 1em;
   border-radius: 20px;
   color: #fff;
-  background-color: rgba(180, 80, 50, 1);
-}
-
-.styled:hover {
-  background-color: rgba(255, 160, 100, 1);
+  background-color: #5658b1;
 }
 
 
 .styledB {
-  border: none;
+  border:2px solid white;
   color: white;
-  padding: 15px 12px;
   text-align: center;
+  padding-top: 40px;
+  padding-bottom: 40px;
   text-decoration: none;
   display: inline-block;
   font-size: 1em;
   border-radius: 20px;
   color: #fff;
-  background-color: rgba(80, 80, 250, 1);
+  background-color: #86af21;
 }
 
-.styled:hoverB {
-  background-color: rgba(155, 160, 255, 1);
-}
 
+
+div {
+  display: block;
+  justify-content: space-around;
+}
 
 
 
@@ -93,20 +93,7 @@ input[type="number"] {
 }
 
 
-table.floater {
-    margin-left:auto; 
-    margin-right:auto;
-	position:fixed;
-	width: 25%;
-	left: 0;
-	bottom: 50%;
-	opacity: 0.87;
-	font-weight: bold;
-	font-size: 1.2em;
-	font-family: "Fira Code", "Courier New", "Courier", monospace;
-	
-    background: transparent;
-  }
+
   
  table.center {
     margin-left:auto; 
@@ -125,3 +112,86 @@ table.floater {
   .column {
     flex: 50%;
   }
+
+
+
+    
+
+@media all and (min-width:800px) {
+
+  canvas {
+    padding-left: 0;
+    padding-right: 0;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+    width: 800px;
+}
+
+
+
+  table.floater {
+    color: black;
+    position:fixed;
+    width: 18%;
+    left: 0;
+    bottom: 60%;
+    opacity: 0.87;
+    font-weight: bold;
+    font-size: 0.9em;
+    font-family: "Fira Code", "Courier New", "Courier", monospace;
+    background: transparent;
+    }
+
+  .floatingControl {
+
+    position:fixed;
+    width: 10%;
+    left: 0%;
+    bottom: 0%;
+    font-weight: normal;
+    font-size: 1.2em;
+    background: transparent;
+    }
+
+}
+
+
+@media all and (max-width:800px) {
+
+  canvas {
+    padding-left: 0;
+    padding-right: 0;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+    width: 100%;
+}
+
+  table.floater {
+    color: black;
+    position:relative;
+    margin-left:auto; 
+    margin-right:auto;
+    width: 50%;
+    left: 0;
+    bottom: 60%;
+    opacity: 0.87;
+    font-weight: bold;
+    font-size: 0.9em;
+    font-family: "Fira Code", "Courier New", "Courier", monospace;
+    background: transparent;
+    }
+
+  .floatingControl {
+
+    position:relative;
+    width:100%;
+    left: 0%;
+    bottom: 0%;
+    font-weight: normal;
+    font-size: 1.2em;
+    background: transparent;
+    }
+
+}
