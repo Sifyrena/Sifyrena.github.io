@@ -509,8 +509,13 @@ function drawScene(){
 
   for (let i = 0; i < particles.length; i++){
     let c = color(150+80*i,160-80*i,110-90*i);
-    drawParticle(particles[i].x, particles[i].y, particles[i].r, c);
-    drawParticleCB(i,particles[i].x, particles[i].y)
+
+    if (DiffWC){
+      drawParticle(particles[i].x, particles[i].y, particles[i].r, color(251,0,0));
+      drawParticleCB(i,particles[i].x, particles[i].y)
+
+    } else {
+    drawParticle(particles[i].x, particles[i].y, particles[i].r, c);}
   }
   drawAngularV();
   drawVel();
