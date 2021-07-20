@@ -63,7 +63,7 @@ function update(dt, particles, vectors, width, height) {
           particles[j].vy += l/(particles[j].mass)*dy;
 
 
-/*// No spin no shear. FW's twist. 
+/*// No spin no shear. FW's naive twist. 
           let uax = particles[i].vx;
           let uay = particles[i].vy;
 
@@ -73,6 +73,7 @@ function update(dt, particles, vectors, width, height) {
           let ma = particles[i].mass;
           let mb = particles[j].mass;
 
+// THIS IS FALSE
 
         particles[i].vx = (SBoun*mb*(ubx-uax) + ma * uax + mb* ubx) / (ma + mb);
 

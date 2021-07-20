@@ -752,8 +752,8 @@ function drawMenu(){
 function drawGrids(){
 
   if (DarkMode) {
-    fill(199); // dark mode
- } else {fill(73)};
+    fill('rgba(199,199,199,0.3)'); // dark mode
+ } else {fill('rgba(72,72,72,0.3)')};
 
 
   let Grading = aCM / METER_RATIO;
@@ -1086,7 +1086,7 @@ let XLog = [];
 let YLog = [];
 
 const GlobalTrailLength = 500;
-let TrailLength = 150;
+let TrailLength = 60;
 
 
 function drawArrows()
@@ -1118,11 +1118,12 @@ function drawArrows()
 
 }
 
+let ti = 0;
 
 
 function drawTrail(){
 
-  const TrailMaxRad =  0.25;
+  const TrailMaxRad = 0.35;
   if (particles == [] || particles.length >= 10){
     XLog = [];
     YLog = [];
@@ -1130,9 +1131,14 @@ function drawTrail(){
   } else {
 
     if (!paused){
+	ti+= 1;
       for (let i = 0; i < particles.length; i++) {
+
+	if (ti%3 == 0){
+	ti = 0;
         XLog.push(particles[i].x);
         YLog.push(particles[i].y);
+	}
       }
     }
 
@@ -1146,11 +1152,11 @@ function drawTrail(){
       noStroke();
 
       if (DarkMode) {
-        fill('rgba(255,248,249,'+i/TrailLength/particles.length+')');; // dark mode
-     } else {fill('rgba(5,8,9,'+i/TrailLength/particles.length+')');}
+        fill('rgba(255,238,229,'+i/TrailLength/particles.length/1.5+')');; // dark mode
+     } else {fill('rgba(15,8,9,'+i/TrailLength/particles.length/1.5+')');}
 
     
-      let TrRad = TrailMaxRad*(i/XLog.length)*(i/XLog.length);
+      let TrRad = TrailMaxRad*(i/XLog.length);
       ellipse(XLog[i],YLog[i],metersInPixels*TrRad*SphCM);
     }
   }
