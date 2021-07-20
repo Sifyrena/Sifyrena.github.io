@@ -120,7 +120,7 @@ input[type="number"] {
 
     
 
-@media all and (min-width:800px) {
+@media all and (min-width:1000px) {
 
   canvas {
     padding-left: 0;
@@ -174,7 +174,7 @@ input[type="number"] {
 }
 
 
-@media all and (max-width:800px) {
+@media all and (max-width:1000px) {
 
   canvas {
     padding-left: 0;
