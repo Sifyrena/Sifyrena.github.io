@@ -540,6 +540,8 @@ function drawScene(){
   //drawMenu();
   drawPaws();
   drawTimeScale();
+  drawArrows();
+
 
   PushDynValue();
 
@@ -1071,6 +1073,38 @@ let YLog = [];
 
 const GlobalTrailLength = 500;
 let TrailLength = 150;
+
+
+function drawArrows()
+{
+	if (Moving == 'A' || Moving == 'B'){
+
+
+		if (DarkMode){
+   	   fill('rgba(255,255,255,0.8)');
+  	  } else {
+  	    fill('rgba(30,30,30,0.72)');
+  	  }
+  
+		textSize(min(metersInPixels*20,sceneWidth/24));
+   
+		textAlign(LEFT, TOP);
+   
+
+  
+		text('[F] +5 Degrees',metersInPixels,0);
+
+		textAlign(RIGHT, TOP);
+
+		text('[G] -5 Degrees',sceneWidth-metersInPixels,0);
+
+	}
+
+
+
+}
+
+
 
 function drawTrail(){
 
