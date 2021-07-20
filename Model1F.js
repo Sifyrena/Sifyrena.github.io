@@ -428,7 +428,7 @@ function draw() {
   metersInPixels = BoSIX; // How Long the Scene is in CM
 
   METER_RATIO = metersInPixels / sceneWidth; // How Long Each CM is in Pixels
-  CircR = min(sceneHeight,sceneWidth)/5;
+  CircR = min(sceneHeight,sceneWidth)/3;
 
   OriginX = 0;
   OriginY = sceneHeight; 
@@ -999,8 +999,10 @@ function drawAngularV(){
 
 
   if (DarkMode) {
-    stroke(255,255,0);; // dark mode
- } else {stroke(10,10,40);}
+    stroke(255,255,0);
+    fill(255); // dark mode
+ } else {stroke(10,10,40);
+ 	fill(0);}
   
   strokeWeight(metersInPixels/3);
 
@@ -1008,6 +1010,18 @@ function drawAngularV(){
   v2S = CToV(particles[1].vx,particles[1].vy);
 
   point(v1S/PlVT*CircR, sceneHeight - v2S/PlVT*CircR);
+
+  textAlign(CENTER,BOTTOM);
+	  noStroke();
+  text('|v1|',CircR/2,sceneHeight-metersInPixels/6);
+
+	  textAlign(LEFT,CENTER);
+
+	 
+ 	 text('|v2|',metersInPixels/6,sceneHeight-CircR/2);
+
+
+
 
 
   
@@ -1881,11 +1895,9 @@ function keyPressed(){
 
   if (key === 'C'){
 
-    particles = [];
-    vectors = [];
     XLog = [];
     YLog = []; 
-    Dumped = false;
+    
     
   }
 
