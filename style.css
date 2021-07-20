@@ -8,6 +8,9 @@ html, body {
 
 table{
   table-layout: fixed;
+          border-collapse: separate;
+           border-spacing: 2px;
+
 }
 
 th, td {
@@ -133,7 +136,7 @@ input[type="number"] {
   table.floater {
     color: black;
     position:fixed;
-    width: 18%;
+    width: 20%;
     left: 0;
     bottom: 60%;
     opacity: 0.87;
@@ -146,13 +149,27 @@ input[type="number"] {
   .floatingControl {
 
     position:fixed;
-    width: 10%;
+    width: 15%;
     left: 0%;
     bottom: 0%;
     font-weight: normal;
     font-size: 1.2em;
     background: transparent;
     }
+
+  .floatingManual {
+
+    Position:fixed;
+    width:20%;
+    left: 80%;
+    bottom:0%;
+    Font-size: 0.8em;
+    background: transparent;
+    background-color: black;
+    opacity: 0.5;
+
+    }
+
 
 }
 
@@ -193,5 +210,14 @@ input[type="number"] {
     font-size: 1.2em;
     background: transparent;
     }
+
+  .floatingManual {
+
+    position:relative;
+    width:100%;
+    left: 0%;
+    bottom: 0%;
+    }
+
 
 }
