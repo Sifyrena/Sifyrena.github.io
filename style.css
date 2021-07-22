@@ -129,6 +129,7 @@ input[type="number"] {
     margin-right: auto;
     display: block;
     width: 800px;
+	touch-action: none;
 }
 
 
@@ -183,6 +184,7 @@ input[type="number"] {
     margin-right: auto;
     display: block;
     width: 100%;
+	  touch-action: none;
 }
 
   table.floater {
