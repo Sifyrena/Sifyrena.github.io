@@ -269,7 +269,7 @@ window.onkeydown = function(e) {
 
 function setup() {
 
-  if (window.innerWidth < 800){
+  if (window.innerWidth < 1000){
     CanvasScale = 1;
   } else {
     CanvasScale = CanvasScaleD;
@@ -1608,7 +1608,7 @@ function GiveXY(){
 
 function windowResized() {
 
-  if (window.innerWidth < 800){
+  if (window.innerWidth < 1000){
     CanvasScale = 1;
   } else {
     CanvasScale = CanvasScaleD;
@@ -1803,7 +1803,7 @@ function pullConditions(){
 
 }
 
-function mouseClicked() {
+function mousePressed() {
 
 
   if (Moving == 'A'){
