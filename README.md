@@ -2,4 +2,6 @@
 
 ## List of Stuff
 
-[Go to PHYS 100/100G Activity 1](Activity1.html)
+* [UoA PHYS 100/100G Activity 1](Activity1.html)
+
+* [2D Collisionless Gas Playground](BoxGas.html)
