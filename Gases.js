@@ -1,4 +1,4 @@
-// FW BOXES AND SLIDERS
+// NOT USEFUL FOR THIS DEMO
 
 const SphCM = 2.00;
 const aCM = 1.90;
@@ -9,13 +9,20 @@ const BoGY = 20;
 
 const BoSIX = BoGX * aCM
 
-// Placement Helpers
+// TIMESTEP 
 
-let PlVelo =  5;
-let PlAngl = 0;
-let PlX = 0;
-let PlY = 0;
+let dt = 1;
 
+
+// TWO SPECIES GAS DYNAMICS!!
+
+const m1 = 1;
+const m2 = 16;
+const r1 = 8;
+const r2 = 32;
+
+const c1 = 'rgba(0, 176, 218, 0.95)';
+const c2 = 'rgba(196, 130, 14, 0.95)';
 
 // Original
 
@@ -82,73 +89,51 @@ const NEGATIVE_PARTICLES = [NEGATIVE_PARTICLE_MODE, BIG_NEGATIVE_PARTICLE_MODE];
 let mouseHasBeenPressed = false;
 let tailX, tailY;
 
+let CanvasScale;
+let CanvasScaleD = 0.6;
+
 function setup() {
-  createCanvas(window.innerWidth, window.innerHeight);
+
+  var cnv = createCanvas(window.innerWidth, window.innerHeight);
+  cnv.parent("Sim");
+
   oldWidth = width;
   oldHeight = height;
+
   if (isLandscape()) {
     menuHeight = height;
     menuWidth = height/MENU_RATIO;
-    oldSceneWidth = width - menuWidth;
+    oldSceneWidth = width;
     oldSceneHeight = height;
   } else {
     menuWidth = width;
     menuHeight = width/MENU_RATIO;
     oldSceneWidth = width;
-    oldSceneHeight = height - menuHeight;
+    oldSceneHeight = height;
   }
+
 } 
 
 function draw() {
   if (isLandscape()) {
-    // draw menu on the right getSide()
+    // draw menu on the left getSide()
     menuHeight = height;
-    menuWidth = height / MENU_RATIO;
-
-    if (isBoardWide){
-	
-	sceneWidth = width - menuWidth;
-	sceneHeight = sceneWidth * BoGY/BoGX;
-
-    }else{
-	sceneHeight = height;
-	sceneWidth = sceneHeight / BoGY*BoGX;
-    }
-
-   
-    CBOX = 0;
-    CBOY = sceneHeight - menuHeight/5;
-    
-    CBW = menuHeight/2;
-    CBH = menuHeight/5;
-
+    menuWidth = height/MENU_RATIO;
+    sceneWidth = width - menuWidth;
+    sceneHeight = height;
   } else {
     menuWidth = width;
-    menuHeight = width / MENU_RATIO;
-
-
-    if (isBoardWide){
-	
-	sceneWidth = width
-	sceneHeight = sceneWidth * BoGY/BoGX;
-
-    }else{
-	sceneHeight = height - menuHeight;
-	sceneWidth = sceneHeight / BoGY*BoGX;
-    }
-
-    CBOX = 0;
-    CBOY = 0;
-    CBW = menuWidth/2;
-    CBH = menuWidth/5;
+    menuHeight = width/MENU_RATIO;
+    sceneWidth = width;
+    sceneHeight = height - menuHeight;
   }
-
+  metersInPixels = METER_RATIO * sceneWidth;
   metersInPixels = BoSIX;
 
   METER_RATIO = metersInPixels / sceneWidth;
 
   if (!paused){
-    update(1, particles, vectors, sceneWidth, sceneHeight);
+    update(dt, particles, vectors, sceneWidth, sceneHeight);
   }
 
   // DRAWING HAPPENS HERE
@@ -167,7 +152,7 @@ function draw() {
 
 
 function drawScene(){
-  background(195,120,10);
+  background('rgba(195,120,10,0');
   fill(255);
   rect(0,0,sceneWidth,sceneHeight);
 
@@ -188,12 +173,10 @@ function drawScene(){
 
   for (let i = 0; i < particles.length; i++){
     let c;
-    if (particles[i].charge > 0){
-      c = color(10, 10, 122);
-    } else if (particles[i].charge < 0) {
-      c = color(122, 10, 10);
+    if (particles[i].Species == 'A'){
+      c = color(c1);
     } else {
-      c = color(255,0,0);
+      c = color(c2);
     }
     drawParticle(particles[i].x, particles[i].y, particles[i].r, c);
   }
@@ -205,6 +188,32 @@ function drawScene(){
   drawMenu();
   drawPaws();
   drawVel();
+
+  if (!paused){
+    drawTimeScale();
+    PrepareV();
+
+
+    // Plotly Stuff
+    var trace1 = {
+      x: VData1,
+      type: "histogram",
+      opacity: 0.6,
+      marker: {
+         color: c1,
+      },
+    };
+    var trace2 = {
+      x: VData2,
+      type: "histogram",
+      opacity: 0.6,
+      marker: {
+         color: c2,
+      },
+    };
+  Plotly.newPlot('Fig',[trace1,trace2]);
+
+  }
 
   strokeWeight(Math.max(menuWidth, menuHeight)/150);
   stroke(0);
@@ -259,12 +268,12 @@ function drawScene(){
 }
 
 let MenuItemDrawingFunctions = [
-  (x, y, s) => drawParticle(x + s / 2, y + s / 2, s / 8, color(0, 0, 255)),
-  (x, y, s) => drawParticle(x + s / 2, y + s / 2, s / 8, color(0)),
-  (x, y, s) => drawParticle(x + s / 2, y + s / 2, s / 8, color(255, 0, 0)),
-  (x, y, s) => drawParticle(x + s / 2, y + s / 2, s / 4, color(0, 0, 255)),
-  (x, y, s) => drawParticle(x + s / 2, y + s / 2, s / 4, color(0)),
-  (x, y, s) => drawParticle(x + s / 2, y + s / 2, s / 4, color(255, 0, 0)),
+  (x, y, s) => drawParticle(x + s / 2, y + s / 2, s / 8, color(c1)),
+  (x, y, s) => drawParticle(x + s / 2, y + s / 2, s / 8, color(c1)),
+  (x, y, s) => drawParticle(x + s / 2, y + s / 2, s / 8, color(c1)),
+  (x, y, s) => drawParticle(x + s / 2, y + s / 2, s / 4, color(c2)),
+  (x, y, s) => drawParticle(x + s / 2, y + s / 2, s / 4, color(c2)),
+  (x, y, s) => drawParticle(x + s / 2, y + s / 2, s / 4, color(c2)),
   (x, y, s) => drawVector(x + s/7, y + 6/7 * s, x + 6/7 * s, y + s/7),
   (x, y, s) => drawErasor(x + s/2, y + s/2, s/7),
   (x, y, s) => drawPlayPause(x + s/2, y + s/2, s/2),
@@ -312,27 +321,53 @@ function drawMenu(){
   }
 }
 
-function drawGrids(){
+function drawTimeScale(){
 
-fill('rgba(2,2,2,0.5)');
+    fill('rgba(30,30,30,0.92)');
 
-let Grading = aCM / METER_RATIO;
-let HoleDiam = HoleDiamCM / METER_RATIO
 
-for (let j = 0; j < BoGY+1; j++) {
-  for (let i = 0; i < BoGX+1; i++) {
-    ellipse(Grading*i,Grading*j,HoleDiam,HoleDiam);
+    textSize(min(metersInPixels*2,sceneWidth/12));
+    if (!paused){
+
+      if (!abs(dt-1)<0.05){    
+      
+      textAlign(LEFT, TOP);
+      text(dt.toString()+'⨉',metersInPixels,metersInPixels);}
+
   }
 }
-}
 
+let VData1;
+let VData2;
+
+function PrepareV(){
+
+  VData1 = [];
+  VData2 = [];
+  
+
+  for (let i = 0; i < particles.length; i++) {
+
+    if (particles[i].Species === 'A'){
+
+      VData1.push(CToV(particles[i].vx,particles[i].vy));
+
+    } else {
+
+      VData2.push(CToV(particles[i].vx,particles[i].vy));
+    
+      }
+
+  }
+
+}
 
 function drawVel(){
 
   for (let i = 0; i < particles.length; i++) {
 
-    let PVX = particles[i].vx * metersInPixels/4 + particles[i].x;
-    let PVY = particles[i].vy * metersInPixels/4 + particles[i].y;
+    let PVX = particles[i].vx * metersInPixels/20 + particles[i].x;
+    let PVY = particles[i].vy * metersInPixels/20 + particles[i].y;
 
     let LX = particles[i].x;
     let LY = particles[i].y;
@@ -531,7 +566,12 @@ function drawX(x, y, l){
 
 
 function isBoardWide(){
-  return BoGY*width >=  BoGX*height; 
+
+  if (isLandscape()){
+    return BoGY*(width-menuWidth) >=  BoGX*height; 
+  } else {
+    return BoGY*(width) >=  BoGX*(height-menuHeight);
+  }  
 }
 
 
@@ -608,6 +648,8 @@ function MouseInDyn(){
 
 function windowResized() {
   resizeCanvas(window.innerWidth, window.innerHeight);
+
+  /*
   for (let i = 0; i < particles.length; i++) {
     particles[i].x *= sceneWidth / oldSceneWidth;
     particles[i].y *= sceneHeight / oldSceneHeight;
@@ -616,6 +658,7 @@ function windowResized() {
     particles[i].r *= sceneWidth / oldSceneWidth;
     // Math.sqrt(sceneWidth*sceneHeight / (oldSceneWidth * oldSceneHeight));
   }
+  */
   oldWidth = width;
   oldHeight = height;
   oldSceneWidth = sceneWidth;
@@ -624,34 +667,22 @@ function windowResized() {
 
 function mousePressed() {
   if (PARTICLE_MODES.includes(drawingMode)) {
-    let r = SphCM / METER_RATIO / 6;
-    let mass = Math.PI*Math.pow(r, 2);
-    let charge = 0.0;
+    let r = r1;
+    let mass = m1;
+    let charge = 0.;
     let vx;
     let vy;
+    let Species = 'A';
 
-    vx = 10;
+    vx = 6;
     vy = 0;
     
     print('Drawing Particle with speeds,',vx, vy)
 
     if (BIG_PARTICLES.includes(drawingMode)) {
-      mass *= 9;
-      r *= 3;
-    }
-
-    if (NEGATIVE_PARTICLES.includes(drawingMode)) {
-      charge *= -1;
-    
-    }
-
-    if (drawingMode == BIG_NEUTRAL_PARTICLE_MODE ) {
-      charge = 0;
-    }
-
-    if (drawingMode == NEUTRAL_PARTICLE_MODE) {
-      charge = 0;
-
+      mass = m2;
+      r = r2;
+      Species = 'B';
     }
 
     if (!isMouseInMenu()){
@@ -662,7 +693,8 @@ function mousePressed() {
         mass: mass,
         charge: charge,
         vx: vx,
-        vy: vy
+        vy: vy,
+        Species: Species,
       });
     
     }
@@ -702,14 +734,33 @@ function mousePressed() {
 
 function keyPressed(){
 
-
   if (key === ' '){
     paused = !paused;
   }
 
+  if (key === 'a'){
 
 
+    dt *= 2;
 
+
+    if (abs(dt-1)<0.0005){
+      dt = 1;
+    }
+}
+
+  if (key === 'z'){
+
+  
+      dt /= 2;
+
+      if (abs(dt-1)<0.0005){
+        dt = 1;
+      }
+  
+  }
+
+print(key, dt);
 
 
 }
