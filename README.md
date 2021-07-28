@@ -5,5 +5,5 @@
 * [2D Circle Ensemble Playground](BoxGas.html)
 
 
-## Issues and Contact
-Email ⟨FW|@|fwphys.com⟩ or raise an issue on GitHub!
+## Author Contact
+Email ⟨ FW | at | fwphys.com ⟩ or raise an issue on GitHub!
