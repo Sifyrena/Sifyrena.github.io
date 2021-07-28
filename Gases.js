@@ -15,8 +15,8 @@ let dt = 1;
 
 
 // TWO SPECIES GAS DYNAMICS
-const m1 = 2;
-const m2 = 8;
+const m1 = 1;
+const m2 = 16;
 const r1 = 10;
 const r2 = 40;
 
