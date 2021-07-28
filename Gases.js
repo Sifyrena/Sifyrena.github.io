@@ -624,14 +624,14 @@ function windowResized() {
 
 function mousePressed() {
   if (PARTICLE_MODES.includes(drawingMode)) {
-    let r = SphCM / METER_RATIO / 3;
+    let r = SphCM / METER_RATIO / 6;
     let mass = Math.PI*Math.pow(r, 2);
     let charge = 0.01;
     let vx;
     let vy;
 
-    vx = DegToX(PlVelo,PlAngl);
-    vy = DegToY(PlVelo,PlAngl);
+    vx = 10;
+    vy = 0;
     
     print('Drawing Particle with speeds,',vx, vy)
 
