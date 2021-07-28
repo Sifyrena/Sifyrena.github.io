@@ -159,8 +159,27 @@ yaxis: {range: [0, 20]},
 paper_bgcolor: 'rgba(0,0,0,0)',
 plot_bgcolor: 'rgba(0,0,0,0)', 
 autosize: false,
-width: 500,
-height: 500,};
+width: 800,
+height: 600,
+xaxis: {
+  title: {
+    text: 'Speed (arbitrary units)',
+    font: {
+      family: 'Courier New, monospace',
+      size: 18,
+      color: '#000000'
+    }
+  },
+},
+yaxis: {
+  title: {
+    text: 'Frequency',
+    font: {
+      family: 'Courier New, monospace',
+      size: 18,
+      color: '#000000'
+    }
+  }}};
 
 function drawScene(){
   background('rgba(195,120,10,0');
@@ -207,6 +226,7 @@ function drawScene(){
     // Plotly Stuff Version 1: Automatic Histogram
     var trace1 = {
       x: VData1,
+      name: 'Gas 1',
       type: "histogram",
       opacity: 0.6,
       marker: {
@@ -215,6 +235,7 @@ function drawScene(){
     };
     var trace2 = {
       x: VData2,
+      name: 'Gas 2',
       type: "histogram",
       opacity: 0.6,
       marker: {
