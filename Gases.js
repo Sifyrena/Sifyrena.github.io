@@ -626,7 +626,7 @@ function mousePressed() {
   if (PARTICLE_MODES.includes(drawingMode)) {
     let r = SphCM / METER_RATIO / 6;
     let mass = Math.PI*Math.pow(r, 2);
-    let charge = 0.01;
+    let charge = 0.0;
     let vx;
     let vy;
 
