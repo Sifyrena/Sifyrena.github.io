@@ -6,4 +6,4 @@
 
 
 ## Issues and Contact
-fwphys.com or raise an issue on GitHub!
+Email ⟨FW|@|fwphys.com⟩ or raise an issue on GitHub!
