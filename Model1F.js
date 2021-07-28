@@ -16,9 +16,7 @@ if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').match
   DarkMode = true;// dark mode
 } else {DarkMode = false;}
 
-
 // Placement Helpers
-
 
 let PlVelo =  5;
 let PlAngl = 0;
@@ -306,8 +304,6 @@ function setup() {
   document.getElementById("TBAt").innerHTML = AttributeString;
 
 }
-
-
 
 function gotFile(file) {
   // If it's an image file
