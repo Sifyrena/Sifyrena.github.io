@@ -149,7 +149,7 @@ function draw() {
 
 // The Previous Mass's Variables (Global)
 
-
+var layout = {barmode: "overlay"};
 
 function drawScene(){
   background('rgba(195,120,10,0');
@@ -198,7 +198,7 @@ function drawScene(){
     var trace1 = {
       x: VData1,
       type: "histogram",
-      nbins: 30,
+      nbinsx: 30,
       opacity: 0.6,
       marker: {
          color: c1,
@@ -206,14 +206,14 @@ function drawScene(){
     };
     var trace2 = {
       x: VData2,
-      nbins: 30,
+      nbinsx: 30,
       type: "histogram",
       opacity: 0.6,
       marker: {
          color: c2,
       },
     };
-  Plotly.newPlot('Fig',[trace1,trace2]);
+  Plotly.newPlot('Fig',[trace1,trace2],layout);
 
   }
 
@@ -339,8 +339,8 @@ function drawTimeScale(){
   }
 }
 
-let VData1;
-let VData2;
+let VData1 = [];
+let VData2 = [];
 
 function PrepareV(){
 
