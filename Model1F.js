@@ -333,6 +333,7 @@ function gotFile(file) {
     PlVT = sqrt(PlV1*PlV1 + PlV2*PlV2);
 
     CreateBi();
+    pullConditions();
     UpdateAll();
 
 
