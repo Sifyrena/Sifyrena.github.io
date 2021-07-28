@@ -14,15 +14,19 @@ const BoSIX = BoGX * aCM
 let dt = 1;
 
 
-// TWO SPECIES GAS DYNAMICS!!
-
-const m1 = 1;
-const m2 = 16;
-const r1 = 8;
-const r2 = 32;
+// TWO SPECIES GAS DYNAMICS
+const m1 = 2;
+const m2 = 8;
+const r1 = 10;
+const r2 = 40;
 
 const c1 = 'rgba(0, 176, 218, 0.95)';
 const c2 = 'rgba(196, 130, 14, 0.95)';
+
+
+// Artificial Binning of Data
+const vM1 = 30;
+const vM2 = 60;
 
 // Original
 
@@ -149,12 +153,18 @@ function draw() {
 
 // The Previous Mass's Variables (Global)
 
-var layout = {barmode: "overlay"};
+var layout = {barmode: "overlay",
+xaxis: {range: [0, 30]},
+yaxis: {range: [0, 20]},  
+paper_bgcolor: 'rgba(0,0,0,0)',
+plot_bgcolor: 'rgba(0,0,0,0)', 
+autosize: false,
+width: 500,
+height: 500,};
 
 function drawScene(){
   background('rgba(195,120,10,0');
-  fill(255);
-  rect(0,0,sceneWidth,sceneHeight);
+
 
   let num = 14;
   for (let i = 1; i < num-1; i++){
@@ -194,11 +204,10 @@ function drawScene(){
     PrepareV();
 
 
-    // Plotly Stuff
+    // Plotly Stuff Version 1: Automatic Histogram
     var trace1 = {
       x: VData1,
       type: "histogram",
-      nbinsx: 30,
       opacity: 0.6,
       marker: {
          color: c1,
@@ -206,7 +215,6 @@ function drawScene(){
     };
     var trace2 = {
       x: VData2,
-      nbinsx: 30,
       type: "histogram",
       opacity: 0.6,
       marker: {

@@ -1,0 +1,230 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  display: block;
+  font-family: "Avenir Next", "Verdana", sans-serif !important;
+  
+}
+
+table{
+  table-layout: fixed;
+          border-collapse: separate;
+           border-spacing: 2px;
+
+}
+
+th, td {
+  text-align: left;
+  padding: 16px;
+}
+
+button {
+  background-color: #a65821; /* Green */
+  border:2px solid white;
+  color: white;
+  padding-top: 20px;
+  padding-bottom: 20px;
+  padding-right: 5px;
+
+  padding-left: 5px;
+  text-align: center;
+  display: inline;
+  border-radius:10px;
+  width: 100%;
+  text-transform: uppercase;
+  font-size: 0.7em;
+  font-weight: bolder;
+}
+
+button:hover {
+  background-color: rgba(128,128, 128, 1);
+}
+
+button:active {
+  background-color: #CFDA50; /* Green */
+}
+
+
+.styled {
+  border:2px solid white;
+  color: white;
+
+  padding-top: 40px;
+  padding-bottom: 40px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 1em;
+  border-radius: 20px;
+  color: #fff;
+  background-color: #5658b1;
+}
+
+
+.styledB {
+  border:2px solid white;
+  color: white;
+  text-align: center;
+  padding-top: 40px;
+  padding-bottom: 40px;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 1em;
+  border-radius: 20px;
+  color: #fff;
+  background-color: #86af21;
+}
+
+
+
+div {
+  display: block;
+  justify-content: space-around;
+}
+
+
+
+.credits {
+  background-color: white;
+  text-align: center;
+  font-size: 1em !important;
+}
+
+input[type="number"] {
+    font-size:20px;
+	width: 65px; !important
+}
+
+
+
+  
+ table.center {
+    margin-left:auto; 
+    margin-right:auto;
+	font-family: "Fira Code", "Courier New", "Courier", monospace;
+	font-weight: bold;
+  }
+  
+  .row {
+    display: flex;
+    margin-left:auto; 
+    margin-right:auto;
+
+  }
+  
+  .column {
+    flex: 50%;
+  }
+
+
+
+.BGT {
+  position: relative;
+}
+
+@media all and (min-width:1000px) {
+
+  canvas {
+    padding-left: 0;
+    padding-right: 0;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+    width: 800px;
+	touch-action: none;
+  position: fixed;
+
+}
+
+
+
+  table.floater {
+    color: black;
+    position:fixed;
+    width: 20%;
+    left: 0;
+    bottom: 60%;
+    opacity: 0.87;
+    font-weight: bold;
+    font-size: 0.9em;
+    font-family: "Fira Code", "Courier New", "Courier", monospace;
+    background: transparent;
+    }
+
+  .floatingControl {
+
+    position:fixed;
+    width: 15%;
+    left: 0%;
+    bottom: 0%;
+    font-weight: normal;
+    font-size: 1.2em;
+    background: transparent;
+    }
+
+  .floatingManual {
+
+    Position:fixed;
+    width:20%;
+    left: 80%;
+    bottom:0%;
+    Font-size: 0.8em;
+    background: transparent;
+    background-color: black;
+    opacity: 0.5;
+
+    }
+
+
+}
+
+
+@media all and (max-width:1000px) {
+
+  canvas {
+    padding-left: 0;
+    padding-right: 0;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+    width: 100%;
+	  touch-action: none;
+    position: fixed;
+}
+
+  table.floater {
+    color: black;
+    position:relative;
+    margin-left:auto; 
+    margin-right:auto;
+    width: 50%;
+    left: 0;
+    bottom: 60%;
+    opacity: 0.87;
+    font-weight: bold;
+    font-size: 0.9em;
+    font-family: "Fira Code", "Courier New", "Courier", monospace;
+    background: transparent;
+    }
+
+  .floatingControl {
+
+    position:relative;
+    width:100%;
+    left: 0%;
+    bottom: 0%;
+    font-weight: normal;
+    font-size: 1.2em;
+    background: transparent;
+    }
+
+  .floatingManual {
+
+    position:relative;
+    width:100%;
+    left: 0%;
+    bottom: 0%;
+    }
+
+
+}
