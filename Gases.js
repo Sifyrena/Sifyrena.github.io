@@ -187,7 +187,7 @@ function drawScene(){
   fill(0);
   drawMenu();
   drawPaws();
-  drawVel();
+  //drawVel();
 
   if (!paused){
     drawTimeScale();
