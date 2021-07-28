@@ -198,6 +198,7 @@ function drawScene(){
     var trace1 = {
       x: VData1,
       type: "histogram",
+      nbins: 30,
       opacity: 0.6,
       marker: {
          color: c1,
@@ -205,6 +206,7 @@ function drawScene(){
     };
     var trace2 = {
       x: VData2,
+      nbins: 30,
       type: "histogram",
       opacity: 0.6,
       marker: {
