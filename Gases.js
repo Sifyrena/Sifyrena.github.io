@@ -699,3 +699,17 @@ function mousePressed() {
     }
   }
 }
+
+function keyPressed(){
+
+
+  if (key === ' '){
+    paused = !paused;
+  }
+
+
+
+
+
+
+}
