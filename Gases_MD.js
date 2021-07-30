@@ -24,18 +24,9 @@ const c1 = 'rgba(0, 176, 218, 0.95)';
 const c2 = 'rgba(196, 130, 14, 0.95)';
 
 
-// Manual Binning of Data
-
-// Overview of plan: 
-const vMax = 60;
-const NBins = 50;
-let BIN_WIDTH = vMax/NBins;
-
-let VData1 = math.zeros(NBins);
-let VData2 = math.zeros(NBins);
-
-const VeloRange = math.multiply(math.range(0,NBins,false),BIN_WIDTH);
-
+// Artificial Binning of Data
+const vM1 = 30;
+const vM2 = 60;
 
 // Original
 
@@ -162,36 +153,33 @@ function draw() {
 
 // The Previous Mass's Variables (Global)
 
-var layout = {
-xaxis: {range: [0, vMax]},
-yaxis: {range: [0, 40]},  
+var layout = {barmode: "overlay",
+xaxis: {range: [0, 30]},
+yaxis: {range: [0, 20]},  
 paper_bgcolor: 'rgba(0,0,0,0)',
 plot_bgcolor: 'rgba(0,0,0,0)', 
 autosize: false,
 width: 800,
 height: 600,
-  xaxis: {
-    title: {
-      text: 'Speed (arbitrary units)',
-      font: {
-        family: 'Courier New, monospace',
-        size: 18,
-        color: '#000000'
-      }
-    },
-  },
-  yaxis: {
-    title: {
-      text: 'Frequency',
-      font: {
-        family: 'Courier New, monospace',
-        size: 18,
-        color: '#000000'
-      }
+xaxis: {
+  title: {
+    text: 'Speed (arbitrary units)',
+    font: {
+      family: 'Courier New, monospace',
+      size: 18,
+      color: '#000000'
     }
-  }
-
-};
+  },
+},
+yaxis: {
+  title: {
+    text: 'Frequency',
+    font: {
+      family: 'Courier New, monospace',
+      size: 18,
+      color: '#000000'
+    }
+  }}};
 
 function drawScene(){
   background('rgba(195,120,10,0');
@@ -232,28 +220,23 @@ function drawScene(){
 
   if (!paused){
     drawTimeScale();
-    //PrepareV();
-  
-    VData1.subset(math.index(2), 6);
+    PrepareV();
 
-    // Plotly Stuff Version 2: Manual Histogram
 
+    // Plotly Stuff Version 1: Automatic Histogram
     var trace1 = {
-      x: VeloRange.toArray(),
-      y: VData1.toArray(),
+      x: VData1,
       name: 'Gas 1',
-      type: "scatter",
+      type: "histogram",
       opacity: 0.6,
       marker: {
          color: c1,
       },
     };
-
     var trace2 = {
-      x: VeloRange.toArray(),
-      y: VData2.toArray(),
+      x: VData2,
       name: 'Gas 2',
-      type: "scatter",
+      type: "histogram",
       opacity: 0.6,
       marker: {
          color: c2,
@@ -385,22 +368,24 @@ function drawTimeScale(){
   }
 }
 
+let VData1 = [];
+let VData2 = [];
 
 function PrepareV(){
 
-  let LocalVData1 = math.zeros(NBins);
-  let LocalVData2 = math.zeros(NBins);
-
+  VData1 = [];
+  VData2 = [];
+  
 
   for (let i = 0; i < particles.length; i++) {
 
     if (particles[i].Species === 'A'){
 
-      LocalVData1.push(CToV(particles[i].vx,particles[i].vy));
+      VData1.push(CToV(particles[i].vx,particles[i].vy));
 
     } else {
 
-      LocalVData2.push(CToV(particles[i].vx,particles[i].vy));
+      VData2.push(CToV(particles[i].vx,particles[i].vy));
     
       }
 
