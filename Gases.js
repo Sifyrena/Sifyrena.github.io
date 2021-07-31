@@ -484,7 +484,7 @@ let ShowPlot = false;
 let V1Log = [];
 let V2Log = [];
 
-const LogCap = 200;
+const LogCap = 1000;
 
 function PrepareV(){ // Do sorting and binning in one function? Do we need sorting at all?
 
