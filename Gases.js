@@ -27,8 +27,8 @@ const c2 = 'rgba(196, 130, 14, 0.95)';
 // Manual Binning of Data
 
 // Overview of plan: 
-const vMax = 60;
-const NBins = 50;
+const vMax = 40;
+const NBins = 20;
 let BIN_WIDTH = vMax/NBins;
 
 let VData1 = math.zeros(NBins);
@@ -232,9 +232,12 @@ function drawScene(){
 
   if (!paused){
     drawTimeScale();
-    //PrepareV();
+    PrepareV();
   
-    VData1.subset(math.index(2), 6);
+    // This is how you modify values! 
+    // VData1.subset(math.index(2), (VData1.subset(math.index(2))+1 ));
+
+    // VData1.subset(math.index(7), (VData1.subset(math.index(7))+0.1 ));
 
     // Plotly Stuff Version 2: Manual Histogram
 
@@ -386,27 +389,75 @@ function drawTimeScale(){
 }
 
 
-function PrepareV(){
 
-  let LocalVData1 = math.zeros(NBins);
-  let LocalVData2 = math.zeros(NBins);
+let V1Log = [];
+let V2Log = [];
+
+const LogCap = 50;
+
+function PrepareV(){ // Do sorting and binning in one function? Do we need sorting at all?
+
+  //
+
+
+  LocalVData1 = math.multiply(VData1,0);
+  LocalVData2 = math.multiply(VData2,0);
 
 
   for (let i = 0; i < particles.length; i++) {
 
+
+    let parV = CToV(particles[i].vx,particles[i].vy);
+
+    let Answer = Math.floor(parV/BIN_WIDTH);
+
+    if (Answer >= NBins){
+      Answer = NBins-1;
+    }
+
+    
     if (particles[i].Species === 'A'){
 
-      LocalVData1.push(CToV(particles[i].vx,particles[i].vy));
+      LocalVData1.subset(math.index(Answer), (LocalVData1.subset(math.index(Answer))+1 ));
 
     } else {
 
-      LocalVData2.push(CToV(particles[i].vx,particles[i].vy));
+      LocalVData2.subset(math.index(Answer), (LocalVData2.subset(math.index(Answer))+1 ));
     
       }
 
   }
 
+
+
+  V1Log.push(LocalVData1);
+  V2Log.push(LocalVData2);
+
+
+  if (V1Log.length > LogCap){
+      V1Log = V1Log.slice(-LogCap);
+      V2Log = V2Log.slice(-LogCap);
+  }
+
+
+  VData1 = math.multiply(VData1,0);
+  VData2 = math.multiply(VData2,0);
+
+  for (let i = 0; i < V1Log.length; i++) {
+
+    VData1 = math.add(VData1,V1Log[i]);
+    VData2 = math.add(VData2,V2Log[i]);
+
+  }
+
+  VData1 = math.multiply(VData1,1/V1Log.length);
+  VData2 = math.multiply(VData2,1/V1Log.length);
+
+
+
 }
+
+
 
 function drawVel(){
 
@@ -519,7 +570,6 @@ function DegToY(v,Th){
 
   return v*sin(Ang);
 }
-
 
 
 function drawPaws(){
@@ -653,37 +703,6 @@ function isMouseInMenu(){
   }
 }
 
-/* function isMouseInCreate(){
-
-}
-
-function isMouseInSave(){
-
-}
-
-
-function MouseInDyn(){
-
-
-    if(){
-
-	return 'x';
-    } else if() {
-
-	return 'y';
-
-    } else if() {
-
-	return 'v';
-
-    } else if() {
-
-	return 'th';
-
-    }else{
-	return '';
-
-} */
 
 
 // ##############
