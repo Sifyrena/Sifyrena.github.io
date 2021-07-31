@@ -23,12 +23,14 @@ const r2 = 40;
 const c1 = 'rgba(0, 176, 218, 0.95)';
 const c2 = 'rgba(196, 130, 14, 0.95)';
 
+const CountPerFig = 6;
+let Fi = 0;
 
 // Manual Binning of Data
 
 // Overview of plan: 
 const vMax = 50;
-const NBins = 30;
+const NBins = 50;
 let BIN_WIDTH = vMax/NBins;
 
 let VData1 = math.zeros(NBins);
@@ -183,20 +185,21 @@ var layout = {
     },
     yaxis: {
       title: {
-        text: 'Frequency',
+        text: 'Fraction Population',
         font: {
           family: 'Courier New, monospace',
           size: 18,
           color: '#000000'
         }
-      }
+      },
+      range: [0,1],
+      fixedrange: true,
     }
 
 };
 
 
-const CountPerFig = 3;
-let Fi = 0;
+
 
 function drawScene(){
   background('rgba(195,120,10,0');
@@ -491,7 +494,8 @@ function PrepareV(){ // Do sorting and binning in one function? Do we need sorti
   LocalVData1 = math.multiply(VData1,0);
   LocalVData2 = math.multiply(VData2,0);
 
-
+  let CountA = 0;
+  let CountB = 0;
   for (let i = 0; i < particles.length; i++) {
 
 
@@ -506,10 +510,13 @@ function PrepareV(){ // Do sorting and binning in one function? Do we need sorti
     
     if (particles[i].Species === 'A'){
 
+      CountA += 1;
+
       LocalVData1.subset(math.index(Answer), (LocalVData1.subset(math.index(Answer))+1 ));
 
     } else {
 
+      CountB += 1;
       LocalVData2.subset(math.index(Answer), (LocalVData2.subset(math.index(Answer))+1 ));
     
       }
@@ -517,6 +524,13 @@ function PrepareV(){ // Do sorting and binning in one function? Do we need sorti
   }
 
 
+  if (CountA > 0){
+    LocalVData1 = math.multiply(LocalVData1,1/CountA);
+  }
+
+  if (CountB > 0){
+    LocalVData2 = math.multiply(LocalVData2,1/CountB);
+  }
 
   V1Log.push(LocalVData1);
   V2Log.push(LocalVData2);
@@ -832,6 +846,10 @@ function mousePressed() {
         } else if (item === DELETE_ALL){
           particles = [];
           vectors = [];
+          VData1 = math.multiply(VData1,0);
+          VData2 = math.multiply(VData2,0);
+          V2Log = [];
+          V1Log = [];
         } else {
           drawingMode = item;
         }
