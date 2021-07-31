@@ -133,6 +133,9 @@ input[type="number"] {
     width: 800px;
 	touch-action: none;
   position: fixed;
+  user-select: none;
+-webkit-user-select: none;
+-moz-user-select: none;
 
 }
 
@@ -190,6 +193,9 @@ input[type="number"] {
     width: 100%;
 	  touch-action: none;
     position: fixed;
+    user-select: none;
+-webkit-user-select: none;
+-moz-user-select: none;
 }
 
   table.floater {

@@ -61,7 +61,7 @@ let oldWidth, oldHeight; //  old canvas dimensions
 let CBOX, CBOY, CBW, CBH ; // Infobox Size
 
 let metersInPixels;
-let drawingMode = 4;
+let drawingMode = -1;
 
 const POSITIVE_PARTICLE_MODE = 0;
 const NEUTRAL_PARTICLE_MODE = 1;
@@ -163,35 +163,40 @@ function draw() {
 // The Previous Mass's Variables (Global)
 
 var layout = {
-xaxis: {range: [0, vMax]},
-yaxis: {range: [0, 40]},  
-paper_bgcolor: 'rgba(0,0,0,0)',
-plot_bgcolor: 'rgba(0,0,0,0)', 
-autosize: false,
-width: 800,
-height: 600,
-  xaxis: {
-    title: {
-      text: 'Speed (arbitrary units)',
-      font: {
-        family: 'Courier New, monospace',
-        size: 18,
-        color: '#000000'
-      }
+  barmode: 'overlay',
+  xaxis: {range: [0, vMax]},
+  yaxis: {range: [0, 40]},  
+  paper_bgcolor: 'rgba(1,1,1,0)',
+  plot_bgcolor: 'rgba(255,255,255,.6)', 
+  autosize: false,
+  width: 800,
+  height: 600,
+    xaxis: {
+      title: {
+        text: 'Speed (arbitrary units)',
+        font: {
+          family: 'Courier New, monospace',
+          size: 18,
+          color: '#000000'
+        }
+      },
     },
-  },
-  yaxis: {
-    title: {
-      text: 'Frequency',
-      font: {
-        family: 'Courier New, monospace',
-        size: 18,
-        color: '#000000'
+    yaxis: {
+      title: {
+        text: 'Frequency',
+        font: {
+          family: 'Courier New, monospace',
+          size: 18,
+          color: '#000000'
+        }
       }
     }
-  }
 
 };
+
+
+const CountPerFig = 3;
+let Fi = 0;
 
 function drawScene(){
   background('rgba(195,120,10,0');
@@ -241,28 +246,43 @@ function drawScene(){
 
     // Plotly Stuff Version 2: Manual Histogram
 
-    var trace1 = {
-      x: VeloRange.toArray(),
-      y: VData1.toArray(),
-      name: 'Gas 1',
-      type: "scatter",
-      opacity: 0.6,
-      marker: {
-         color: c1,
-      },
-    };
+    if (ShowPlot){
+      
+      Fi += 1;
 
-    var trace2 = {
-      x: VeloRange.toArray(),
-      y: VData2.toArray(),
-      name: 'Gas 2',
-      type: "scatter",
-      opacity: 0.6,
-      marker: {
-         color: c2,
-      },
-    };
-  Plotly.newPlot('Fig',[trace1,trace2],layout);
+      if (Fi == CountPerFig){
+        
+        Fi = 0;
+
+        var trace1 = {
+          x: VeloRange.toArray(),
+          y: VData1.toArray(),
+          name: 'Gas 1',
+          type: "bar",
+          opacity: 0.6,
+          marker: {
+            color: c1,
+          },
+        };
+
+        var trace2 = {
+          x: VeloRange.toArray(),
+          y: VData2.toArray(),
+          name: 'Gas 2',
+          type: "bar",
+          opacity: 0.6,
+          marker: {
+            color: c2,
+          },
+        };
+      
+
+        Plotly.newPlot('Fig',[trace1,trace2],layout);
+      }
+
+    } else {
+      Plotly.purge('Fig');
+    }
 
   }
 
@@ -319,23 +339,88 @@ function drawScene(){
 }
 
 let MenuItemDrawingFunctions = [
-  (x, y, s) => drawParticle(x + s / 2, y + s / 2, s / 8, color(c1)),
-  (x, y, s) => drawParticle(x + s / 2, y + s / 2, s / 8, color(c1)),
-  (x, y, s) => drawParticle(x + s / 2, y + s / 2, s / 8, color(c1)),
-  (x, y, s) => drawParticle(x + s / 2, y + s / 2, s / 4, color(c2)),
-  (x, y, s) => drawParticle(x + s / 2, y + s / 2, s / 4, color(c2)),
-  (x, y, s) => drawParticle(x + s / 2, y + s / 2, s / 4, color(c2)),
-  (x, y, s) => drawVector(x + s/7, y + 6/7 * s, x + 6/7 * s, y + s/7),
+  (x, y, s) => drawStill(x + s / 2, y + s / 2, s / 8, color(c1)),
+  (x, y, s) => drawNormal(x + s / 2, y + s / 2, s / 8, color(c1)),
+  (x, y, s) => drawFast(x + s / 2, y + s / 2, s / 8, color(c1)),
+  (x, y, s) => drawStill(x + s / 2, y + s / 2, s / 4, color(c2)),
+  (x, y, s) => drawNormal(x + s / 2, y + s / 2, s / 4, color(c2)),
+  (x, y, s) => drawFast(x + s / 2, y + s / 2, s / 4, color(c2)),
+  (x, y, s) => drawT(x + s/2, y + s/2 ,1,1),
   (x, y, s) => drawErasor(x + s/2, y + s/2, s/7),
   (x, y, s) => drawPlayPause(x + s/2, y + s/2, s/2),
   (x, y, s) => drawX(x + s/2, y + s/2, s/2),
 ];
 
+let CharaScale;
+
+function drawStill(x,y,s,c){
+
+  fill(255,255,255);
+  stroke(0);
+  strokeWeight(0);
+  textSize(metersInPixels/1.5);
+
+  textAlign(LEFT,BOTTOM);
+
+
+  text('✏️',x-CharaScale/2+5,y+CharaScale/2-5);
+
+  drawParticle(x, y, s, c);
+
+}
+
+
+function drawNormal(x,y,s,c){
+
+  fill(255,255,0);
+  stroke(0);
+  strokeWeight(0);
+  textSize(metersInPixels/1.5);
+
+  textAlign(LEFT,BOTTOM);
+
+
+  text('▶️',x-CharaScale/2+5,y+CharaScale/2-5);
+
+  drawParticle(x, y, s, c);
+
+}
+
+function drawT(x,y,s,c){
+
+  fill(255,255,255);
+  stroke(0);
+  strokeWeight(0);
+  textSize(metersInPixels);
+
+  textAlign(CENTER,CENTER);
+
+
+  text('📈',x,y);
+
+}
+
+function drawFast(x,y,s,c){
+
+  fill(0,255,0);
+  stroke(0);
+  strokeWeight(0);
+  textSize(metersInPixels/1.5);
+
+  textAlign(LEFT,BOTTOM);
+
+
+  text('⏩',x-CharaScale/2+5,y+CharaScale/2-5);
+
+  drawParticle(x, y, s, c);
+
+}
+
 function drawMenu(){
   if (isLandscape()) {
     // draw menu on the right getSide()
     //line(sceneWidth, 0, sceneWidth, height);
-    fill(122, 122, 122);
+    fill(100);
     rect(sceneWidth, 0, menuWidth, menuHeight);
 
     for (let i = 0; i < NUM_SECTIONS+1; i++){
@@ -350,10 +435,12 @@ function drawMenu(){
     for (let i = 0; i < NUM_SECTIONS; i++) {
       MenuItemDrawingFunctions[i](width - menuWidth, getSide() * i, getSide());
     }
+    CharaScale = menuWidth;
+
   } else {
     //  draw the menu on the bottom
     //line(0, sceneHeight, width, sceneHeight);
-    fill(122, 122, 122);
+    fill(100);
 
     rect(0, sceneHeight, menuWidth, menuHeight);
 
@@ -369,6 +456,7 @@ function drawMenu(){
     for (let i = 0; i < NUM_SECTIONS; i++) {
       MenuItemDrawingFunctions[i](getSide() * i, height - menuHeight, getSide());
     }
+    CharaScale = menuHeight;
   }
 }
 
@@ -388,7 +476,7 @@ function drawTimeScale(){
   }
 }
 
-
+let ShowPlot = false;
 
 let V1Log = [];
 let V2Log = [];
@@ -622,8 +710,8 @@ function drawErasor(x, y, l){
   push();
   translate(x, y);
   rotate(angle);
-  fill(0);
-  stroke(0);
+  fill(255);
+  stroke(255);
   strokeWeight(l/10);
   rect(-l/2, -l/2, l * 3/2, l);
   noFill();
@@ -634,8 +722,8 @@ function drawErasor(x, y, l){
 function drawPlayPause(x, y, l){
   push();
   translate(x, y);
-  fill(0);
-  stroke(0);
+  fill(255);
+  stroke(255);
   if (paused){
     triangle(-l/2, -l/2, -l/2, l/2, l/2, 0);
   } else {
@@ -646,7 +734,7 @@ function drawPlayPause(x, y, l){
 
 function drawX(x, y, l){
   push();
-  stroke(0);
+  stroke(255,0,0);
   strokeWeight(10);
   translate(x, y);
   line(-l/2, -l/2, l/2, l/2);
@@ -732,17 +820,25 @@ function windowResized() {
 
 function mousePressed() {
 
-  let item = getSelectedItem();
-  if (item > -1){
-    if (item === PLAY_PAUSE_MODE){
-      paused = !paused;
-    } else if (item === DELETE_ALL){
-      particles = [];
-      vectors = [];
-    } else {
-      drawingMode = item;
+
+    if (isMouseInMenu()){
+    let item = getSelectedItem();
+      if (item > -1){
+        if (item === PLAY_PAUSE_MODE){
+          paused = !paused;
+        } else if (item === VECTOR_MODE){
+          ShowPlot = !ShowPlot;
+          Fi = CountPerFig - 1;
+        } else if (item === DELETE_ALL){
+          particles = [];
+          vectors = [];
+        } else {
+          drawingMode = item;
+        }
+      }
     }
-  }
+
+  print('DRAWING', drawingMode);
 
   if (PARTICLE_MODES.includes(drawingMode)) {
     let r = r1;
@@ -752,8 +848,7 @@ function mousePressed() {
     let vy = -3;
     let Species = 'A';
 
-
-    print('Drawing Particle with speeds,',vx, vy)
+    print('adding particle, speed,',vx, vy)
 
     if (BIG_PARTICLES.includes(drawingMode)) {
       mass = m2;
@@ -767,6 +862,7 @@ function mousePressed() {
     }
 
     if (isMouseInMenu() && drawingMode < 6 && (!drawingMode == 0 || !drawingMode == 3)){
+
       paused = false;
 
       if (Species === 'A'){
@@ -794,11 +890,10 @@ function mousePressed() {
 
       }
 
-
+      drawingMode = -1;
     
-    }
-
-
+    } 
+    
     if (!isMouseInMenu() && (drawingMode == 0 || drawingMode == 3)){
       particles.push({
         x: mouseX,
@@ -813,26 +908,8 @@ function mousePressed() {
     
     }
 
-  } else if (drawingMode == VECTOR_MODE){
-    if (!mouseHasBeenPressed && !isMouseInMenu()){
-      tailX = mouseX;
-      tailY = mouseY;
-      mouseHasBeenPressed = true;
-    } else if (!isMouseInMenu()) {
-      vectors.push(
-        {
-          tailX: tailX,
-          tailY: tailY,
-          headX: mouseX,
-          headY: mouseY,
-          x: mouseX - tailX,
-          y: mouseY - tailY
-        });
-      mouseHasBeenPressed = false;
-    }
-  } else if (drawingMode == PLAY_PAUSE_MODE && !isMouseInMenu()){
-    paused = !paused
   }
+
 
 
 }
@@ -863,6 +940,11 @@ function keyPressed(){
         dt = 1;
       }
   
+  }
+
+  if (key === 't'){
+    ShowPlot = !ShowPlot;
+    Fi = CountPerFig - 1;
   }
 
 print(key, dt);
