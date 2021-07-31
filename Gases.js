@@ -13,6 +13,7 @@ const BoSIX = BoGX * aCM
 
 let dt = 1;
 
+let Gravity = 0;
 
 // TWO SPECIES GAS DYNAMICS
 const m1 = 1;
@@ -148,7 +149,7 @@ function draw() {
   METER_RATIO = metersInPixels / sceneWidth;
 
   if (!paused){
-    update(dt, particles, vectors, sceneWidth, sceneHeight);
+    updateG(dt, particles, vectors, sceneWidth, sceneHeight,Gravity);
   }
 
   // DRAWING HAPPENS HERE
@@ -349,7 +350,7 @@ let MenuItemDrawingFunctions = [
   (x, y, s) => drawNormal(x + s / 2, y + s / 2, s / 4, color(c2)),
   (x, y, s) => drawFast(x + s / 2, y + s / 2, s / 4, color(c2)),
   (x, y, s) => drawT(x + s/2, y + s/2 ,1,1),
-  (x, y, s) => drawErasor(x + s/2, y + s/2, s/7),
+  (x, y, s) => drawG(x + s/2, y + s/2, s/7),
   (x, y, s) => drawPlayPause(x + s/2, y + s/2, s/2),
   (x, y, s) => drawX(x + s/2, y + s/2, s/2),
 ];
@@ -400,6 +401,25 @@ function drawT(x,y,s,c){
 
 
   text('📈',x,y);
+
+}
+
+
+function drawG(x,y,s,c){
+
+  fill(255,255,255);
+  stroke(0);
+  strokeWeight(0);
+  textSize(metersInPixels);
+
+  textAlign(CENTER,CENTER);
+
+  if (Gravity === 0){
+    text('↡',x,y);
+  } else {
+    text('◉',x,y);
+  }
+
 
 }
 
@@ -843,6 +863,15 @@ function mousePressed() {
         } else if (item === VECTOR_MODE){
           ShowPlot = !ShowPlot;
           Fi = CountPerFig - 1;
+
+        } else if (item === ERASOR_MODE){
+
+          if (Gravity === 0){
+            Gravity = 0.1;} else {
+              Gravity = 0;
+            }
+        
+        
         } else if (item === DELETE_ALL){
           particles = [];
           vectors = [];
@@ -896,13 +925,13 @@ function mousePressed() {
         });
       } else {
           particles.push({
-            x: 100,
-            y: 100,
+            x: sceneWidth - 100,
+            y: sceneHeight - 100,
             r: r,
             mass: mass,
             charge: charge,
-            vx: vx,
-            vy: -vy,
+            vx: -vx,
+            vy: vy,
             Species: Species,
           });
 
@@ -958,6 +987,17 @@ function keyPressed(){
         dt = 1;
       }
   
+  }
+
+  if (key === 'g'){
+
+    if (Gravity === 0){
+    Gravity = 0.1;} else {
+      Gravity = 0;
+    }
+
+
+    
   }
 
   if (key === 't'){

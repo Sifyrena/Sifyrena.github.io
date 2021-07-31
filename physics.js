@@ -169,3 +169,115 @@ function netElectricField(particles, vectors, x, y, r){
 
   return {x:eNetX, y:eNetY};
 }
+
+
+function updateG(dt, particles, vectors, width, height,Gravity) { 
+
+
+  for (let i = 0; i < particles.length; i++) {
+    particles[i].vy += Gravity * dt;
+  }
+
+  // collision
+  for (let i = 0; i < particles.length; i++) 
+  {
+    if(particles.length > 1) {
+      for (let j = i + 1; j < particles.length; j++) {
+        let dx = particles[j].x - particles[i].x;
+        let dy = particles[j].y - particles[i].y;
+        let d = Math.sqrt(Math.pow(dx,2) + Math.pow(dy,2));
+
+        let dvx = particles[j].vx - particles[i].vx;
+        let dvy = particles[j].vy - particles[i].vy;
+
+        let velDotDis = dvx * dx + dvy * dy;
+
+        // collision and modification velocity (see Diego's website for the f ull formula)
+        // checks if distance between particles = 0 and 
+        if(d <= (particles[i].r + particles[j].r) && velDotDis < 0){ 
+
+
+          // Start of computing lamda (as in the formula in the website)
+          let disSquared = dx*dx + dy*dy;
+
+          let l = -2*particles[i].mass*particles[j].mass /
+            (particles[i].mass + particles[j].mass)*velDotDis/disSquared;
+          // end of computation of lamda
+
+          // after collision, modification of the velocities of each particle
+          // (following the formula on Diego's website)
+          particles[i].vx -= l/(particles[i].mass)*dx;
+          particles[i].vy -= l/(particles[i].mass)*dy; 
+          particles[j].vx += l/(particles[j].mass)*dx;
+          particles[j].vy += l/(particles[j].mass)*dy;
+
+
+/*// No spin no shear. FW's naive twist. 
+          let uax = particles[i].vx;
+          let uay = particles[i].vy;
+
+          let ubx = particles[j].vx;
+          let uby = particles[j].vy;
+
+          let ma = particles[i].mass;
+          let mb = particles[j].mass;
+
+// THIS IS FALSE
+
+        particles[i].vx = (SBoun*mb*(ubx-uax) + ma * uax + mb* ubx) / (ma + mb);
+
+        particles[i].vy = (SBoun*mb*(uby-uay) + ma * uay + mb* uby) / (ma + mb);
+
+
+        particles[j].vx = (SBoun*ma*(uax-ubx) + ma * uax + mb* ubx) / (ma + mb);
+
+        particles[j].vy = (SBoun*ma*(uay-uby) + ma * uay + mb* uby) / (ma + mb);
+*/
+
+        }
+      }
+    }
+
+    // to set the bounderies of the screen and make the particles bounce on the edges of the screen
+
+    
+    if (particles[i].x + particles[i].r >= width){
+      particles[i].vx *= -1 * SBoun;
+      particles[i].x = width - particles[i].r;
+    } else if (particles[i].x - particles[i].r <= 0){
+      particles[i].vx *= -1 * SBoun;
+      particles[i].x = particles[i].r;
+    }
+   
+/*
+   if (particles[i].x >= width){
+    particles[i].x -= width;
+  } else if (particles[i].x <= 0){
+    particles[i].x += width;
+  }
+ */
+
+    if (particles[i].y + particles[i].r >= height){
+      particles[i].vy *= -1 * SBoun;
+      particles[i].y = height - particles[i].r;
+
+    } else if (particles[i].y - particles[i].r <= 0){
+      particles[i].vy *= -1 * SBoun;
+      particles[i].y = particles[i].r;
+    }
+    particles[i].x += particles[i].vx * dt;
+    particles[i].y += particles[i].vy * dt;
+
+    let vT = sqrt(particles[i].vx*particles[i].vx+particles[i].vy*particles[i].vy);
+
+    let SX = SGN(particles[i].vx);
+    let SY = SGN(particles[i].vy);
+
+    particles[i].vx = particles[i].vx - (SFric)*vT*abs(particles[i].vx) * dt * SX;
+    particles[i].vy = particles[i].vy - (SFric)*vT*abs(particles[i].vy) * dt * SY;
+
+
+  }
+
+
+}
