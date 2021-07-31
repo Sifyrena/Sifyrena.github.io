@@ -30,7 +30,7 @@ let Fi = 0;
 
 // Overview of plan: 
 const vMax = 50;
-const NBins = 50;
+const NBins = 25;
 let BIN_WIDTH = vMax/NBins;
 
 let VData1 = math.zeros(NBins);
