@@ -270,7 +270,7 @@ function drawScene(){
   stroke(0);
   fill(0);
 
-  if (!isMouseInMenu()){
+  if (!isMouseInMenu() && (drawingMode == 0 || drawingMode == 3)){
     if (PARTICLE_MODES.indexOf(drawingMode) != -1){
       let radius = 10;
       let c;
@@ -636,7 +636,7 @@ function drawPlayPause(x, y, l){
   translate(x, y);
   fill(0);
   stroke(0);
-  if (!paused){
+  if (paused){
     triangle(-l/2, -l/2, -l/2, l/2, l/2, 0);
   } else {
     rect(-l/2, -l/2, l, l);
@@ -731,17 +731,28 @@ function windowResized() {
 }
 
 function mousePressed() {
+
+  let item = getSelectedItem();
+  if (item > -1){
+    if (item === PLAY_PAUSE_MODE){
+      paused = !paused;
+    } else if (item === DELETE_ALL){
+      particles = [];
+      vectors = [];
+    } else {
+      drawingMode = item;
+    }
+  }
+
   if (PARTICLE_MODES.includes(drawingMode)) {
     let r = r1;
     let mass = m1;
     let charge = 0.;
-    let vx;
-    let vy;
+    let vx = 3;
+    let vy = -3;
     let Species = 'A';
 
-    vx = 6;
-    vy = 0;
-    
+
     print('Drawing Particle with speeds,',vx, vy)
 
     if (BIG_PARTICLES.includes(drawingMode)) {
@@ -750,19 +761,58 @@ function mousePressed() {
       Species = 'B';
     }
 
-    if (!isMouseInMenu()){
+    if (drawingMode == 5 || drawingMode == 2){
+      vx = 6;
+      vy = -6;
+    }
+
+    if (isMouseInMenu() && drawingMode < 6 && (!drawingMode == 0 || !drawingMode == 3)){
+      paused = false;
+
+      if (Species === 'A'){
+        particles.push({
+          x: 100,
+          y: sceneHeight - 100,
+          r: r,
+          mass: mass,
+          charge: charge,
+          vx: vx,
+          vy: vy,
+          Species: Species,
+        });
+      } else {
+          particles.push({
+            x: 100,
+            y: 100,
+            r: r,
+            mass: mass,
+            charge: charge,
+            vx: vx,
+            vy: -vy,
+            Species: Species,
+          });
+
+      }
+
+
+    
+    }
+
+
+    if (!isMouseInMenu() && (drawingMode == 0 || drawingMode == 3)){
       particles.push({
         x: mouseX,
         y: mouseY,
         r: r,
         mass: mass,
         charge: charge,
-        vx: vx,
-        vy: vy,
+        vx: 0,
+        vy: 0,
         Species: Species,
       });
     
     }
+
   } else if (drawingMode == VECTOR_MODE){
     if (!mouseHasBeenPressed && !isMouseInMenu()){
       tailX = mouseX;
@@ -784,17 +834,7 @@ function mousePressed() {
     paused = !paused
   }
 
-  let item = getSelectedItem();
-  if (item > -1){
-    if (item === PLAY_PAUSE_MODE){
-      paused = !paused;
-    } else if (item === DELETE_ALL){
-      particles = [];
-      vectors = [];
-    } else {
-      drawingMode = item;
-    }
-  }
+
 }
 
 function keyPressed(){
