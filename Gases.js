@@ -27,8 +27,8 @@ const c2 = 'rgba(196, 130, 14, 0.95)';
 // Manual Binning of Data
 
 // Overview of plan: 
-const vMax = 40;
-const NBins = 20;
+const vMax = 50;
+const NBins = 30;
 let BIN_WIDTH = vMax/NBins;
 
 let VData1 = math.zeros(NBins);
@@ -393,7 +393,7 @@ function drawTimeScale(){
 let V1Log = [];
 let V2Log = [];
 
-const LogCap = 50;
+const LogCap = 200;
 
 function PrepareV(){ // Do sorting and binning in one function? Do we need sorting at all?
 
