@@ -15,6 +15,9 @@ let dt = 1;
 
 let Gravity = 0;
 
+let HideA = false;
+let HideB = false;
+
 // TWO SPECIES GAS DYNAMICS
 const m1 = 1;
 const m2 = 16;
@@ -23,6 +26,7 @@ const r2 = 40;
 
 const c1 = 'rgba(0, 176, 218, 0.95)';
 const c2 = 'rgba(196, 130, 14, 0.95)';
+const cH = 'rgba(0, 0, 0, 0.)'; // Hidden Particle Color
 
 const CountPerFig = 6;
 let Fi = 0;
@@ -205,18 +209,6 @@ var layout = {
 function drawScene(){
   background('rgba(195,120,10,0');
 
-
-  let num = 14;
-  for (let i = 1; i < num-1; i++){
-    for (let j = 1; j < num-1; j++){
-      let x1 = (i)/(num-1) * sceneWidth;
-      let y1 = (j)/(num-1)*sceneHeight;
-      let netField = netElectricField(particles, vectors, x1, y1, 0);
-      let scale = 1/1000;
-      stroke(0, 155, 0);
-    }
-  }
-
   for (let i = 0; i < vectors.length; i++){
     stroke(0);
   }
@@ -224,9 +216,16 @@ function drawScene(){
   for (let i = 0; i < particles.length; i++){
     let c;
     if (particles[i].Species == 'A'){
-      c = color(c1);
+
+      if (HideA){
+        c = cH;
+      } else { c = color(c1);}
+
     } else {
-      c = color(c2);
+
+      if (HideB){
+        c = cH;
+      } else { c = color(c2);}
     }
     drawParticle(particles[i].x, particles[i].y, particles[i].r, c);
   }
@@ -238,6 +237,7 @@ function drawScene(){
   drawMenu();
   drawPaws();
   //drawVel();
+  drawTrailB(); // Brownian Trail
 
   if (!paused){
     drawTimeScale();
@@ -346,7 +346,7 @@ let MenuItemDrawingFunctions = [
   (x, y, s) => drawStill(x + s / 2, y + s / 2, s / 8, color(c1)),
   (x, y, s) => drawNormal(x + s / 2, y + s / 2, s / 8, color(c1)),
   (x, y, s) => drawFast(x + s / 2, y + s / 2, s / 8, color(c1)),
-  (x, y, s) => drawStill(x + s / 2, y + s / 2, s / 4, color(c2)),
+  (x, y, s) => draw20(x + s / 2, y + s / 2, s / 8, color(c1)),
   (x, y, s) => drawNormal(x + s / 2, y + s / 2, s / 4, color(c2)),
   (x, y, s) => drawFast(x + s / 2, y + s / 2, s / 4, color(c2)),
   (x, y, s) => drawT(x + s/2, y + s/2 ,1,1),
@@ -367,9 +367,68 @@ function drawStill(x,y,s,c){
   textAlign(LEFT,BOTTOM);
 
 
-  text('✏️',x-CharaScale/2+5,y+CharaScale/2-5);
+  text('👀',x-CharaScale/2+5,y+CharaScale/2-5);
 
   drawParticle(x, y, s, c);
+
+}
+
+function draw20(x,y,s,c){
+
+  fill(255,255,255);
+  stroke(0);
+  strokeWeight(0);
+  textSize(metersInPixels/1.5);
+
+  textAlign(LEFT,BOTTOM);
+
+
+  text('x20',x-CharaScale/2+5,y+CharaScale/2-5);
+
+  drawParticle(x, y, s, c);
+
+}
+
+let XLog = [];
+let YLog = [];
+let ti = 0;
+
+const TrailLength = 300;
+
+function drawTrailB(){
+
+  const TrailMaxRad = 0.15;
+  let FirstTraced = false;
+
+    if (!paused){
+	    ti+= 1;
+      for (let i = 0; i < particles.length; i++) {
+
+          
+          if (particles[i].Species === 'B' && !FirstTraced){
+            if (ti%2 == 0){
+            FirstTraced = true;
+            ti = 0;
+                  XLog.push(particles[i].x);
+                  YLog.push(particles[i].y);
+            }
+          }
+      }
+
+      if (XLog.length >= TrailLength*particles.length){
+        XLog = XLog.slice(0);
+        YLog = YLog.slice(0);
+      }
+
+      for (let i = 0; i < XLog.length; i++){
+        noStroke();
+
+        fill('rgba(0,0,0,'+i/XLog.length+')');
+      
+        let TrRad = TrailMaxRad*(i/XLog.length);
+        ellipse(XLog[i],YLog[i],metersInPixels*TrRad*SphCM);
+      }
+  }
 
 }
 
@@ -860,6 +919,26 @@ function mousePressed() {
       if (item > -1){
         if (item === PLAY_PAUSE_MODE){
           paused = !paused;
+        } else if (item === 0){
+          HideA = !HideA;
+
+        } else if (item === 3){
+          for (let i = 0; i < 20; i++){
+
+            particles.push({
+              x: sceneWidth*(random()),
+              y: sceneHeight*(random()),
+              r: r1,
+              mass: m1,
+              charge: 0,
+              vx: 6*(0.5-random()),
+              vy: 6*(0.5-random()),
+              Species: 'A',
+            });
+            print('Created particle #',i)
+
+          }
+  
         } else if (item === VECTOR_MODE){
           ShowPlot = !ShowPlot;
           Fi = CountPerFig - 1;
@@ -871,7 +950,6 @@ function mousePressed() {
               Gravity = 0;
             }
         
-        
         } else if (item === DELETE_ALL){
           particles = [];
           vectors = [];
@@ -879,6 +957,8 @@ function mousePressed() {
           VData2 = math.multiply(VData2,0);
           V2Log = [];
           V1Log = [];
+          XLog = [];
+          YLog = [];
         } else {
           drawingMode = item;
         }
