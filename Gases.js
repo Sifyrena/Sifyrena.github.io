@@ -208,6 +208,7 @@ var layout = {
 
 function drawScene(){
   background('rgba(195,120,10,0');
+  drawTrailB(); // Brownian Trail
 
   for (let i = 0; i < vectors.length; i++){
     stroke(0);
@@ -219,15 +220,17 @@ function drawScene(){
 
       if (HideA){
         c = cH;
-      } else { c = color(c1);}
+      } else { c = color(c1);
+        drawParticle(particles[i].x, particles[i].y, particles[i].r, c);}
 
     } else {
 
       if (HideB){
         c = cH;
-      } else { c = color(c2);}
+      } else { c = color(c2);
+        drawParticle(particles[i].x, particles[i].y, particles[i].r, c);}
     }
-    drawParticle(particles[i].x, particles[i].y, particles[i].r, c);
+
   }
 
   stroke(0);
@@ -237,7 +240,7 @@ function drawScene(){
   drawMenu();
   drawPaws();
   //drawVel();
-  drawTrailB(); // Brownian Trail
+
 
   if (!paused){
     drawTimeScale();
@@ -366,8 +369,11 @@ function drawStill(x,y,s,c){
 
   textAlign(LEFT,BOTTOM);
 
-
+  if (HideA){
   text('👀',x-CharaScale/2+5,y+CharaScale/2-5);
+  } else {
+  text('🕶',x-CharaScale/2+5,y+CharaScale/2-5);
+  }
 
   drawParticle(x, y, s, c);
 
@@ -393,11 +399,11 @@ let XLog = [];
 let YLog = [];
 let ti = 0;
 
-const TrailLength = 300;
+const TrailLength = 1000;
 
 function drawTrailB(){
 
-  const TrailMaxRad = 0.15;
+  const TrailMaxRad = 0.085;
   let FirstTraced = false;
 
     if (!paused){
@@ -415,7 +421,7 @@ function drawTrailB(){
           }
       }
 
-      if (XLog.length >= TrailLength*particles.length){
+      if (XLog.length >= TrailLength){
         XLog = XLog.slice(0);
         YLog = YLog.slice(0);
       }
@@ -616,8 +622,8 @@ function PrepareV(){ // Do sorting and binning in one function? Do we need sorti
 
 
   if (V1Log.length > LogCap){
-      V1Log = V1Log.slice(-LogCap);
-      V2Log = V2Log.slice(-LogCap);
+      V1Log = V1Log.slice(0);
+      V2Log = V2Log.slice(0);
   }
 
 
@@ -931,8 +937,8 @@ function mousePressed() {
               r: r1,
               mass: m1,
               charge: 0,
-              vx: 6*(0.5-random()),
-              vy: 6*(0.5-random()),
+              vx: 12*(0.5-random()),
+              vy: 12*(0.5-random()),
               Species: 'A',
             });
             print('Created particle #',i)
