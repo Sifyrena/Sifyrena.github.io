@@ -229,13 +229,50 @@ var layout = {
 
 var config = {responsive: true}
 
+const Strata = 6;
 
 function drawScene(){
   background('rgba(195,120,10,0');
 
 
   if (!Gravity == 0){
-    setGradient(color(240, 240, 250), color(196, 196, 206));
+    setGradient(color(130, 195, 255), color(200, 200, 203));
+
+    let VCount = [];
+
+    noStroke();
+
+    if (CountA > 0){
+
+      for (let i = 0; i < Strata; i++){
+
+        VCount.push(0);
+
+        }
+
+
+      for (let j = 0; j < particles.length; j++){
+
+        if (particles[j].Species === 'A'){
+
+          HeightStrat = Math.round(particles[j].y/sceneHeight*Strata);
+
+          print(HeightStrat);
+
+          VCount[HeightStrat] += 1;
+
+        }
+        
+      }
+
+
+      for (let i = 0; i < Strata; i++){
+
+        fill(255*VCount[i]/CountA);
+
+        rect(0,sceneHeight/Strata*i,sceneWidth,sceneHeight/Strata);
+      }
+    }
   }
 
   if (DrawTrail){drawTrailC(); }
