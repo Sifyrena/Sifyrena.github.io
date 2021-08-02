@@ -1006,8 +1006,8 @@ function mousePressed() {
       if (item === 1 || item === 2 || item === 4 || item ===5){
         paused = false;
         particles.push({
-          x: 50,
-          y: sceneHeight - 50,
+          x: sceneWidth/2,
+          y: sceneHeight/2,
           r: r,
           mass: mass,
           charge: 0,
