@@ -403,21 +403,24 @@ let ti = 0;
 function drawTrailB(){
 
   const TrailMaxRad = 0.085;
-  let FirstTraced = false;
+
 
     if (!paused){
 	    ti+= 1;
       for (let i = 0; i < particles.length; i++) {
 
           
-          if (particles[i].Species === 'B' && !FirstTraced){
+          if (particles[i].Species === 'B' && CountB === 1){
             if (ti%2 == 0){
-            FirstTraced = true;
             ti = 0;
                   XLog.push(particles[i].x);
                   YLog.push(particles[i].y);
             }
+          } else if (CountB > 1){
+            XLog = [];
+            YLog = [];
           }
+
       }
 
       if (XLog.length >= LogCap){
@@ -570,6 +573,9 @@ let V2Log = [];
 
 const LogCap = 1200;
 
+let CountA = 0;
+let CountB = 0;
+
 function PrepareV(){ // Do sorting and binning in one function? Do we need sorting at all?
 
   //
@@ -578,8 +584,8 @@ function PrepareV(){ // Do sorting and binning in one function? Do we need sorti
   LocalVData1 = math.multiply(VData1,0);
   LocalVData2 = math.multiply(VData2,0);
 
-  let CountA = 0;
-  let CountB = 0;
+  CountA = 0;
+  CountB = 0;
   for (let i = 0; i < particles.length; i++) {
 
 
