@@ -9,6 +9,8 @@ const BoGY = 20;
 
 const BoSIX = BoGX * aCM
 
+let mouseIsPressed = false;
+
 // TIMESTEP 
 
 let dt = 1;
@@ -21,11 +23,17 @@ let HideB = false;
 // TWO SPECIES GAS DYNAMICS
 const m1 = 1;
 const m2 = 16;
+const m3 = 100;
+
 const r1 = 10;
 const r2 = 40;
+const r3 = 40;
 
 const c1 = 'rgba(0, 176, 218, 0.95)';
 const c2 = 'rgba(196, 130, 14, 0.95)';
+const c3 = 'rgba(10,56,33,0.95)'
+
+const ALLOWED_GASES = ['A','B','C'];
 
 const c1P = 'rgbs(76,199,229,1)';
 const c2P = 'rgbs(255,188,15,1)';
@@ -212,6 +220,7 @@ var config = {responsive: true}
 function drawScene(){
   background('rgba(195,120,10,0');
   drawTrailB(); // Brownian Trail
+  drawTrailC(); // Brownian Trail
 
   for (let i = 0; i < vectors.length; i++){
     stroke(0);
@@ -226,13 +235,15 @@ function drawScene(){
       } else { c = color(c1);
         drawParticle(particles[i].x, particles[i].y, particles[i].r, c);}
 
-    } else {
+    } else if (particles[i].Species == 'B'){
 
-      if (HideB){
-        c = cH;
-      } else { c = color(c2);
-        drawParticle(particles[i].x, particles[i].y, particles[i].r, c);}
-    }
+        c = color(c2);
+        drawParticle(particles[i].x, particles[i].y, particles[i].r, c);
+    } else if (particles[i].Species == 'C'){
+
+      c = color(c3);
+      drawParticle(particles[i].x, particles[i].y, particles[i].r, c);
+  }
 
   }
 
@@ -300,61 +311,15 @@ function drawScene(){
   stroke(0);
   fill(0);
 
-  if (!isMouseInMenu() && (drawingMode == 0 || drawingMode == 3)){
-    if (PARTICLE_MODES.indexOf(drawingMode) != -1){
-      let radius = 10;
-      let c;
-      if (drawingMode === POSITIVE_PARTICLE_MODE){
-        c = 'rgba(0, 0, 255, 0.5)';
-      } else if (drawingMode === NEUTRAL_PARTICLE_MODE){
-        c = 'rgba(125, 125, 125, 0.5)';
-      } else if (drawingMode === NEGATIVE_PARTICLE_MODE){
-        c = 'rgba(255, 0, 0, 0.5)';
-      } else if (drawingMode === BIG_POSITIVE_PARTICLE_MODE){
-        radius *= 2;
-        c = 'rgba(0, 0, 255, 0.5)';
-      } else if (drawingMode === BIG_NEUTRAL_PARTICLE_MODE){
-        radius *= 2;
-        c = 'rgba(125, 125, 125, 0.5)';
-      } else if (drawingMode === BIG_NEGATIVE_PARTICLE_MODE){
-        radius *= 2;
-        c = 'rgba(255, 0, 0, 0.5)';
-      }
-
-      drawParticle(mouseX, mouseY, radius, color(c));
-    }
-
-    else if (drawingMode == VECTOR_MODE && mouseHasBeenPressed){
-      stroke(125);
-      drawVector(tailX, tailY, mouseX, mouseY);
-    } else if (drawingMode == ERASOR_MODE && mouseIsPressed){
-      drawErasor(mouseX, mouseY, Math.min(menuWidth/7, menuHeight/7));
-      let r = Math.min(menuWidth/7, menuHeight/7);
-      if (mousePressed){
-        for (let i = particles.length - 1; i >= 0; i--){
-          if (Math.pow(particles[i].x - mouseX, 2) + Math.pow(particles[i].y - mouseY, 2)
-            < particles[i].r * particles[i].r){
-            particles.splice(i, 1); 
-          }
-        }
-        for (let i = vectors.length - 1; i >= 0; i--){
-          if (Math.pow(vectors[i].tailX - mouseX, 2) + Math.pow(vectors[i].tailY - mouseY, 2)
-            < getSide()/2){
-            vectors.splice(i, 1); 
-          }
-        }
-      }
-    }
-  }
 }
 
 let MenuItemDrawingFunctions = [
   (x, y, s) => drawStill(x + s / 2, y + s / 2, s / 8, color(c1)),
-  (x, y, s) => drawNormal(x + s / 2, y + s / 2, s / 8, color(c1)),
-  (x, y, s) => drawFast(x + s / 2, y + s / 2, s / 8, color(c1)),
   (x, y, s) => draw20(x + s / 2, y + s / 2, s / 8, color(c1)),
+  (x, y, s) => drawFast(x + s / 2, y + s / 2, s / 8, color(c1)),
+  (x, y, s) => drawErasor(x + s / 2, y + s / 2, s / 4),
   (x, y, s) => drawNormal(x + s / 2, y + s / 2, s / 4, color(c2)),
-  (x, y, s) => drawFast(x + s / 2, y + s / 2, s / 4, color(c2)),
+  (x, y, s) => drawNormal(x + s / 2, y + s / 2, s / 4, color(c3)),
   (x, y, s) => drawT(x + s/2, y + s/2 ,1,1),
   (x, y, s) => drawG(x + s/2, y + s/2, s/7),
   (x, y, s) => drawPlayPause(x + s/2, y + s/2, s/2),
@@ -403,23 +368,43 @@ let YLog = [];
 let ti = 0;
 
 
+
+const TrailMaxRad = 0.085;
+
 function drawTrailB(){
 
-  const TrailMaxRad = 0.085;
+  let a = 1;
 
+}
+
+function drawTrailC(){
+  let ExcludeB = false;
+  let ExcludeC = false;
 
     if (!paused){
 	    ti+= 1;
       for (let i = 0; i < particles.length; i++) {
 
           
-          if (particles[i].Species === 'B' && CountB === 1){
+          if ((particles[i].Species === 'C' && !ExcludeC)||(particles[i].Species === 'B' && !ExcludeB)){
             if (ti%2 == 0){
             ti = 0;
                   XLog.push(particles[i].x);
                   YLog.push(particles[i].y);
             }
-          } else if (CountB > 1){
+          }
+          
+          if (CountB > 1){
+
+            ExcludeB = true;
+
+          } 
+
+          if (CountC > 1){
+            ExcludeC = true;
+          }
+
+          if (ExcludeC && ExcludeB){
             XLog = [];
             YLog = [];
           }
@@ -434,7 +419,7 @@ function drawTrailB(){
       for (let i = 0; i < XLog.length; i++){
         noStroke();
 
-        fill('rgba(0,0,0,'+i/XLog.length+')');
+        fill('rgba(0,0,20,'+i/XLog.length+')');
       
         let TrRad = TrailMaxRad*(i/XLog.length);
         ellipse(XLog[i],YLog[i],metersInPixels*TrRad*SphCM);
@@ -485,7 +470,7 @@ function drawG(x,y,s,c){
   textAlign(CENTER,CENTER);
 
   if (Gravity === 0){
-    text('↡',x,y);
+    text('g↡',x,y);
   } else {
     text('◉',x,y);
   }
@@ -578,6 +563,7 @@ const LogCap = 1200;
 
 let CountA = 0;
 let CountB = 0;
+let CountC = 0;
 
 function PrepareV(){ // Do sorting and binning in one function? Do we need sorting at all?
 
@@ -589,6 +575,7 @@ function PrepareV(){ // Do sorting and binning in one function? Do we need sorti
 
   CountA = 0;
   CountB = 0;
+  CountC = 0;
   for (let i = 0; i < particles.length; i++) {
 
 
@@ -607,11 +594,15 @@ function PrepareV(){ // Do sorting and binning in one function? Do we need sorti
 
       LocalVData1.subset(math.index(Answer), (LocalVData1.subset(math.index(Answer))+1 ));
 
-    } else {
+    } else if (particles[i].Species === 'B'){
 
       CountB += 1;
       LocalVData2.subset(math.index(Answer), (LocalVData2.subset(math.index(Answer))+1 ));
     
+      } else if (particles[i].Species === 'C'){
+
+        CountC += 1;
+      
       }
 
   }
@@ -817,8 +808,8 @@ function drawErasor(x, y, l){
   push();
   translate(x, y);
   rotate(angle);
-  fill(255);
-  stroke(255);
+  fill(195);
+  stroke(195);
   strokeWeight(l/10);
   rect(-l/2, -l/2, l * 3/2, l);
   noFill();
@@ -928,15 +919,53 @@ function windowResized() {
 function mousePressed() {
 
 
-    if (isMouseInMenu()){
-    let item = getSelectedItem();
-      if (item > -1){
-        if (item === PLAY_PAUSE_MODE){
-          paused = !paused;
-        } else if (item === 0){
-          HideA = !HideA;
+  if (isMouseInMenu()){
 
-        } else if (item === 3){
+    drawingMode = -1;
+
+    let r = r1;
+    let mass = m1;
+    let charge = 0.;
+    let vx = 3;
+    let vy = -3;
+    let Species = 'A';
+
+    let item = getSelectedItem();
+
+
+      if (item === 8){
+        paused = !paused;
+      } else if (item === 0){
+        HideA = !HideA;
+
+      } else if (item === 2){
+
+        vx *= 2;
+        vy *= 2;
+      
+      } else if (item ===3){
+        
+        mouseIsPressed = !mouseIsPressed;
+
+        if (mouseIsPressed){
+          print('Ready the eraser!');
+          drawingMode = 3;
+          print(drawingMode);
+        }
+
+      } else if (item === 4){
+
+        r = r2;
+        mass = m2;
+        Species = 'B'
+
+      } else if (item === 5){
+
+        r = r3;
+        mass = m3;
+        Species = 'C'
+
+      } else if (item === 1){
           for (let i = 0; i < 20; i++){
 
             particles.push({
@@ -952,106 +981,62 @@ function mousePressed() {
             print('Created particle #',i)
 
           }
+
+      } else if (item === 6){
+        ShowPlot = !ShowPlot;
+        Fi = CountPerFig - 1;
+
+      } else if (item === 7){
+
+        if (Gravity === 0){
+          Gravity = 0.1;} else {
+            Gravity = 0;
+          }
+      
+      } else if (item === 9){
+        particles = [];
+        vectors = [];
+        VData1 = math.multiply(VData1,0);
+        VData2 = math.multiply(VData2,0);
+        V2Log = [];
+        V1Log = [];
+        XLog = [];
+        YLog = [];
+      } 
   
-        } else if (item === VECTOR_MODE){
-          ShowPlot = !ShowPlot;
-          Fi = CountPerFig - 1;
-
-        } else if (item === ERASOR_MODE){
-
-          if (Gravity === 0){
-            Gravity = 0.1;} else {
-              Gravity = 0;
-            }
-        
-        } else if (item === DELETE_ALL){
-          particles = [];
-          vectors = [];
-          VData1 = math.multiply(VData1,0);
-          VData2 = math.multiply(VData2,0);
-          V2Log = [];
-          V1Log = [];
-          XLog = [];
-          YLog = [];
-        } else {
-          drawingMode = item;
-        }
-      }
-    }
-
-  print('DRAWING', drawingMode);
-
-  if (PARTICLE_MODES.includes(drawingMode)) {
-    let r = r1;
-    let mass = m1;
-    let charge = 0.;
-    let vx = 3;
-    let vy = -3;
-    let Species = 'A';
-
-    print('adding particle, speed,',vx, vy)
-
-    if (BIG_PARTICLES.includes(drawingMode)) {
-      mass = m2;
-      r = r2;
-      Species = 'B';
-    }
-
-    if (drawingMode == 5 || drawingMode == 2){
-      vx = 6;
-      vy = -6;
-    }
-
-    if (isMouseInMenu() && drawingMode < 6 && (!drawingMode == 0 || !drawingMode == 3)){
-
-      paused = false;
-
-      if (Species === 'A'){
+      if (item === 1 || item === 2 || item === 4 || item ===5){
+        paused = false;
         particles.push({
-          x: 100,
-          y: sceneHeight - 100,
+          x: 50,
+          y: sceneHeight - 50,
           r: r,
           mass: mass,
-          charge: charge,
+          charge: 0,
           vx: vx,
           vy: vy,
           Species: Species,
         });
-      } else {
-          particles.push({
-            x: sceneWidth - 100,
-            y: sceneHeight - 100,
-            r: r,
-            mass: mass,
-            charge: charge,
-            vx: -vx,
-            vy: vy,
-            Species: Species,
-          });
-
       }
+  }
 
-      drawingMode = -1;
-    
-    } 
-    
-    if (!isMouseInMenu() && (drawingMode == 0 || drawingMode == 3)){
-      particles.push({
-        x: mouseX,
-        y: mouseY,
-        r: r,
-        mass: mass,
-        charge: charge,
-        vx: 0,
-        vy: 0,
-        Species: Species,
-      });
-    
+  else {
+
+    if (drawingMode === 3){
+
+      for (let i = particles.length - 1; i >= 0; i--){
+        if (Math.pow(particles[i].x - mouseX, 2) + Math.pow(particles[i].y - mouseY, 2)
+          < 1.1*particles[i].r * particles[i].r){
+          particles.splice(i, 1); 
+        }
+        print(mouseX,mouseY);
+        XLog = [];
+        YLog = [];
+      }
     }
-
   }
 
 
+  print('DM:',drawingMode)
 
 }
 
