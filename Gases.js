@@ -125,6 +125,18 @@ let tailX, tailY;
 let CanvasScale;
 let CanvasScaleD = 0.6;
 
+
+function setGradient(c1, c2) {
+  // noprotect
+  noFill();
+  for (var y = 0; y < height; y++) {
+    var inter = map(y, 0, height, 0, 1);
+    var c = lerpColor(c1, c2, inter);
+    stroke(c);
+    line(0, y, width, y);
+  }
+}
+
 function setup() {
 
   var cnv = createCanvas(window.innerWidth, window.innerHeight);
@@ -220,6 +232,11 @@ var config = {responsive: true}
 
 function drawScene(){
   background('rgba(195,120,10,0');
+
+
+  if (!Gravity == 0){
+    setGradient(color(240, 240, 250), color(196, 196, 206));
+  }
 
   if (DrawTrail){drawTrailC(); }
   // Brownian Trail
