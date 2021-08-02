@@ -46,8 +46,8 @@ let Fi = 0;
 // Manual Binning of Data
 
 // Overview of plan: 
-const vMax = 50;
-const NBins = 25;
+const vMax = 40;
+const NBins = 40;
 let BIN_WIDTH = vMax/NBins;
 
 let VData1 = math.zeros(NBins);
@@ -55,6 +55,7 @@ let VData2 = math.zeros(NBins);
 
 const VeloRange = math.multiply(math.range(0,NBins,false),BIN_WIDTH);
 
+let DrawTrail = false;
 
 // Original
 
@@ -186,7 +187,7 @@ var layout = {
   xaxis: {range: [0, vMax]},
   yaxis: {range: [0, 40]},  
   paper_bgcolor: 'rgba(207,221,199,0.5)',
-  plot_bgcolor: 'rgba(114,114,117,.88)', 
+  plot_bgcolor: 'rgba(220,220,224,.88)', 
   autosize: false,
   width: 0.60*sceneWidth,
   height: 0.80*sceneWidth,
@@ -219,8 +220,9 @@ var config = {responsive: true}
 
 function drawScene(){
   background('rgba(195,120,10,0');
-  drawTrailB(); // Brownian Trail
-  drawTrailC(); // Brownian Trail
+
+  if (DrawTrail){drawTrailC(); }
+  // Brownian Trail
 
   for (let i = 0; i < vectors.length; i++){
     stroke(0);
@@ -316,7 +318,7 @@ function drawScene(){
 let MenuItemDrawingFunctions = [
   (x, y, s) => drawStill(x + s / 2, y + s / 2, s / 8, color(c1)),
   (x, y, s) => draw20(x + s / 2, y + s / 2, s / 8, color(c1)),
-  (x, y, s) => drawFast(x + s / 2, y + s / 2, s / 8, color(c1)),
+  (x, y, s) => drawTogTrail(x + s / 2, y + s / 2, s / 8, color(c1)),
   (x, y, s) => drawErasor(x + s / 2, y + s / 2, s / 4),
   (x, y, s) => drawNormal(x + s / 2, y + s / 2, s / 4, color(c2)),
   (x, y, s) => drawNormal(x + s / 2, y + s / 2, s / 4, color(c3)),
@@ -327,6 +329,39 @@ let MenuItemDrawingFunctions = [
 ];
 
 let CharaScale;
+
+function drawTogTrail(x,y,s,c){
+
+
+  fill(255,255,255);
+  stroke(0);
+  strokeWeight(0);
+  textSize(metersInPixels/2);
+  textAlign(CENTER,CENTER);
+
+  text('TRAIL',x,y);
+
+
+    fill(255,255,255);
+    stroke(0);
+    strokeWeight(0);
+    textSize(metersInPixels/2);
+  
+    textAlign(LEFT,BOTTOM);
+
+    if (!DrawTrail){
+    text('......',x-CharaScale/2+5,y+CharaScale/2-5);
+    } else {
+    fill(255,190,150)
+    text('..x..',x-CharaScale/2+5,y+CharaScale/2-5);
+    }
+  
+    
+  
+
+}
+
+
 
 function drawStill(x,y,s,c){
 
@@ -357,7 +392,7 @@ function draw20(x,y,s,c){
   textAlign(LEFT,BOTTOM);
 
 
-  text('x20',x-CharaScale/2+5,y+CharaScale/2-5);
+  text('+20',x-CharaScale/2+5,y+CharaScale/2-5);
 
   drawParticle(x, y, s, c);
 
@@ -433,7 +468,7 @@ let ti = 0;
 
 
 
-const TrailMaxRad = 0.085;
+const TrailMaxRad = 0.5;
 
 function drawTrailB(){
 
@@ -441,53 +476,39 @@ function drawTrailB(){
 
 }
 
+const TrailLength = 500;
+
 function drawTrailC(){
-  let ExcludeB = false;
-  let ExcludeC = false;
 
     if (!paused){
 	    ti+= 1;
       for (let i = 0; i < particles.length; i++) {
 
           
-          if ((particles[i].Species === 'C' && !ExcludeC)||(particles[i].Species === 'B' && !ExcludeB)){
+          if ((particles[i].Species === 'C')||(particles[i].Species === 'B')){
             if (ti%2 == 0){
             ti = 0;
                   XLog.push(particles[i].x);
                   YLog.push(particles[i].y);
             }
           }
-          
-          if (CountB > 1){
-
-            ExcludeB = true;
-
-          } 
-
-          if (CountC > 1){
-            ExcludeC = true;
-          }
-
-          if (ExcludeC && ExcludeB){
-            XLog = [];
-            YLog = [];
-          }
 
       }
 
-      if (XLog.length >= LogCap){
-        XLog = XLog.slice(0);
-        YLog = YLog.slice(0);
+
+      if (XLog.length >= TrailLength){
+        XLog = XLog.slice(1);
+        YLog = YLog.slice(1);
       }
 
-      for (let i = 0; i < XLog.length; i++){
-        noStroke();
 
-        fill('rgba(0,0,20,'+i/XLog.length+')');
+        for (let i = 0; i < XLog.length; i++){
+          noStroke();
+          fill('rgba(0,0,20,'+i/XLog.length+')');
+
+          ellipse(XLog[i],YLog[i],TrailMaxRad*r1);
+        }
       
-        let TrRad = TrailMaxRad*(i/XLog.length);
-        ellipse(XLog[i],YLog[i],metersInPixels*TrRad*SphCM);
-      }
   }
 
 }
@@ -558,7 +579,7 @@ let ShowPlot = false;
 let V1Log = [];
 let V2Log = [];
 
-const LogCap = 1200;
+const LogCap = 200;
 
 let CountA = 0;
 let CountB = 0;
@@ -939,8 +960,11 @@ function mousePressed() {
 
       } else if (item === 2){
 
-        vx *= 2;
-        vy *= 2;
+        DrawTrail = !DrawTrail;
+        if (!DrawTrail){
+          XLog = [];
+          YLog = [];
+        }
       
       } else if (item ===3){
         
@@ -962,7 +986,11 @@ function mousePressed() {
 
         r = r3;
         mass = m3;
-        Species = 'C'
+        Species = 'C';
+
+        if (CountC === 0){
+          DrawTrail = true;
+        }
 
       } else if (item === 1){
           for (let i = 0; i < 20; i++){
@@ -1003,7 +1031,7 @@ function mousePressed() {
         YLog = [];
       } 
   
-      if (item === 1 || item === 2 || item === 4 || item ===5){
+      if (item === 1 || item === 4 || item ===5){
         paused = false;
         particles.push({
           x: sceneWidth/2,
@@ -1026,10 +1054,11 @@ function mousePressed() {
         if (Math.pow(particles[i].x - mouseX, 2) + Math.pow(particles[i].y - mouseY, 2)
           < 1.1*particles[i].r * particles[i].r){
           particles.splice(i, 1); 
+          XLog = [];
+          YLog = [];
         }
         print(mouseX,mouseY);
-        XLog = [];
-        YLog = [];
+
       }
     }
   }
