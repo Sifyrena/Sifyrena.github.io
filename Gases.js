@@ -333,14 +333,14 @@ function drawStill(x,y,s,c){
   fill(255,255,255);
   stroke(0);
   strokeWeight(0);
-  textSize(metersInPixels/1.5);
+  textSize(metersInPixels/2);
 
   textAlign(LEFT,BOTTOM);
 
   if (HideA){
-  text('🧐',x-CharaScale/2+5,y+CharaScale/2-5);
+  text('SHOW',x-CharaScale/2+5,y+CharaScale/2-5);
   } else {
-  text('😑',x-CharaScale/2+5,y+CharaScale/2-5);
+  text('HIDE',x-CharaScale/2+5,y+CharaScale/2-5);
   }
 
   drawParticle(x, y, s, c);
@@ -362,6 +362,70 @@ function draw20(x,y,s,c){
   drawParticle(x, y, s, c);
 
 }
+
+
+function drawNormal(x,y,s,c){
+
+  fill(255);
+  stroke(0);
+  strokeWeight(0);
+  textSize(metersInPixels/1.5);
+
+  textAlign(LEFT,BOTTOM);
+
+
+  text('+',x-CharaScale/2+5,y+CharaScale/2-5);
+
+  drawParticle(x, y, s, c);
+
+}
+
+function drawT(x,y,s,c){
+
+  fill(255,255,255);
+  stroke(0);
+  strokeWeight(0);
+  textSize(metersInPixels/2);
+  textAlign(CENTER,CENTER);
+
+  text('CHART',x,y);
+
+}
+
+
+function drawG(x,y,s,c){
+
+  fill(255,255,255);
+  stroke(0);
+  strokeWeight(0);
+  textSize(metersInPixels);
+
+  textAlign(CENTER,CENTER);
+
+  if (Gravity === 0){
+    text('g↡',x,y);
+  } else {
+    text('◉',x,y);
+  }
+
+
+}
+
+function drawFast(x,y,s,c){
+
+  fill(255);
+  stroke(0);
+  strokeWeight(0);
+  textSize(metersInPixels/1.5);
+
+  textAlign(LEFT,BOTTOM);
+
+
+  text('+',x-CharaScale/2+5,y+CharaScale/2-5);
+
+  drawParticle(x, y, s, c);
+}
+
 
 let XLog = [];
 let YLog = [];
@@ -428,71 +492,6 @@ function drawTrailC(){
 
 }
 
-
-function drawNormal(x,y,s,c){
-
-  fill(255,255,0);
-  stroke(0);
-  strokeWeight(0);
-  textSize(metersInPixels/1.5);
-
-  textAlign(LEFT,BOTTOM);
-
-
-  text('▶️',x-CharaScale/2+5,y+CharaScale/2-5);
-
-  drawParticle(x, y, s, c);
-
-}
-
-function drawT(x,y,s,c){
-
-  fill(255,255,255);
-  stroke(0);
-  strokeWeight(0);
-  textSize(metersInPixels);
-
-  textAlign(CENTER,CENTER);
-
-
-  text('📈',x,y);
-
-}
-
-
-function drawG(x,y,s,c){
-
-  fill(255,255,255);
-  stroke(0);
-  strokeWeight(0);
-  textSize(metersInPixels);
-
-  textAlign(CENTER,CENTER);
-
-  if (Gravity === 0){
-    text('g↡',x,y);
-  } else {
-    text('◉',x,y);
-  }
-
-
-}
-
-function drawFast(x,y,s,c){
-
-  fill(0,255,0);
-  stroke(0);
-  strokeWeight(0);
-  textSize(metersInPixels/1.5);
-
-  textAlign(LEFT,BOTTOM);
-
-
-  text('⏩',x-CharaScale/2+5,y+CharaScale/2-5);
-
-  drawParticle(x, y, s, c);
-
-}
 
 function drawMenu(){
   if (isLandscape()) {
