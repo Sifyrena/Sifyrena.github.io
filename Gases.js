@@ -370,9 +370,9 @@ function drawStill(x,y,s,c){
   textAlign(LEFT,BOTTOM);
 
   if (HideA){
-  text('👀',x-CharaScale/2+5,y+CharaScale/2-5);
+  text('🧐',x-CharaScale/2+5,y+CharaScale/2-5);
   } else {
-  text('🕶',x-CharaScale/2+5,y+CharaScale/2-5);
+  text('😑',x-CharaScale/2+5,y+CharaScale/2-5);
   }
 
   drawParticle(x, y, s, c);
@@ -399,7 +399,6 @@ let XLog = [];
 let YLog = [];
 let ti = 0;
 
-const TrailLength = 1000;
 
 function drawTrailB(){
 
@@ -421,7 +420,7 @@ function drawTrailB(){
           }
       }
 
-      if (XLog.length >= TrailLength){
+      if (XLog.length >= LogCap){
         XLog = XLog.slice(0);
         YLog = YLog.slice(0);
       }
@@ -569,7 +568,7 @@ let ShowPlot = false;
 let V1Log = [];
 let V2Log = [];
 
-const LogCap = 1000;
+const LogCap = 1200;
 
 function PrepareV(){ // Do sorting and binning in one function? Do we need sorting at all?
 
