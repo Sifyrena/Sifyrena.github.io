@@ -26,6 +26,10 @@ const r2 = 40;
 
 const c1 = 'rgba(0, 176, 218, 0.95)';
 const c2 = 'rgba(196, 130, 14, 0.95)';
+
+const c1P = 'rgbs(76,199,229,1)';
+const c2P = 'rgbs(255,188,15,1)';
+
 const cH = 'rgba(0, 0, 0, 0.)'; // Hidden Particle Color
 
 const CountPerFig = 6;
@@ -173,11 +177,11 @@ var layout = {
   barmode: 'overlay',
   xaxis: {range: [0, vMax]},
   yaxis: {range: [0, 40]},  
-  paper_bgcolor: 'rgba(1,1,1,0)',
-  plot_bgcolor: 'rgba(255,255,255,.6)', 
+  paper_bgcolor: 'rgba(207,221,199,0.5)',
+  plot_bgcolor: 'rgba(114,114,117,.88)', 
   autosize: false,
-  width: 800,
-  height: 600,
+  width: 0.60*sceneWidth,
+  height: 0.80*sceneWidth,
     xaxis: {
       title: {
         text: 'Speed (arbitrary units)',
@@ -190,20 +194,19 @@ var layout = {
     },
     yaxis: {
       title: {
-        text: 'Fraction Population',
+        text: 'Fraction of Population',
         font: {
           family: 'Courier New, monospace',
           size: 18,
           color: '#000000'
         }
       },
-      range: [0,1],
-      fixedrange: true,
+      fixedrange: false,
     }
 
 };
 
-
+var config = {responsive: true}
 
 
 function drawScene(){
@@ -266,9 +269,9 @@ function drawScene(){
           y: VData1.toArray(),
           name: 'Gas 1',
           type: "bar",
-          opacity: 0.6,
+          opacity: 0.87,
           marker: {
-            color: c1,
+            color: c1P,
           },
         };
 
@@ -277,14 +280,14 @@ function drawScene(){
           y: VData2.toArray(),
           name: 'Gas 2',
           type: "bar",
-          opacity: 0.6,
+          opacity: 0.7,
           marker: {
-            color: c2,
+            color: c2P,
           },
         };
       
 
-        Plotly.newPlot('Fig',[trace1,trace2],layout);
+        Plotly.newPlot('Fig',[trace1,trace2],layout, config);
       }
 
     } else {
