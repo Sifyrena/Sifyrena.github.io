@@ -46,14 +46,25 @@ let Fi = 0;
 // Manual Binning of Data
 
 // Overview of plan: 
-const vMax = 40;
-const NBins = 40;
+let vMax = 40;
+let NBins = 40;
 let BIN_WIDTH = vMax/NBins;
+
+let VeloRange = math.multiply(math.range(0,NBins,false),BIN_WIDTH);
+
+const BIN_UPDATE_TRIGGER = 40;
+
+let Count_Plus = 0;
+let Count_Minus = 0;
+
+
 
 let VData1 = math.zeros(NBins);
 let VData2 = math.zeros(NBins);
 
-const VeloRange = math.multiply(math.range(0,NBins,false),BIN_WIDTH);
+
+
+
 
 let DrawTrail = false;
 
@@ -652,7 +663,6 @@ function PrepareV(){ // Do sorting and binning in one function? Do we need sorti
 
   //
 
-
   LocalVData1 = math.multiply(VData1,0);
   LocalVData2 = math.multiply(VData2,0);
 
@@ -684,7 +694,7 @@ function PrepareV(){ // Do sorting and binning in one function? Do we need sorti
     
       } else if (particles[i].Species === 'C'){
 
-        CountC += 1;
+      CountC += 1;
       
       }
 
@@ -698,6 +708,27 @@ function PrepareV(){ // Do sorting and binning in one function? Do we need sorti
   if (CountB > 0){
     LocalVData2 = math.multiply(LocalVData2,1/CountB);
   }
+
+
+  // ONLY CHECK SPECIES 1
+
+
+
+  if (Count_Plus == BIN_UPDATE_TRIGGER){
+    NBins += 1;
+    vMax += BIN_WIDTH;
+    VeloRange = math.multiply(math.range(0,NBins,false),BIN_WIDTH);
+    print('Triggered Bin Lengthening');
+    Count_Plus = 0;
+  } 
+
+  if (Count_Minus == BIN_UPDATE_TRIGGER){
+    NBins -= 1;
+    vMax -= BIN_WIDTH;
+    VeloRange = math.multiply(math.range(0,NBins,false),BIN_WIDTH);
+    print('Triggered Bin Shortening');
+    Count_Minus = 0;
+  } 
 
   V1Log.push(LocalVData1);
   V2Log.push(LocalVData2);
@@ -721,6 +752,15 @@ function PrepareV(){ // Do sorting and binning in one function? Do we need sorti
 
   VData1 = math.multiply(VData1,1/V1Log.length);
   VData2 = math.multiply(VData2,1/V1Log.length);
+
+
+  if (VData1.subset(math.index(NBins-1)) > VData1.subset(math.index(NBins-2))){
+    Count_Plus += 1;
+  }
+
+  if (VData1.subset(math.index(NBins-1)) < 1/CountA){
+    Count_Minus += 1;
+  }
 
 
 
