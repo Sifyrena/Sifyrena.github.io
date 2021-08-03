@@ -52,7 +52,7 @@ let BIN_WIDTH = vMax/NBins;
 
 let VeloRange = math.multiply(math.range(0,NBins,false),BIN_WIDTH);
 
-const BIN_UPDATE_TRIGGER = 40;
+const BIN_UPDATE_TRIGGER = 120;
 
 let Count_Plus = 0;
 let Count_Minus = 0;
@@ -653,7 +653,7 @@ let ShowPlot = false;
 let V1Log = [];
 let V2Log = [];
 
-const LogCap = 200;
+const LogCap = 80;
 
 let CountA = 0;
 let CountB = 0;
@@ -712,8 +712,6 @@ function PrepareV(){ // Do sorting and binning in one function? Do we need sorti
 
   // ONLY CHECK SPECIES 1
 
-
-
   if (Count_Plus == BIN_UPDATE_TRIGGER){
     NBins += 1;
     vMax += BIN_WIDTH;
@@ -744,10 +742,8 @@ function PrepareV(){ // Do sorting and binning in one function? Do we need sorti
   VData2 = math.multiply(VData2,0);
 
   for (let i = 0; i < V1Log.length; i++) {
-
     VData1 = math.add(VData1,V1Log[i]);
     VData2 = math.add(VData2,V2Log[i]);
-
   }
 
   VData1 = math.multiply(VData1,1/V1Log.length);
@@ -758,8 +754,12 @@ function PrepareV(){ // Do sorting and binning in one function? Do we need sorti
     Count_Plus += 1;
   }
 
-  if (VData1.subset(math.index(NBins-1)) < 1/CountA){
+  if (VData1.subset(math.index(NBins-1)) < 0.01/CountA && VData1.subset(math.index(NBins-1)) > 0.01/CountA){
     Count_Minus += 1;
+  }
+
+  if (VData1.subset(math.index(NBins-1)) === 0){
+    Count_Minus += 20;
   }
 
 
