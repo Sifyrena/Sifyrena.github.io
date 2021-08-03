@@ -227,6 +227,13 @@ var layout = {
 
 };
 
+// Vertical Strata 
+var Fr = 255;
+var Fg = 255;
+var Fb = 255;
+var Fa = 0;
+
+
 var config = {responsive: true}
 
 const Strata = 6;
@@ -236,7 +243,7 @@ function drawScene(){
 
 
   if (!Gravity == 0){
-    setGradient(color(130, 195, 255), color(200, 200, 203));
+    setGradient(color(0, 0, 0), color(100, 100, 100));
 
     let VCount = [];
 
@@ -255,7 +262,7 @@ function drawScene(){
 
         if (particles[j].Species === 'A'){
 
-          HeightStrat = Math.round(particles[j].y/sceneHeight*Strata);
+          HeightStrat = Math.round(particles[j].y/sceneHeight*Strata-0.5);
 
           print(HeightStrat);
 
@@ -268,7 +275,9 @@ function drawScene(){
 
       for (let i = 0; i < Strata; i++){
 
-        fill(255*VCount[i]/CountA);
+        Fa = Math.pow((VCount[i]/CountA),0.5);
+
+        fill('rgba('+ Fr+','+Fg +','+Fb +','+Fa +')');
 
         rect(0,sceneHeight/Strata*i,sceneWidth,sceneHeight/Strata);
       }
