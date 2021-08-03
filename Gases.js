@@ -275,8 +275,6 @@ function drawScene(){
 
           HeightStrat = Math.round(particles[j].y/sceneHeight*Strata-0.5);
 
-          print(HeightStrat);
-
           VCount[HeightStrat] += 1;
 
         }
@@ -675,22 +673,24 @@ function PrepareV(){ // Do sorting and binning in one function? Do we need sorti
     let parV = CToV(particles[i].vx,particles[i].vy);
 
     let Answer = Math.floor(parV/BIN_WIDTH);
-
-    if (Answer >= NBins){
-      Answer = NBins-1;
-    }
-
     
     if (particles[i].Species === 'A'){
 
       CountA += 1;
+
+      if (Answer<NBins){
+        LocalVData1.subset(math.index(Answer), (LocalVData1.subset(math.index(Answer))+1 ));
+      }
 
       LocalVData1.subset(math.index(Answer), (LocalVData1.subset(math.index(Answer))+1 ));
 
     } else if (particles[i].Species === 'B'){
 
       CountB += 1;
-      LocalVData2.subset(math.index(Answer), (LocalVData2.subset(math.index(Answer))+1 ));
+
+      if (Answer<NBins){
+       LocalVData2.subset(math.index(Answer), (LocalVData2.subset(math.index(Answer))+1 ));
+      }
     
       } else if (particles[i].Species === 'C'){
 
@@ -718,14 +718,16 @@ function PrepareV(){ // Do sorting and binning in one function? Do we need sorti
     VeloRange = math.multiply(math.range(0,NBins,false),BIN_WIDTH);
     print('Triggered Bin Lengthening');
     Count_Plus = 0;
+    Count_Minus = 0;
   } 
 
-  if (Count_Minus == BIN_UPDATE_TRIGGER){
+  if (Count_Minus >= BIN_UPDATE_TRIGGER){
     NBins -= 1;
     vMax -= BIN_WIDTH;
     VeloRange = math.multiply(math.range(0,NBins,false),BIN_WIDTH);
     print('Triggered Bin Shortening');
     Count_Minus = 0;
+    Count_Plus = 0;
   } 
 
   V1Log.push(LocalVData1);
@@ -736,7 +738,6 @@ function PrepareV(){ // Do sorting and binning in one function? Do we need sorti
       V1Log = V1Log.slice(0);
       V2Log = V2Log.slice(0);
   }
-
 
   VData1 = math.multiply(VData1,0);
   VData2 = math.multiply(VData2,0);
@@ -750,19 +751,13 @@ function PrepareV(){ // Do sorting and binning in one function? Do we need sorti
   VData2 = math.multiply(VData2,1/V1Log.length);
 
 
-  if (VData1.subset(math.index(NBins-1)) > VData1.subset(math.index(NBins-2))){
-    Count_Plus += 1;
-  }
-
-  if (VData1.subset(math.index(NBins-1)) < 0.01/CountA && VData1.subset(math.index(NBins-1)) > 0.01/CountA){
+  if (VData1.subset(math.index(NBins-1)) < 0.001/CountA && VData1.subset(math.index(NBins-1)) > 0){
     Count_Minus += 1;
   }
 
   if (VData1.subset(math.index(NBins-1)) === 0){
-    Count_Minus += 20;
+    Count_Minus += 10;
   }
-
-
 
 }
 
@@ -1108,7 +1103,6 @@ function mousePressed() {
               vy: 12*(0.5-random()),
               Species: 'A',
             });
-            print('Created particle #',i)
 
           }
 
