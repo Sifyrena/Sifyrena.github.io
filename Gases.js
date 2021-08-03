@@ -680,6 +680,8 @@ function PrepareV(){ // Do sorting and binning in one function? Do we need sorti
 
       if (Answer<NBins){
         LocalVData1.subset(math.index(Answer), (LocalVData1.subset(math.index(Answer))+1 ));
+      } else {
+        Count_Plus+=1;
       }
 
       LocalVData1.subset(math.index(Answer), (LocalVData1.subset(math.index(Answer))+1 ));
@@ -713,21 +715,20 @@ function PrepareV(){ // Do sorting and binning in one function? Do we need sorti
   // ONLY CHECK SPECIES 1
 
   if (Count_Plus == BIN_UPDATE_TRIGGER){
-    NBins += 1;
-    vMax += BIN_WIDTH;
-    VeloRange = math.multiply(math.range(0,NBins,false),BIN_WIDTH);
+
     print('Triggered Bin Lengthening');
     Count_Plus = 0;
     Count_Minus = 0;
+
   } 
 
   if (Count_Minus >= BIN_UPDATE_TRIGGER){
-    NBins -= 1;
-    vMax -= BIN_WIDTH;
-    VeloRange = math.multiply(math.range(0,NBins,false),BIN_WIDTH);
+
+
     print('Triggered Bin Shortening');
     Count_Minus = 0;
     Count_Plus = 0;
+
   } 
 
   V1Log.push(LocalVData1);
