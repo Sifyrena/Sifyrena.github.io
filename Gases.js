@@ -57,14 +57,8 @@ const BIN_UPDATE_TRIGGER = 120;
 let Count_Plus = 0;
 let Count_Minus = 0;
 
-
-
 let VData1 = math.zeros(NBins);
 let VData2 = math.zeros(NBins);
-
-
-
-
 
 let DrawTrail = false;
 
@@ -239,8 +233,8 @@ var layout = {
 };
 
 // Vertical Strata 
-var Fr = 255;
-var Fg = 255;
+var Fr = 105;
+var Fg = 155;
 var Fb = 255;
 var Fa = 0;
 
