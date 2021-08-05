@@ -686,8 +686,6 @@ function PrepareV(){ // Do sorting and binning in one function? Do we need sorti
         Count_Plus+=1;
       }
 
-      LocalVData1.subset(math.index(Answer), (LocalVData1.subset(math.index(Answer))+1 ));
-
     } else if (particles[i].Species === 'B'){
 
       CountB += 1;
