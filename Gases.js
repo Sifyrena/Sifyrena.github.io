@@ -667,6 +667,8 @@ function PrepareV(){ // Do sorting and binning in one function? Do we need sorti
   CountA = 0;
   CountB = 0;
   CountC = 0;
+  Count_Plus = 0;
+	
   for (let i = 0; i < particles.length; i++) {
 
 
@@ -752,12 +754,14 @@ function PrepareV(){ // Do sorting and binning in one function? Do we need sorti
   VData2 = math.multiply(VData2,1/V1Log.length);
 
 
+	/*
   if (VData1.subset(math.index(NBins-1)) < 0.001/CountA && VData1.subset(math.index(NBins-1)) > 0){
     Count_Minus += 1;
   }
 
   if (VData1.subset(math.index(NBins-1)) === 0){
     Count_Minus += 10;
+    */
   }
 
 }
