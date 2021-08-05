@@ -760,9 +760,9 @@ function PrepareV(){ // Do sorting and binning in one function? Do we need sorti
   }
 
   if (VData1.subset(math.index(NBins-1)) === 0){
-    Count_Minus += 10;
+    Count_Minus += 10;}
     */
-  }
+  
 
 }
 
