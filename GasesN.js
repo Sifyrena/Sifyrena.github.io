@@ -199,7 +199,38 @@ function draw() {
 
 // The Previous Mass's Variables (Global)
 
+var layout = {
+  barmode: 'overlay',
+  xaxis: {range: [0, vMax]},
+  yaxis: {range: [0, 40]},  
+  paper_bgcolor: 'rgba(207,221,199,0.5)',
+  plot_bgcolor: 'rgba(220,220,224,.88)', 
+  autosize: false,
+  width: 0.60*sceneWidth,
+  height: 0.80*sceneWidth,
+    xaxis: {
+      title: {
+        text: 'Speed (arbitrary units)',
+        font: {
+          family: 'Courier New, monospace',
+          size: 18,
+          color: '#000000'
+        }
+      },
+    },
+    yaxis: {
+      title: {
+        text: 'Fraction of Population',
+        font: {
+          family: 'Courier New, monospace',
+          size: 18,
+          color: '#000000'
+        }
+      },
+      fixedrange: false,
+    }
 
+};
 
 // Vertical Strata 
 var Fr = 105;
@@ -214,39 +245,6 @@ const Strata = 6;
 
 function drawScene(){
   background('rgba(195,120,10,0');
-
-  var layout = {
-    barmode: 'overlay',
-    xaxis: {range: [0, vMax]},
-    yaxis: {range: [0, 40]},  
-    paper_bgcolor: 'rgba(207,221,199,0.5)',
-    plot_bgcolor: 'rgba(220,220,224,.88)', 
-    autosize: false,
-    width: 0.50*sceneWidth,
-    height: 0.60*sceneHeight,
-      xaxis: {
-        title: {
-          text: 'Speed (arbitrary units)',
-          font: {
-            family: 'Courier New, monospace',
-            size: 18,
-            color: '#000000'
-          }
-        },
-      },
-      yaxis: {
-        title: {
-          text: 'Fraction of Population',
-          font: {
-            family: 'Courier New, monospace',
-            size: 18,
-            color: '#000000'
-          }
-        },
-        fixedrange: false,
-      }
-  
-  };
 
 
   if (!Gravity == 0){
@@ -663,9 +661,10 @@ function PrepareV(){ // Do sorting and binning in one function? Do we need sorti
   CountA = 0;
   CountB = 0;
   CountC = 0;
-  let MaxBin = false;
+  Count_Plus = 0;
 	
   for (let i = 0; i < particles.length; i++) {
+
 
     let parV = CToV(particles[i].vx,particles[i].vy);
 
@@ -678,11 +677,7 @@ function PrepareV(){ // Do sorting and binning in one function? Do we need sorti
       if (Answer<NBins){
         LocalVData1.subset(math.index(Answer), (LocalVData1.subset(math.index(Answer))+1 ));
       } else {
-
-        if (!MaxBin){
-          MaxBin = true;
-          Count_Plus+=1;
-        }
+        Count_Plus+=1;
       }
 
     } else if (particles[i].Species === 'B'){
@@ -716,21 +711,15 @@ function PrepareV(){ // Do sorting and binning in one function? Do we need sorti
   if (Count_Plus == BIN_UPDATE_TRIGGER){
 
     print('Triggered Bin Lengthening');
-    NBins += 1;
-    vMax += BIN_WIDTH;
-    VeloRange = math.multiply(math.range(0,NBins,false),BIN_WIDTH);
     Count_Plus = 0;
     Count_Minus = 0;
 
   } 
 
-  if (Count_Minus >= BIN_UPDATE_TRIGGER && NBins > 5){
+  if (Count_Minus >= BIN_UPDATE_TRIGGER){
+
 
     print('Triggered Bin Shortening');
-    NBins -= 1;
-    vMax -= BIN_WIDTH;
-    VeloRange = math.multiply(math.range(0,NBins,false),BIN_WIDTH);
-
     Count_Minus = 0;
     Count_Plus = 0;
 
@@ -757,14 +746,14 @@ function PrepareV(){ // Do sorting and binning in one function? Do we need sorti
   VData2 = math.multiply(VData2,1/V1Log.length);
 
 
-
+	/*
   if (VData1.subset(math.index(NBins-1)) < 0.001/CountA && VData1.subset(math.index(NBins-1)) > 0){
     Count_Minus += 1;
   }
 
   if (VData1.subset(math.index(NBins-1)) === 0){
     Count_Minus += 10;}
-
+    */
   
 
 }
