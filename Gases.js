@@ -741,8 +741,8 @@ function PrepareV(){ // Do sorting and binning in one function? Do we need sorti
 
 
   if (V1Log.length > LogCap){
-      V1Log = V1Log.slice(0);
-      V2Log = V2Log.slice(0);
+      V1Log.shift();
+      V2Log.shift();
   }
 
   VData1 = math.multiply(VData1,0);
