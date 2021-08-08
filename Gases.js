@@ -647,7 +647,7 @@ let ShowPlot = false;
 let V1Log = [];
 let V2Log = [];
 
-const LogCap = 80;
+const LogCap = 500;
 
 let CountA = 0;
 let CountB = 0;
