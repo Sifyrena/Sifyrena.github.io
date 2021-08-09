@@ -348,7 +348,7 @@ function drawScene(){
         var trace1 = {
           x: VeloRange.toArray(),
           y: VData1.toArray(),
-          name: 'Gas 1',
+          name: 'Gas 1 ('+CountA+')',
           type: "bar",
           opacity: 0.87,
           marker: {
@@ -359,7 +359,7 @@ function drawScene(){
         var trace2 = {
           x: VeloRange.toArray(),
           y: VData2.toArray(),
-          name: 'Gas 2',
+          name: 'Gas 2 ('+CountB+')',
           type: "bar",
           opacity: 0.7,
           marker: {
@@ -1098,7 +1098,7 @@ function mousePressed() {
         }
 
       } else if (item === 1){
-          for (let i = 0; i < 20; i++){
+          for (let i = 0; i < 19; i++){
 
             particles.push({
               x: sceneWidth*(random()),
