@@ -670,6 +670,11 @@ function PrepareV(){ // Do sorting and binning in one function? Do we need sorti
     let parV = CToV(particles[i].vx,particles[i].vy);
 
     let Answer = Math.floor(parV/BIN_WIDTH);
+
+      if (!MaxBin && Answer >= NBins){
+        MaxBin = true;
+        Count_Plus+=1;
+      }
     
     if (particles[i].Species === 'A'){
 
@@ -677,13 +682,7 @@ function PrepareV(){ // Do sorting and binning in one function? Do we need sorti
 
       if (Answer<NBins){
         LocalVData1.subset(math.index(Answer), (LocalVData1.subset(math.index(Answer))+1 ));
-      } else {
-
-        if (!MaxBin){
-          MaxBin = true;
-          Count_Plus+=1;
-        }
-      }
+      } 
 
     } else if (particles[i].Species === 'B'){
 
