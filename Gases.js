@@ -536,7 +536,7 @@ let ti = 0;
 
 
 
-const TrailMaxRad = 0.5;
+const TrailMaxRad = 0.35;
 
 function drawTrailB(){
 
@@ -544,18 +544,18 @@ function drawTrailB(){
 
 }
 
-const TrailLength = 500;
+const TrailLength = 100;
 
 function drawTrailC(){
 
     if (!paused){
-	    ti+= 1;
+	    ti += 1;
       for (let i = 0; i < particles.length; i++) {
 
           
           if ((particles[i].Species === 'C')||(particles[i].Species === 'B')){
-            if (ti%2 == 0){
-            ti = 0;
+            if (ti%3 == 0){
+                  ti = 0;
                   XLog.push(particles[i].x);
                   YLog.push(particles[i].y);
             }
@@ -628,7 +628,7 @@ function drawMenu(){
 
 function drawTimeScale(){
 
-    fill('rgba(30,30,30,0.92)');
+    fill('rgba(130,130,130,0.92)');
 
 
     textSize(min(metersInPixels*2,sceneWidth/12));
