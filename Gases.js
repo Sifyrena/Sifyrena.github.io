@@ -210,7 +210,7 @@ var Fa = 0;
 
 var config = {responsive: true}
 
-const Strata = 5;
+let Strata = 5;
 
 function drawScene(){
   background('rgba(195,120,10,0');
@@ -718,7 +718,7 @@ function PrepareV(){ // Do sorting and binning in one function? Do we need sorti
     NBins += 1;
     vMax += BIN_WIDTH;
     VeloRange = math.multiply(math.range(0,NBins,false),BIN_WIDTH);
-    
+
     Count_Plus = 0;
     Count_Minus = 0;
 
@@ -1215,6 +1215,15 @@ function keyPressed(){
   if (key === 't'){
     ShowPlot = !ShowPlot;
     Fi = CountPerFig - 1;
+  }
+
+  if (key === 'p'){
+    Strata += 1;
+  }
+
+
+  if (key === 'o' && Strata >=2){
+    Strata -= 1;
   }
 
 print(key, dt);
