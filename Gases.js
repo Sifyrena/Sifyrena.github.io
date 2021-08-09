@@ -554,7 +554,7 @@ function drawTrailC(){
 
           
           if ((particles[i].Species === 'C')||(particles[i].Species === 'B')){
-            if (ti%3 == 0){
+            if (ti%2 == 0){
                   ti = 0;
                   XLog.push(particles[i].x);
                   YLog.push(particles[i].y);
