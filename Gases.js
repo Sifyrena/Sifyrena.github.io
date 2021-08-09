@@ -544,7 +544,7 @@ function drawTrailB(){
 
 }
 
-const TrailLength = 100;
+const TrailLength = 320;
 
 function drawTrailC(){
 
@@ -554,7 +554,7 @@ function drawTrailC(){
 
           
           if ((particles[i].Species === 'C')||(particles[i].Species === 'B')){
-            if (ti%2 == 0){
+            if (ti%3 == 0){
                   ti = 0;
                   XLog.push(particles[i].x);
                   YLog.push(particles[i].y);
