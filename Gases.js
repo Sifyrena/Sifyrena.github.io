@@ -536,7 +536,7 @@ let ti = 0;
 
 
 
-const TrailMaxRad = 0.35;
+const TrailMaxRad = 0.55;
 
 function drawTrailB(){
 
@@ -572,7 +572,9 @@ function drawTrailC(){
 
         for (let i = 0; i < XLog.length; i++){
           noStroke();
-          fill('rgba(0,0,20,'+i/XLog.length+')');
+
+          if (Gravity === 0){
+          fill('rgba(0,0,20,'+i/XLog.length+')');} else {fill(255);}
 
           ellipse(XLog[i],YLog[i],TrailMaxRad*r1);
         }
