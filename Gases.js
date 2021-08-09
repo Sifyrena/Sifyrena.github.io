@@ -657,6 +657,14 @@ function PrepareV(){ // Do sorting and binning in one function? Do we need sorti
 
   //
 
+  if (VData1.subset(math.index(NBins-1)) < 0.001/CountA){
+    Count_Minus += 1;
+  }
+
+  if (VData1.subset(math.index(NBins-1)) === 0){
+    Count_Minus += 5;}
+
+
   LocalVData1 = math.multiply(VData1,0);
   LocalVData2 = math.multiply(VData2,0);
 
@@ -756,14 +764,6 @@ function PrepareV(){ // Do sorting and binning in one function? Do we need sorti
   VData1 = math.multiply(VData1,1/V1Log.length);
   VData2 = math.multiply(VData2,1/V1Log.length);
 
-
-
-  if (VData1.subset(math.index(NBins-1)) < 0.001/CountA){
-    Count_Minus += 1;
-  }
-
-  if (VData1.subset(math.index(NBins-1)) === 0){
-    Count_Minus += 5;}
 
   
 
