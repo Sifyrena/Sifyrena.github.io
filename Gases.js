@@ -202,15 +202,15 @@ function draw() {
 
 
 // Vertical Strata 
-var Fr = 105;
-var Fg = 155;
+var Fr = 95;
+var Fg = 135;
 var Fb = 255;
 var Fa = 0;
 
 
 var config = {responsive: true}
 
-const Strata = 6;
+const Strata = 5;
 
 function drawScene(){
   background('rgba(195,120,10,0');
@@ -718,6 +718,7 @@ function PrepareV(){ // Do sorting and binning in one function? Do we need sorti
     NBins += 1;
     vMax += BIN_WIDTH;
     VeloRange = math.multiply(math.range(0,NBins,false),BIN_WIDTH);
+    
     Count_Plus = 0;
     Count_Minus = 0;
 
@@ -757,12 +758,12 @@ function PrepareV(){ // Do sorting and binning in one function? Do we need sorti
 
 
 
-  if (VData1.subset(math.index(NBins-1)) < 0.001/CountA && VData1.subset(math.index(NBins-1)) > 0){
+  if (VData1.subset(math.index(NBins-1)) < 0.001/CountA){
     Count_Minus += 1;
   }
 
   if (VData1.subset(math.index(NBins-1)) === 0){
-    Count_Minus += 10;}
+    Count_Minus += 5;}
 
   
 
