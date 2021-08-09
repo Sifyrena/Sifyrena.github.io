@@ -544,7 +544,7 @@ function drawTrailB(){
 
 }
 
-const TrailLength = 320;
+const TrailLength = 200;
 
 function drawTrailC(){
 
@@ -554,7 +554,7 @@ function drawTrailC(){
 
           
           if ((particles[i].Species === 'C')||(particles[i].Species === 'B')){
-            if (ti%3 == 0){
+            if (ti%2 == 0){
                   ti = 0;
                   XLog.push(particles[i].x);
                   YLog.push(particles[i].y);
@@ -574,7 +574,10 @@ function drawTrailC(){
           noStroke();
 
           if (Gravity === 0){
-          fill('rgba(0,0,20,'+i/XLog.length+')');} else {fill(255);}
+            fill(0);
+          } else {
+            fill(255);
+          }
 
           ellipse(XLog[i],YLog[i],TrailMaxRad*r1);
         }
