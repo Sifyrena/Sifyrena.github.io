@@ -4,8 +4,8 @@
 
 @font-face {
     font-family: 'latimer_sans';
-    src: url('latimer_sans_square_light-webfont.woff2') format('woff2'),
-         url('latimer_sans_square_light-webfont.woff') format('woff');
+    src: url('https://sifyrena.github.io/Fonts/Latimer_Sans/latimer_sans_square_light-webfont.woff2') format('woff2'),
+         url('https://sifyrena.github.io/Fonts/Latimer_Sans/latimer_sans_square_light-webfont.woff') format('woff');
     font-weight: normal;
     font-style: normal;
 
