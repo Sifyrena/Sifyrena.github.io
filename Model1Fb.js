@@ -256,6 +256,11 @@ window.onkeydown = function(e) {
       e.preventDefault();
       return false;
   }
+
+  if(e.key == 'P' && e.target == document.body) {
+    e.preventDefault();
+    return false;
+}
     
 };
 
