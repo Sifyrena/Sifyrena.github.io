@@ -367,8 +367,7 @@ function drawScene(){
           },
         };
       
-	if (CountB>5){
-		
+	if (CountB>5){	
         Plotly.newPlot('Fig',[trace1,trace2],layout, config);
 	} else {
 	Plotly.newPlot('Fig',[trace1],layout, config);
@@ -767,10 +766,10 @@ function PrepareV(){ // Do sorting and binning in one function? Do we need sorti
 
   for (let i = 0; i < V1Log.length; i++) {
 	  
-	  if (math.size(V1Log[i]) < math.size(VData1){
+	  if (math.size(V1Log[i])[0] < math.size(VData1)[0]){
 	      print("Filling Zeroes");
 	      V1Log[i] = math.concat(V1Log[i],[0]);
-	  	V2Log[i] = math.concat(V2Log[i],[0]);
+	      V2Log[i] = math.concat(V2Log[i],[0]);
 	      
 	      }
     VData1 = math.add(VData1,V1Log[i]);
