@@ -257,10 +257,6 @@ window.onkeydown = function(e) {
       return false;
   }
     
-  if(e.keyCode == 13) {
-      e.preventDefault();
-      return false;
-  }
 };
 
 function setup() {
@@ -2007,7 +2003,7 @@ function keyPressed(){
     }
   }
 
-  if (keyCode === 13 && !Listening){
+  if (key === "P"){
       
     markerfile();
   }
