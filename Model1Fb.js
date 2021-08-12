@@ -257,7 +257,7 @@ window.onkeydown = function(e) {
       return false;
   }
 
-  if(e.key == 'P' && e.target == document.body) {
+  if(e.keyCode == 80) {
     e.preventDefault();
     return false;
 }
