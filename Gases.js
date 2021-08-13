@@ -568,8 +568,9 @@ function drawTrailC(){
 
 
       if (XLog.length >= TrailLength){
-        XLog.shift();
-        YLog.shift();
+          let NTr = XLog.length + 1 - TrailLength;
+          XLog.splice(0,NTr);
+          YLog.splice(0,NTr);
       }
 
 

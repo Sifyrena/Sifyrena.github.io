@@ -410,7 +410,7 @@ let ti = 0;
 
 
 
-const TrailMaxRad = 1;
+const TrailMaxRad = 4;
 
 function drawTrailB(){
 
@@ -418,16 +418,19 @@ function drawTrailB(){
 
 }
 
-const TrailLength = 500;
+const TrailLength = 1000;
 
 function drawTrailC(){
 
     if (!paused){
+        
+        ti += 1
 
       for (let i = 0; i < particles.length; i++) {
 
           
-          if (particles[i].mass >= m3){
+          if (particles[i].mass >= m3 && ti == 3){
+                ti = 0;
                 XLog.push(particles[i].x);
                 YLog.push(particles[i].y);
           }
@@ -436,8 +439,10 @@ function drawTrailC(){
 
 
       if (XLog.length >= TrailLength){
-        XLog.shift();
-        YLog.shift();
+          
+        let NTr = XLog.length + 1 - TrailLength;
+        XLog.splice(0,NTr);
+        YLog.splice(0,NTr);
       }
 
 
@@ -446,7 +451,7 @@ function drawTrailC(){
 
             fill(cT);
 
-          ellipse(XLog[i],YLog[i],TrailMaxRad*r1);
+          ellipse(XLog[i],YLog[i],TrailMaxRad);
         }
       
   }
