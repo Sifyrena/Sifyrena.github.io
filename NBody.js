@@ -248,7 +248,9 @@ function drawScene(){
         } else if (particles[i].Species == 'C'){
             c = color(c3);
         }
-      } else {c = color(velomap(particles[i].vx,particles[i].vy));}
+      } else {
+          c = color(velomap(particles[i].vx,particles[i].vy));
+      }
   
       drawParticle(particles[i].x, particles[i].y, particles[i].r, c);
       
@@ -291,8 +293,16 @@ let CharaScale;
 const vCeil = 10;
 const vFloor = 0.5;
 
-Magma0 = {R: 22, G: 11, B: 58};
-MagmaF = {R:248, G:251, B:153};
+const Magma0 = {R: 22, G: 11, B: 58};
+const MagmaF = {R:248, G:251, B:153};
+
+const Magma1 = splineRGB(0.2);
+const Magma2 = splineRGB(0.4);
+const Magma3 = splineRGB(0.6);
+const Magma4 = splineRGB(0.8);
+
+const Magmas = [Magma0,Magma1,Magma2,Magma3,Magma4];
+
 
 function splineRGB(x){
     
@@ -308,7 +318,7 @@ function splineRGB(x){
     CVG = -9.5*x*x*x + 98.5*x*x - 213*x + 135;
     CVB = 60.833*x*x*x - 436*x*x + 934.17*x - 501;
     
-    return {R: round(CVR), G: round(CVG), B: round(CVB)};
+    return {R: Math.round(CVR), G: Math.round(CVG), B: Math.round(CVB)};
 }
 
 
@@ -326,8 +336,13 @@ function velomap(vx,vy){
         
     } else {
         
-        let VPers = (v - vFloor)/(vCeil-vFloor);
-        let MagmaI = splineRGB(VPers);
+        
+        let x = (v - vFloor)/(vCeil-vFloor)*5;
+        
+        let xI = Math.round(x);
+        
+        let MagmaI = Magmas[xI];
+
     
         return 'rgba('+MagmaI.R+','+MagmaI.G+','+MagmaI.B+',1)';
     }
