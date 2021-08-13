@@ -301,7 +301,7 @@ const Magma2 = splineRGB(0.4);
 const Magma3 = splineRGB(0.6);
 const Magma4 = splineRGB(0.8);
 
-const Magmas = [Magma0,Magma1,Magma2,Magma3,Magma4];
+const Magmas = [Magma0,Magma1,Magma2,Magma3,Magma4,MagmaF];
 
 
 function splineRGB(x){
