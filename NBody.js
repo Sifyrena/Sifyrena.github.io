@@ -213,7 +213,6 @@ function draw() {
 // The Previous Mass's Variables (Global)
 
 
-
 // Vertical Strata 
 var Fr = 95;
 var Fg = 135;
@@ -226,31 +225,26 @@ function drawScene(){
   background(0);
 
   if (DrawTrail){drawTrailC();}
-  // Brownian Trail
-
-  for (let i = 0; i < vectors.length; i++){
-    stroke(0);
-  }
 
   for (let i = 0; i < particles.length; i++){
-    let c;
-    if (particles[i].Species == 'A'){
-
-      if (HideA){
-        c = cH;
-      } else { c = color(c1);
-        drawParticle(particles[i].x, particles[i].y, particles[i].r, c);}
-
-    } else if (particles[i].Species == 'B'){
-
-        c = color(c2);
-        drawParticle(particles[i].x, particles[i].y, particles[i].r, c);
-    } else if (particles[i].Species == 'C'){
-
-      c = color(c3);
+      
+      if(HideA && particles[i].Species == 'A'){continue;}
+    
+      let c;
+      
+      if (!CByV){
+        if (particles[i].Species == 'A'){
+            c = color(c1);
+    
+        } else if (particles[i].Species == 'B'){
+            c = color(c2);
+        } else if (particles[i].Species == 'C'){
+            c = color(c3);
+        }
+      } else {c = color(velomap(particles[i].vx,particles[i].vy));}
+  
       drawParticle(particles[i].x, particles[i].y, particles[i].r, c);
-  }
-
+      
   }
 
   stroke(0);
@@ -286,6 +280,53 @@ let MenuItemDrawingFunctions = [
 ];
 
 let CharaScale;
+
+const vCeil = 15;
+const vFloor = 0.5;
+
+Magma0 = {R: 22, G: 11, B: 58};
+MagmaF = {R:248, G:251, B:153};
+
+function splineRGB(x){
+    
+    // Thanks Tim Cook
+    x *= 3;
+    x += 1;
+    // FW's Cubic Version of Magma.
+    let CVR;
+    let CVG;
+    let CVB;
+    
+    CVR = -11.833*x*x*x + 73*x*x - 41.167*x + 2;
+    CVG = -9.5*x*x*x + 98.5*x*x - 213*x + 135;
+    CVB = 60.833*x*x*x - 436*x*x + 934.17*x - 501;
+    
+    return {R: round(CVR), G: round(CVG), B: round(CVB)};
+}
+
+
+function velomap(vx,vy){
+        
+    v = CToV(vx,vy);
+    
+    if (v <= vFloor){
+        
+        return 'rgba('+Magma0.R+','+Magma0.G+','+Magma0.B+',1)';
+        
+    } else if (v >= vCeil){
+        
+        return 'rgba('+MagmaF.R+','+MagmaF.G+','+MagmaF.B+',1)';
+        
+    } else {
+        
+        let VPers = (v - vFloor)/(vCeil-vFloor);
+        let MagmaI = splineRGB(VPers);
+    
+        return 'rgba('+MagmaI.R+','+MagmaI.G+','+MagmaI.B+',1)';
+    }
+    
+
+}
 
 function drawTogTrail(x,y,s,c){
 
@@ -377,10 +418,13 @@ function drawT(x,y,s,c){
   fill(255,255,255);
   stroke(0);
   strokeWeight(0);
-  textSize(metersInPixels/2);
+  textSize(metersInPixels/4);
   textAlign(CENTER,CENTER);
 
-  text('',x,y);
+    if (CByV){
+        text('Color\nby Species',x,y);
+    } else {
+        text('Color\nby Speed',x,y);}
 
 }
 
@@ -390,12 +434,12 @@ function drawG(x,y,s,c){
   fill(255,255,255);
   stroke(0);
   strokeWeight(0);
-  textSize(metersInPixels/2);
+  textSize(metersInPixels/4);
 
   textAlign(CENTER,CENTER);
 
   if (Gravity === 0){
-    text('C◉M',x,y);
+    text('CoM\nFrame',x,y);
   } 
 
 }
@@ -453,17 +497,18 @@ function drawTrailC(){
         XLog.splice(0,NTr);
         YLog.splice(0,NTr);
       }
+    }
 
 
-        for (let i = 0; i < XLog.length; i++){
-          noStroke();
+    for (let i = 0; i < XLog.length; i++){
+      noStroke();
 
-            fill(cT);
+        fill(cT);
 
-          ellipse(XLog[i],YLog[i],TrailMaxRad);
-        }
-      
-  }
+      ellipse(XLog[i],YLog[i],TrailMaxRad);
+    }
+  
+  
 
 }
 
@@ -528,7 +573,7 @@ function drawTimeScale(){
   }
 }
 
-let ShowPlot = false;
+let CByV = true;
 
 let V1Log = [];
 let V2Log = [];
@@ -608,7 +653,7 @@ function PrepareV(){ // Do sorting and binning in one function? Do we need sorti
 
   if (Count_Plus == BIN_UPDATE_TRIGGER){
 
-    print('Triggered Bin Lengthening');
+
     NBins += 1;
     vMax += BIN_WIDTH;
     VeloRange = math.multiply(math.range(0,NBins,false),BIN_WIDTH);
@@ -620,7 +665,7 @@ function PrepareV(){ // Do sorting and binning in one function? Do we need sorti
 
   if (Count_Minus >= BIN_UPDATE_TRIGGER && NBins > 5){
 
-    print('Triggered Bin Shortening');
+
     NBins -= 1;
     vMax -= BIN_WIDTH;
     VeloRange = math.multiply(math.range(0,NBins,false),BIN_WIDTH);
@@ -1010,7 +1055,7 @@ function mousePressed() {
           }
 
       } else if (item === 6){
-        ShowPlot = !ShowPlot;
+        CByV = !CByV;
         Fi = CountPerFig - 1;
 
       } else if (item === 7){
@@ -1102,7 +1147,7 @@ function keyPressed(){
   }
 
   if (key === 't'){
-    ShowPlot = !ShowPlot;
+    CByV = !CByV;
     Fi = CountPerFig - 1;
   }
 
