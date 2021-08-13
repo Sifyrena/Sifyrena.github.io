@@ -294,10 +294,10 @@ let MenuItemDrawingFunctions = [
 
 let CharaScale;
 
-const vCeil = 10;
+const vCeil = 25;
 const vFloor = 0.5;
 
-const VStrata = 49;
+const VStrata = 99;
 let Magmas = [];
 
 function splineRGB(x){
