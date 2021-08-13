@@ -25,7 +25,7 @@ const m1 = 5;
 const m2 = 10;
 const m3 = 20;
 
-const r1 = 4;
+const r1 = 1.5;
 const r2 = Schwarz(m2);
 const r3 = Schwarz(m3);
 
@@ -69,6 +69,18 @@ const k = 9*(Math.pow(10, 9));
 const e = 2.718281828;
 const Pi = 3.14159265358;
 const RadAng = Pi/180;
+
+
+const GAcc = 3;
+
+const SFric = 0; // -kv^2
+const SBoun = 1; // Restitution of Wall
+const SReco = 1; // Restitution of Ball
+
+const BoundaryTol = 3; // Buffer Zone Size Off Screen
+const MergerSens = 1.8;
+
+const SpLight = 200; // Speed of light, for SR corrections.
 
 let METER_RATIO; // PlaceHolder Value. Will be updated by draw. centimetres per pixel.
 
@@ -423,14 +435,11 @@ const TrailLength = 1000;
 function drawTrailC(){
 
     if (!paused){
-        
-        ti += 1
 
       for (let i = 0; i < particles.length; i++) {
 
           
-          if (particles[i].mass >= m3 && ti == 3){
-                ti = 0;
+          if (particles[i].mass >= m3){
                 XLog.push(particles[i].x);
                 YLog.push(particles[i].y);
           }
@@ -1251,16 +1260,7 @@ function updateNB(dt, particles, vectors, width, height) {
 
 
 
-const GAcc = 5;
 
-const SFric = 0; // -kv^2
-const SBoun = 1; // Restitution of Wall
-const SReco = 1; // Restitution of Ball
-
-const BoundaryTol = 2; // Buffer Zone Off Screen
-const MergerSens = 1.6;
-
-const SpLight = 200; // Speed of light, for SR corrections. 
 
 function COMCor(){
 
