@@ -281,7 +281,7 @@ let MenuItemDrawingFunctions = [
 
 let CharaScale;
 
-const vCeil = 15;
+const vCeil = 10;
 const vFloor = 0.5;
 
 Magma0 = {R: 22, G: 11, B: 58};
