@@ -158,6 +158,11 @@ function setGradient(c1, c2) {
 }
 
 function setup() {
+	
+for (let i = 0; i < VStrata+1; i++){
+	Magmas.push(splineRGB(i/VStrata));
+}
+
 
   var cnv = createCanvas(window.innerWidth, window.innerHeight);
   cnv.parent("Sim");
@@ -292,14 +297,8 @@ let CharaScale;
 const vCeil = 10;
 const vFloor = 0.5;
 
-const VStrata = 15;
+const VStrata = 49;
 let Magmas = [];
-
-for (let i = 0; i < VStrata+1; i++){
-	Magmas.push(splineRGB(i/VStrata));
-}
-
-
 
 function splineRGB(x){
     
