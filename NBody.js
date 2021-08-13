@@ -220,7 +220,6 @@ var Fr = 95;
 var Fg = 135;
 var Fb = 255;
 var Fa = 0;
-
 var config = {responsive: true}
 
 function drawScene(){
@@ -293,15 +292,13 @@ let CharaScale;
 const vCeil = 10;
 const vFloor = 0.5;
 
-const Magma0 = {R: 22, G: 11, B: 58};
-const MagmaF = {R:248, G:251, B:153};
+const VStrata = 15;
+let Magmas = [];
 
-const Magma1 = splineRGB(0.2);
-const Magma2 = splineRGB(0.4);
-const Magma3 = splineRGB(0.6);
-const Magma4 = splineRGB(0.8);
+for (let i = 0; i < VStrata+1; i++){
+	Magmas.push(splineRGB(i/VStrata));
+}
 
-const Magmas = [Magma0,Magma1,Magma2,Magma3,Magma4,MagmaF];
 
 
 function splineRGB(x){
@@ -325,27 +322,20 @@ function splineRGB(x){
 function velomap(vx,vy){
         
     v = CToV(vx,vy);
-    
-    if (v <= vFloor){
-        
-        return 'rgba('+Magma0.R+','+Magma0.G+','+Magma0.B+',1)';
-        
-    } else if (v >= vCeil){
-        
-        return 'rgba('+MagmaF.R+','+MagmaF.G+','+MagmaF.B+',1)';
-        
-    } else {
-        
-        
-        let x = (v - vFloor)/(vCeil-vFloor)*5;
-        
-        let xI = Math.round(x);
-        
-        let MagmaI = Magmas[xI];
 
+
+	let x = (v - vFloor)/(vCeil-vFloor)*VStrata;
+	
+	if (x<0){ x = 0}
+	else if (x>VStrata){x=VStrata}
+
+	let xI = Math.round(x);
+
+	let MagmaI = Magmas[xI];
+
+
+	return 'rgba('+MagmaI.R+','+MagmaI.G+','+MagmaI.B+',1)';
     
-        return 'rgba('+MagmaI.R+','+MagmaI.G+','+MagmaI.B+',1)';
-    }
     
 
 }
@@ -1177,14 +1167,7 @@ function keyPressed(){
     Fi = CountPerFig - 1;
   }
 
-  if (key === 'p'){
-    Strata += 1;
-  }
 
-
-  if (key === 'o' && Strata >=2){
-    Strata -= 1;
-  }
 
 print(key, dt);
 
