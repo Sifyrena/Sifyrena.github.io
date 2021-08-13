@@ -368,7 +368,7 @@ function drawT(x,y,s,c){
   textSize(metersInPixels/2);
   textAlign(CENTER,CENTER);
 
-  text('CHART',x,y);
+  text('',x,y);
 
 }
 
