@@ -31,8 +31,10 @@ const r3 = Schwarz(m3);
 
 const c1 = 'rgba(255, 255, 253, 0.95)';
 const c2 = 'rgba(196, 130, 14, 0.95)';
-const c3 = 'rgba(10,46,93,0.95)'
-const cT = 'rgba(35,255,35,0.5)'
+const c3 = 'rgba(10,46,93,0.95)';
+
+const cT = 'rgba(35,255,35,0.5)';
+const cTb = 'rgba(5,15,5,0.5)';
 
 const ALLOWED_GASES = ['A','B','C'];
 
@@ -222,7 +224,12 @@ var Fa = 0;
 var config = {responsive: true}
 
 function drawScene(){
+
   background(0);
+    
+  if (CByV){
+      setGradient(color(90, 90, 90), color(190, 190, 190));
+  }
 
   if (DrawTrail){drawTrailC();}
 
@@ -499,11 +506,15 @@ function drawTrailC(){
       }
     }
 
+    noStroke();
 
+      if (CByV){
+          fill(cTb);
+      } else {
+          fill(cT);}
+    
     for (let i = 0; i < XLog.length; i++){
-      noStroke();
-
-        fill(cT);
+      
 
       ellipse(XLog[i],YLog[i],TrailMaxRad);
     }
