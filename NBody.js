@@ -294,7 +294,7 @@ let MenuItemDrawingFunctions = [
 
 let CharaScale;
 
-const vCeil = 25;
+const vCeil = 20;
 const vFloor = 0.5;
 
 const VStrata = 99;
