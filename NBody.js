@@ -25,7 +25,7 @@ const m1 = 5;
 const m2 = 10;
 const m3 = 20;
 
-const r1 = 1.5;
+const r1 = 3;
 const r2 = Schwarz(m2);
 const r3 = Schwarz(m3);
 
