@@ -285,7 +285,7 @@ let MenuItemDrawingFunctions = [
   (x, y, s) => drawStill(x + s / 2, y + s / 2, s / 8, color(c1)),
   (x, y, s) => draw20(x + s / 2, y + s / 2, s / 8, color(c1)),
   (x, y, s) => drawTogTrail(x + s / 2, y + s / 2, s / 8, color(c1)),
-  (x, y, s) => drawErasor(x + s / 2, y + s / 2, s / 4),
+  (x, y, s) => drawBox(x + s / 2, y + s / 2, s / 4),
   (x, y, s) => drawNormal(x + s / 2, y + s / 2, s / 4, color(c2)),
   (x, y, s) => drawNormal(x + s / 2, y + s / 2, s / 4, color(c3)),
   (x, y, s) => drawT(x + s/2, y + s/2 ,1,1),
@@ -342,7 +342,6 @@ function velomap(vx,vy){
 }
 
 function drawTogTrail(x,y,s,c){
-
 
   fill(255,255,255);
   stroke(0);
@@ -441,6 +440,20 @@ function drawT(x,y,s,c){
 
 }
 
+function drawBox(x,y,s){
+
+  fill(255,255,255);
+  stroke(0);
+  strokeWeight(0);
+  textSize(metersInPixels/4);
+  textAlign(CENTER,CENTER);
+
+    if (Bounded){
+        text('Remove\nBound',x,y);
+    } else {
+        text('Bound\nSimulation',x,y);}
+
+}
 
 function drawG(x,y,s,c){
 
@@ -1029,13 +1042,8 @@ function mousePressed() {
       
       } else if (item ===3){
         
-        mouseIsPressed = !mouseIsPressed;
-
-        if (mouseIsPressed){
-          print('Ready the eraser!');
-          drawingMode = 3;
-          print(drawingMode);
-        }
+        Bounded = !Bounded;
+	drawingmode = -1;
 
       } else if (item === 4){
 
@@ -1320,9 +1328,8 @@ if (particles[k].mass < 0)
     {
       print('Removed particle',k);
       particles.splice(k,1);
-
-      print(particles.length,'Remaining');
-    }
+	continue;	
+    } 
 
 	 
     if (particles[k].x + particles[k].r >= width){
