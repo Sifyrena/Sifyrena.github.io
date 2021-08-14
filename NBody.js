@@ -101,7 +101,7 @@ let oldWidth, oldHeight; //  old canvas dimensions
 let CBOX, CBOY, CBW, CBH ; // Infobox Size
 
 let metersInPixels;
-let drawingMode = -1;
+let drawingMode = 1;
 
 const POSITIVE_PARTICLE_MODE = 0;
 const NEUTRAL_PARTICLE_MODE = 1;
@@ -539,7 +539,7 @@ function drawMenu(){
       stroke(0)
       line(sceneWidth, i * getSide(), width, i * getSide());
       if (i == drawingMode){
-        fill(240, 240, 240);
+        fill(24, 255, 24);
         rect(sceneWidth,i * getSide() , menuWidth, getSide());
       }
     }
@@ -847,13 +847,13 @@ function drawPaws(){
 	    textAlign(LEFT, TOP);
 
 	    textSize(150);
-	    text('Paused (Press [+200] to Initialize)',0,0);
+	    text('Paused',0,0);
 
 	    }else{ 
 	    textSize(100);
 	    textAlign(LEFT, BOTTOM);
 
-	    text('Paused, [+200] to init.',0,sceneHeight);
+	    text('Paused, [+200] to init',0,sceneHeight);
 	    }
 
     }
