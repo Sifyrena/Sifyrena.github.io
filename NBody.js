@@ -847,13 +847,13 @@ function drawPaws(){
 	    textAlign(LEFT, TOP);
 
 	    textSize(150);
-	    text('Paused',0,0);
+	    text('Paused (Press [+200] to Initialize)',0,0);
 
 	    }else{ 
 	    textSize(100);
 	    textAlign(LEFT, BOTTOM);
 
-	    text('Paused',0,sceneHeight);
+	    text('Paused, [+200] to init.',0,sceneHeight);
 	    }
 
     }
