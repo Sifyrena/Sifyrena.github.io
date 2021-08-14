@@ -1325,22 +1325,22 @@ if (particles[k].mass < 0)
     }
 
 	 
-    if (particles[i].x + particles[i].r >= width){
-      particles[i].vx *= -1 ;
-      particles[i].x = width - particles[i].r;
-    } else if (particles[i].x - particles[i].r <= 0){
-      particles[i].vx *= -1 ;
-      particles[i].x = particles[i].r;
+    if (particles[k].x + particles[k].r >= width){
+      particles[k].vx *= -1 ;
+      particles[k].x = width - particles[k].r;
+    } else if (particles[k].x - particles[k].r <= 0){
+      particles[k].vx *= -1 ;
+      particles[k].x = particles[k].r;
     }
    
 
-    if (particles[i].y + particles[i].r >= height){
-      particles[i].vy *= -1 ;
-      particles[i].y = height - particles[i].r;
+    if (particles[k].y + particles[k].r >= height){
+      particles[k].vy *= -1 ;
+      particles[k].y = height - particles[i].r;
 
-    } else if (particles[i].y - particles[i].r <= 0){
-      particles[i].vy *= -1 ;
-      particles[i].y = particles[i].r;
+    } else if (particles[k].y - particles[k].r <= 0){
+      particles[k].vy *= -1 ;
+      particles[k].y = particles[k].r;
     }
 
 
