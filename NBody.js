@@ -539,7 +539,7 @@ function drawMenu(){
       stroke(0)
       line(sceneWidth, i * getSide(), width, i * getSide());
       if (i == drawingMode){
-        fill(24, 255, 24);
+        fill(24, 150, 24);
         rect(sceneWidth,i * getSide() , menuWidth, getSide());
       }
     }
@@ -560,7 +560,7 @@ function drawMenu(){
     for (let i = 0; i < NUM_SECTIONS+1; i++){
       line(i * getSide() , sceneHeight, i * getSide(), height);
       if (i == drawingMode){
-        fill(0, 255, 0);
+        fill(0, 155, 0);
         rect(i*getSide(), height - menuHeight, getSide(), menuHeight);
       }
     }
