@@ -15,6 +15,8 @@ let mouseIsPressed = false;
 
 let dt = 1;
 
+let Bounded = false;
+
 let Gravity = 0;
 
 let HideA = false;
@@ -1167,6 +1169,11 @@ function keyPressed(){
   }
 
 
+  if (key === 'b'){
+    Bounded = !Bounded;
+
+  }
+
 
 print(key, dt);
 
@@ -1297,7 +1304,10 @@ function updateNB(dt, particles, vectors, width, height) {
 
   // Remove ones that leave or collided.
   for (let k = particles.length-1; k >= 0 ; k--) {
-
+	  
+	  
+	  
+if (!Bounded){	  
     if ((particles[k].x >= width*BoundaryTol)||(particles[k].x <= -1*(BoundaryTol-1)*width)||(particles[k].y >= height*BoundaryTol)||(particles[k].y <= -1*(BoundaryTol-1)*height)||(particles[k].mass < 0))
     {
       print('Removed particle',k);
@@ -1305,12 +1315,40 @@ function updateNB(dt, particles, vectors, width, height) {
 
       print(particles.length,'Remaining');
     }
+} else {
+if (particles[k].mass < 0)
+    {
+      print('Removed particle',k);
+      particles.splice(k,1);
 
+      print(particles.length,'Remaining');
+    }
+
+	 
+    if (particles[i].x + particles[i].r >= width){
+      particles[i].vx *= -1 ;
+      particles[i].x = width - particles[i].r;
+    } else if (particles[i].x - particles[i].r <= 0){
+      particles[i].vx *= -1 ;
+      particles[i].x = particles[i].r;
+    }
+   
+
+    if (particles[i].y + particles[i].r >= height){
+      particles[i].vy *= -1 ;
+      particles[i].y = height - particles[i].r;
+
+    } else if (particles[i].y - particles[i].r <= 0){
+      particles[i].vy *= -1 ;
+      particles[i].y = particles[i].r;
+    }
+
+
+}
 
 
   }
 }
-
 
 
 
