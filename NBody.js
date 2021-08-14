@@ -297,7 +297,7 @@ let CharaScale;
 const vCeil = 20;
 const vFloor = 0.5;
 
-const VStrata = 99;
+const VStrata = 59;
 let Magmas = [];
 
 function splineRGB(x){
