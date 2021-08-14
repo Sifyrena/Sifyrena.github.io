@@ -16,7 +16,6 @@ let mouseIsPressed = false;
 let dt = 1;
 
 let Bounded = false;
-
 let Gravity = 0;
 
 let HideA = false;
@@ -27,7 +26,7 @@ const m1 = 5;
 const m2 = 10;
 const m3 = 20;
 
-const r1 = 3;
+const r1 = 1.8;
 const r2 = Schwarz(m2);
 const r3 = Schwarz(m3);
 
@@ -75,14 +74,14 @@ const Pi = 3.14159265358;
 const RadAng = Pi/180;
 
 
-const GAcc = 3;
+const GAcc = 2.4209;
 
 const SFric = 0; // -kv^2
 const SBoun = 1; // Restitution of Wall
 const SReco = 1; // Restitution of Ball
 
 const BoundaryTol = 3; // Buffer Zone Size Off Screen
-const MergerSens = 1.8;
+const MergerSens = 1.7;
 
 const SpLight = 200; // Speed of light, for SR corrections.
 
@@ -286,8 +285,8 @@ let MenuItemDrawingFunctions = [
   (x, y, s) => draw20(x + s / 2, y + s / 2, s / 8, color(c1)),
   (x, y, s) => drawTogTrail(x + s / 2, y + s / 2, s / 8, color(c1)),
   (x, y, s) => drawBox(x + s / 2, y + s / 2, s / 4),
-  (x, y, s) => drawNormal(x + s / 2, y + s / 2, s / 4, color(c2)),
-  (x, y, s) => drawNormal(x + s / 2, y + s / 2, s / 4, color(c3)),
+  (x, y, s) => draw2Body(x + s / 2, y + s / 2, s / 4, color(c2)),
+  (x, y, s) => draw3Body(x + s / 2, y + s / 2, s / 4, color(c3)),
   (x, y, s) => drawT(x + s/2, y + s/2 ,1,1),
   (x, y, s) => drawG(x + s/2, y + s/2, s/7),
   (x, y, s) => drawPlayPause(x + s/2, y + s/2, s/2),
@@ -397,7 +396,7 @@ function draw20(x,y,s,c){
   fill(255,255,255);
   stroke(0);
   strokeWeight(0);
-  textSize(metersInPixels/1.5);
+  textSize(metersInPixels/5);
 
   textAlign(LEFT,BOTTOM);
 
@@ -409,17 +408,33 @@ function draw20(x,y,s,c){
 }
 
 
-function drawNormal(x,y,s,c){
+function draw2Body(x,y,s,c){
 
   fill(255);
   stroke(0);
   strokeWeight(0);
-  textSize(metersInPixels/1.5);
+  textSize(metersInPixels/5);
 
   textAlign(LEFT,BOTTOM);
 
 
-  text('+',x-CharaScale/2+5,y+CharaScale/2-5);
+  text('+2',x-CharaScale/2+5,y+CharaScale/2-5);
+
+  drawParticle(x, y, s, c);
+}
+
+
+function draw3Body(x,y,s,c){
+
+  fill(255);
+  stroke(0);
+  strokeWeight(0);
+  textSize(metersInPixels/5);
+
+  textAlign(LEFT,BOTTOM);
+
+
+  text('+3',x-CharaScale/2+5,y+CharaScale/2-5);
 
   drawParticle(x, y, s, c);
 
@@ -465,7 +480,7 @@ function drawG(x,y,s,c){
   textAlign(CENTER,CENTER);
 
   if (Gravity === 0){
-    text('CoM\nFrame',x,y);
+    text('Stop CoM\nMotion',x,y);
   } 
 
 }
@@ -500,7 +515,7 @@ function drawTrailB(){
 
 }
 
-const TrailLength = 1000;
+const TrailLength = 1400;
 
 function drawTrailC(){
 
@@ -1047,33 +1062,89 @@ function mousePressed() {
 
       } else if (item === 4){
 
-        r = r2;
-        mass = m2;
-        Species = 'B'
+
+        let position = Math.min(sceneHeight,sceneWidth)/3 * random();
+        let pAngle = 2*Pi*random();
+
+
+        let vxP = 4*(random()-0.5);
+        let vyP = 4*(random()-0.5);
+
+        let Mass = 2*(1+random())*m3;
+        particles.push({
+          x: position*Math.cos(pAngle) + sceneWidth/2,
+          y: position*Math.sin(pAngle) + sceneHeight/2,
+          r: Schwarz(Mass),
+          mass: Mass,
+          charge: 0,
+          vx: vxP,
+          vy: vyP,
+          Species: 'B',
+        });
+
+
+        let semia = (0.75*random()+0.25)*Math.min(sceneHeight,sceneWidth)/4;
+        let pSate = 2*Pi*random();
+
+
+        particles.push({
+          x: position*Math.cos(pAngle) + sceneWidth/2 + semia*Math.cos(pSate),
+          y: position*Math.sin(pAngle) + sceneHeight/2 + semia*Math.sin(pSate),
+          r: Schwarz(1.3*m3),
+          mass: 1.3*m3,
+          charge: 0,
+          vx: 2*(random()-0.5) + vxP,
+          vy: 2*(random()-0.5) + vyP,
+          Species: 'B',
+        });
+
+
+
 
       } else if (item === 5){
 
-        r = r3;
-        mass = m3;
-        Species = 'C';
-        vx *= (random()-0.5);
-        vy *= (random()-0.5);
+
+        for (let i = 0; i < 3; i++){
+
+          let position = Math.min(sceneHeight,sceneWidth)/3 * (0.75*random()+0.25);
+          let pAngle = 2*Pi*random();
+
+          let Mass = m3*(1+random());
+          let Radius = Schwarz(Mass);
+          particles.push({
+            x: position*Math.cos(pAngle) + sceneWidth/2,
+            y: position*Math.sin(pAngle) + sceneHeight/2,
+            r: Radius,
+            mass: Mass,
+            charge: 0,
+            vx: 2*(random()-0.5),
+            vy: 2*(random()-0.5),
+            Species: 'C',
+          });
+
+        }
 
         if (CountC === 0){
           DrawTrail = true;
         }
 
       } else if (item === 1){
-          for (let i = 0; i < 199; i++){
+          for (let i = 0; i < 200; i++){
+
+            let position = Math.min(sceneHeight,sceneWidth)/2 * random();
+            let pAngle = 2*Pi*random();
+
+            let pDeviate = Pi*random()/10 - Pi/5;
+            let vMagn = 2;
 
             particles.push({
-              x: sceneWidth*(random()),
-              y: sceneHeight*(random()),
+              x: position*Math.cos(pAngle) + sceneWidth/2,
+              y: position*Math.sin(pAngle) + sceneHeight/2,
               r: r1,
               mass: m1,
               charge: 0,
-              vx: 10*(0.5-random()),
-              vy: 10*(0.5-random()),
+              vx: -1*vMagn*Math.sin(pAngle+pDeviate),
+              vy: vMagn*Math.cos(pAngle+pDeviate),
               Species: 'A',
             });
 
@@ -1100,16 +1171,6 @@ function mousePressed() {
   
       if (item === 1 || item === 4 || item ===5){
         paused = false;
-        particles.push({
-          x: sceneWidth/2,
-          y: sceneHeight/2,
-          r: r,
-          mass: mass,
-          charge: 0,
-          vx: vx,
-          vy: vy,
-          Species: Species,
-        });
       }
   }
 
