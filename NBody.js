@@ -1085,13 +1085,13 @@ function mousePressed() {
 
         let semia = (0.75*random()+0.25)*Math.min(sceneHeight,sceneWidth)/4;
         let pSate = 2*Pi*random();
-
+          let MassRati = random()/2;
         let vMagn = 1.6*random();
         particles.push({
           x: position*Math.cos(pAngle) + sceneWidth/2 + semia*Math.cos(pSate),
           y: position*Math.sin(pAngle) + sceneHeight/2 + semia*Math.sin(pSate),
-          r: Schwarz(1.3*m3),
-          mass: 1.3*m3,
+          r: Schwarz(MassRati*Mass),
+          mass: MassRati*Mass,
           charge: 0,
           vx: -1*vMagn*Math.sin(pSate)+vxP,
           vy: vMagn*Math.cos(pSate)+vyP,
