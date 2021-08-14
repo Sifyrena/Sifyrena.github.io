@@ -1336,7 +1336,7 @@ if (particles[k].mass < 0)
 
     if (particles[k].y + particles[k].r >= height){
       particles[k].vy *= -1 ;
-      particles[k].y = height - particles[i].r;
+      particles[k].y = height - particles[k].r;
 
     } else if (particles[k].y - particles[k].r <= 0){
       particles[k].vy *= -1 ;
