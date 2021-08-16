@@ -15,6 +15,7 @@ let mouseIsPressed = false;
 
 let dt = 1;
 
+let Bounded = false;
 let Gravity = 0;
 
 let HideA = false;
@@ -25,7 +26,7 @@ const m1 = 5;
 const m2 = 10;
 const m3 = 20;
 
-const r1 = 3;
+const r1 = 1.8;
 const r2 = Schwarz(m2);
 const r3 = Schwarz(m3);
 
@@ -73,14 +74,14 @@ const Pi = 3.14159265358;
 const RadAng = Pi/180;
 
 
-const GAcc = 3;
+const GAcc = 2.4209;
 
 const SFric = 0; // -kv^2
 const SBoun = 1; // Restitution of Wall
 const SReco = 1; // Restitution of Ball
 
 const BoundaryTol = 3; // Buffer Zone Size Off Screen
-const MergerSens = 1.8;
+const MergerSens = 1.7;
 
 const SpLight = 200; // Speed of light, for SR corrections.
 
@@ -101,7 +102,7 @@ let oldWidth, oldHeight; //  old canvas dimensions
 let CBOX, CBOY, CBW, CBH ; // Infobox Size
 
 let metersInPixels;
-let drawingMode = -1;
+let drawingMode = 1;
 
 const POSITIVE_PARTICLE_MODE = 0;
 const NEUTRAL_PARTICLE_MODE = 1;
@@ -158,6 +159,11 @@ function setGradient(c1, c2) {
 }
 
 function setup() {
+	
+for (let i = 0; i < VStrata+1; i++){
+	Magmas.push(splineRGB(i/VStrata));
+}
+
 
   var cnv = createCanvas(window.innerWidth, window.innerHeight);
   cnv.parent("Sim");
@@ -220,7 +226,6 @@ var Fr = 95;
 var Fg = 135;
 var Fb = 255;
 var Fa = 0;
-
 var config = {responsive: true}
 
 function drawScene(){
@@ -279,9 +284,9 @@ let MenuItemDrawingFunctions = [
   (x, y, s) => drawStill(x + s / 2, y + s / 2, s / 8, color(c1)),
   (x, y, s) => draw20(x + s / 2, y + s / 2, s / 8, color(c1)),
   (x, y, s) => drawTogTrail(x + s / 2, y + s / 2, s / 8, color(c1)),
-  (x, y, s) => drawErasor(x + s / 2, y + s / 2, s / 4),
-  (x, y, s) => drawNormal(x + s / 2, y + s / 2, s / 4, color(c2)),
-  (x, y, s) => drawNormal(x + s / 2, y + s / 2, s / 4, color(c3)),
+  (x, y, s) => drawBox(x + s / 2, y + s / 2, s / 4),
+  (x, y, s) => draw2Body(x + s / 2, y + s / 2, s / 4, color(c2)),
+  (x, y, s) => draw3Body(x + s / 2, y + s / 2, s / 4, color(c3)),
   (x, y, s) => drawT(x + s/2, y + s/2 ,1,1),
   (x, y, s) => drawG(x + s/2, y + s/2, s/7),
   (x, y, s) => drawPlayPause(x + s/2, y + s/2, s/2),
@@ -290,19 +295,11 @@ let MenuItemDrawingFunctions = [
 
 let CharaScale;
 
-const vCeil = 10;
+const vCeil = 20;
 const vFloor = 0.5;
 
-const Magma0 = {R: 22, G: 11, B: 58};
-const MagmaF = {R:248, G:251, B:153};
-
-const Magma1 = splineRGB(0.2);
-const Magma2 = splineRGB(0.4);
-const Magma3 = splineRGB(0.6);
-const Magma4 = splineRGB(0.8);
-
-const Magmas = [Magma0,Magma1,Magma2,Magma3,Magma4];
-
+const VStrata = 59;
+let Magmas = [];
 
 function splineRGB(x){
     
@@ -325,33 +322,25 @@ function splineRGB(x){
 function velomap(vx,vy){
         
     v = CToV(vx,vy);
-    
-    if (v <= vFloor){
-        
-        return 'rgba('+Magma0.R+','+Magma0.G+','+Magma0.B+',1)';
-        
-    } else if (v >= vCeil){
-        
-        return 'rgba('+MagmaF.R+','+MagmaF.G+','+MagmaF.B+',1)';
-        
-    } else {
-        
-        
-        let x = (v - vFloor)/(vCeil-vFloor)*5;
-        
-        let xI = Math.round(x);
-        
-        let MagmaI = Magmas[xI];
 
+
+	let x = (v - vFloor)/(vCeil-vFloor)*VStrata;
+	
+	if (x<0){ x = 0}
+	else if (x>VStrata){x=VStrata}
+
+	let xI = Math.round(x);
+
+	let MagmaI = Magmas[xI];
+
+
+	return 'rgba('+MagmaI.R+','+MagmaI.G+','+MagmaI.B+',1)';
     
-        return 'rgba('+MagmaI.R+','+MagmaI.G+','+MagmaI.B+',1)';
-    }
     
 
 }
 
 function drawTogTrail(x,y,s,c){
-
 
   fill(255,255,255);
   stroke(0);
@@ -407,7 +396,7 @@ function draw20(x,y,s,c){
   fill(255,255,255);
   stroke(0);
   strokeWeight(0);
-  textSize(metersInPixels/1.5);
+  textSize(metersInPixels/5);
 
   textAlign(LEFT,BOTTOM);
 
@@ -419,17 +408,33 @@ function draw20(x,y,s,c){
 }
 
 
-function drawNormal(x,y,s,c){
+function draw2Body(x,y,s,c){
 
   fill(255);
   stroke(0);
   strokeWeight(0);
-  textSize(metersInPixels/1.5);
+  textSize(metersInPixels/5);
 
   textAlign(LEFT,BOTTOM);
 
 
-  text('+',x-CharaScale/2+5,y+CharaScale/2-5);
+  text('+2',x-CharaScale/2+5,y+CharaScale/2-5);
+
+  drawParticle(x, y, s, c);
+}
+
+
+function draw3Body(x,y,s,c){
+
+  fill(255);
+  stroke(0);
+  strokeWeight(0);
+  textSize(metersInPixels/5);
+
+  textAlign(LEFT,BOTTOM);
+
+
+  text('+3',x-CharaScale/2+5,y+CharaScale/2-5);
 
   drawParticle(x, y, s, c);
 
@@ -450,6 +455,20 @@ function drawT(x,y,s,c){
 
 }
 
+function drawBox(x,y,s){
+
+  fill(255,255,255);
+  stroke(0);
+  strokeWeight(0);
+  textSize(metersInPixels/4);
+  textAlign(CENTER,CENTER);
+
+    if (Bounded){
+        text('Remove\nBound',x,y);
+    } else {
+        text('Bound\nSimulation',x,y);}
+
+}
 
 function drawG(x,y,s,c){
 
@@ -461,7 +480,7 @@ function drawG(x,y,s,c){
   textAlign(CENTER,CENTER);
 
   if (Gravity === 0){
-    text('CoM\nFrame',x,y);
+    text('Stop CoM\nMotion',x,y);
   } 
 
 }
@@ -496,7 +515,7 @@ function drawTrailB(){
 
 }
 
-const TrailLength = 1000;
+const TrailLength = 1400;
 
 function drawTrailC(){
 
@@ -550,7 +569,7 @@ function drawMenu(){
       stroke(0)
       line(sceneWidth, i * getSide(), width, i * getSide());
       if (i == drawingMode){
-        fill(240, 240, 240);
+        fill(24, 150, 24);
         rect(sceneWidth,i * getSide() , menuWidth, getSide());
       }
     }
@@ -571,7 +590,7 @@ function drawMenu(){
     for (let i = 0; i < NUM_SECTIONS+1; i++){
       line(i * getSide() , sceneHeight, i * getSide(), height);
       if (i == drawingMode){
-        fill(0, 255, 0);
+        fill(0, 155, 0);
         rect(i*getSide(), height - menuHeight, getSide(), menuHeight);
       }
     }
@@ -864,7 +883,7 @@ function drawPaws(){
 	    textSize(100);
 	    textAlign(LEFT, BOTTOM);
 
-	    text('Paused',0,sceneHeight);
+	    text('Paused, [+200] to init',0,sceneHeight);
 	    }
 
     }
@@ -1038,43 +1057,94 @@ function mousePressed() {
       
       } else if (item ===3){
         
-        mouseIsPressed = !mouseIsPressed;
-
-        if (mouseIsPressed){
-          print('Ready the eraser!');
-          drawingMode = 3;
-          print(drawingMode);
-        }
+        Bounded = !Bounded;
+	drawingmode = -1;
 
       } else if (item === 4){
 
-        r = r2;
-        mass = m2;
-        Species = 'B'
+
+        let position = Math.min(sceneHeight,sceneWidth)/3 * random();
+        let pAngle = 2*Pi*random();
+
+
+        let vxP = 0;
+        let vyP = 0;
+
+        let Mass = 2*(1+random())*m3;
+        particles.push({
+          x: position*Math.cos(pAngle) + sceneWidth/2,
+          y: position*Math.sin(pAngle) + sceneHeight/2,
+          r: Schwarz(Mass),
+          mass: Mass,
+          charge: 0,
+          vx: vxP,
+          vy: vyP,
+          Species: 'B',
+        });
+
+
+        let semia = (0.75*random()+0.25)*Math.min(sceneHeight,sceneWidth)/4;
+        let pSate = 2*Pi*random();
+          let MassRati = 0.5+random()/2;
+        let vMagn = 1.6*random();
+        particles.push({
+          x: position*Math.cos(pAngle) + sceneWidth/2 + semia*Math.cos(pSate),
+          y: position*Math.sin(pAngle) + sceneHeight/2 + semia*Math.sin(pSate),
+          r: Schwarz(MassRati*Mass),
+          mass: MassRati*Mass,
+          charge: 0,
+          vx: -1*vMagn*Math.sin(pSate)+vxP,
+          vy: vMagn*Math.cos(pSate)+vyP,
+          Species: 'B',
+        });
+
+
+
 
       } else if (item === 5){
 
-        r = r3;
-        mass = m3;
-        Species = 'C';
-        vx *= (random()-0.5);
-        vy *= (random()-0.5);
+
+        for (let i = 0; i < 3; i++){
+
+          let position = Math.min(sceneHeight,sceneWidth)/3 * (0.75*random()+0.25);
+          let pAngle = 2*Pi*random();
+
+          let Mass = m3*(1+random());
+          let Radius = Schwarz(Mass);
+          particles.push({
+            x: position*Math.cos(pAngle) + sceneWidth/2,
+            y: position*Math.sin(pAngle) + sceneHeight/2,
+            r: Radius,
+            mass: Mass,
+            charge: 0,
+            vx: 2*(random()-0.5),
+            vy: 2*(random()-0.5),
+            Species: 'C',
+          });
+
+        }
 
         if (CountC === 0){
           DrawTrail = true;
         }
 
       } else if (item === 1){
-          for (let i = 0; i < 199; i++){
+          for (let i = 0; i < 200; i++){
+
+            let position = Math.min(sceneHeight,sceneWidth)/2 * random();
+            let pAngle = 2*Pi*random();
+
+            let pDeviate = Pi*random()/10 - Pi/5;
+            let vMagn = 2;
 
             particles.push({
-              x: sceneWidth*(random()),
-              y: sceneHeight*(random()),
+              x: position*Math.cos(pAngle) + sceneWidth/2,
+              y: position*Math.sin(pAngle) + sceneHeight/2,
               r: r1,
               mass: m1,
               charge: 0,
-              vx: 10*(0.5-random()),
-              vy: 10*(0.5-random()),
+              vx: -1*vMagn*Math.sin(pAngle+pDeviate),
+              vy: vMagn*Math.cos(pAngle+pDeviate),
               Species: 'A',
             });
 
@@ -1101,16 +1171,6 @@ function mousePressed() {
   
       if (item === 1 || item === 4 || item ===5){
         paused = false;
-        particles.push({
-          x: sceneWidth/2,
-          y: sceneHeight/2,
-          r: r,
-          mass: mass,
-          charge: 0,
-          vx: vx,
-          vy: vy,
-          Species: Species,
-        });
       }
   }
 
@@ -1177,14 +1237,12 @@ function keyPressed(){
     Fi = CountPerFig - 1;
   }
 
-  if (key === 'p'){
-    Strata += 1;
+
+  if (key === 'b'){
+    Bounded = !Bounded;
+
   }
 
-
-  if (key === 'o' && Strata >=2){
-    Strata -= 1;
-  }
 
 print(key, dt);
 
@@ -1315,7 +1373,10 @@ function updateNB(dt, particles, vectors, width, height) {
 
   // Remove ones that leave or collided.
   for (let k = particles.length-1; k >= 0 ; k--) {
-
+	  
+	  
+	  
+if (!Bounded){	  
     if ((particles[k].x >= width*BoundaryTol)||(particles[k].x <= -1*(BoundaryTol-1)*width)||(particles[k].y >= height*BoundaryTol)||(particles[k].y <= -1*(BoundaryTol-1)*height)||(particles[k].mass < 0))
     {
       print('Removed particle',k);
@@ -1323,12 +1384,39 @@ function updateNB(dt, particles, vectors, width, height) {
 
       print(particles.length,'Remaining');
     }
+} else {
+if (particles[k].mass < 0)
+    {
+      print('Removed particle',k);
+      particles.splice(k,1);
+	continue;	
+    } 
 
+	 
+    if (particles[k].x + particles[k].r >= width){
+      particles[k].vx *= -1 ;
+      particles[k].x = width - particles[k].r;
+    } else if (particles[k].x - particles[k].r <= 0){
+      particles[k].vx *= -1 ;
+      particles[k].x = particles[k].r;
+    }
+   
+
+    if (particles[k].y + particles[k].r >= height){
+      particles[k].vy *= -1 ;
+      particles[k].y = height - particles[k].r;
+
+    } else if (particles[k].y - particles[k].r <= 0){
+      particles[k].vy *= -1 ;
+      particles[k].y = particles[k].r;
+    }
+
+
+}
 
 
   }
 }
-
 
 
 
