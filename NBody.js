@@ -1214,7 +1214,7 @@ function netGrav(particles, vectors, x, y, r){
     d = Math.sqrt(Math.pow(dx,2) + Math.pow(dy,2));
 
     //  electric field due to j
-    if (d > particles[j].r + r) {
+    if (d > particles[j].r + 0.001) {
       let Phi = -1*GAcc*particles[j].mass/(Math.pow(d, 2)); 
 
           gNetX += Phi * (dx/d);
