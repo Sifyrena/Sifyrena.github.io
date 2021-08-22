@@ -74,7 +74,7 @@ const Pi = 3.14159265358;
 const RadAng = Pi/180;
 
 
-const GAcc = 2.4209;
+const GAcc = 1.23054209;
 
 const SFric = 0; // -kv^2
 const SBoun = 1; // Restitution of Wall
