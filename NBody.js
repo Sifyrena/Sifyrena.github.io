@@ -1135,7 +1135,7 @@ function mousePressed() {
             let pAngle = 2*Pi*random();
 
             let pDeviate = Pi*random()/10 - Pi/5;
-            let vMagn = 2;
+            let vMagn = 9;
 
             particles.push({
               x: position*Math.cos(pAngle) + sceneWidth/2,
