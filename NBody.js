@@ -1302,66 +1302,61 @@ function updateNB(dt, particles, vectors, width, height) {
   // Merger!!
 
   for (let i = 0; i < particles.length; i++) 
-//   {
+   {
 
  
-//     if (particles.length > 1) {
+     if (particles.length > 1) {
 
-//       // Call the merger physics
+       // Call the merger physics
 
-//       for (let j = particles.length-1; j >= i+1; j--) {
+       for (let j = particles.length-1; j >= i+1; j--) {
 
-//         let dx = particles[j].x - particles[i].x;
-//         let dy = particles[j].y - particles[i].y;
-//         let d = Math.sqrt(Math.pow(dx,2) + Math.pow(dy,2));
+         let dx = particles[j].x - particles[i].x;
+         let dy = particles[j].y - particles[i].y;
+         let d = Math.sqrt(Math.pow(dx,2) + Math.pow(dy,2));
+         let dvx = particles[j].vx - particles[i].vx;
+         let dvy = particles[j].vy - particles[i].vy;
 
-//         let dvx = particles[j].vx - particles[i].vx;
-//         let dvy = particles[j].vy - particles[i].vy;
+         let velDotDis = dvx * dx + dvy * dy;
 
-//         let velDotDis = dvx * dx + dvy * dy;
+         // collision and modification velocity (see Diego's website for the f ull formula)
+         // checks if distance between particles = 0 and 
+         if(MergerSens*d <= (particles[i].r + particles[j].r) && velDotDis < 0){ 
 
-//         // collision and modification velocity (see Diego's website for the f ull formula)
-//         // checks if distance between particles = 0 and 
-//         if(MergerSens*d <= (particles[i].r + particles[j].r) && velDotDis < 0){ 
+           let Heavy, Light;
 
-//           let Heavy, Light;
+           if (particles[i].mass > particles[j].mass){
+             Heavy = particles[i];
+             Light = particles[j];
+           } else {
+             Heavy = particles[j];
+             Light = particles[i];
+           }
 
-//           if (particles[i].mass > particles[j].mass){
-//             Heavy = particles[i];
-//             Light = particles[j];
-//           } else {
-//             Heavy = particles[j];
-//             Light = particles[i];
-//           }
-
-//           let MergerEFF = random();
+           let MergerEFF = random();
 
           
 
-//           Heavy.mass = Heavy.mass + Light.mass*(0.8+0.2*MergerEFF);
+           Heavy.mass = Heavy.mass + Light.mass*(0.8+0.2*MergerEFF);
 
-//           Heavy.r = Schwarz(Heavy.mass);
+           Heavy.r = Schwarz(Heavy.mass);
 
-//           Heavy.vx = (Heavy.mass*Heavy.vx + Light.mass*Light.vx)/(Heavy.mass + Light.mass);
-//           Heavy.vy = (Heavy.mass*Heavy.vy + Light.mass*Light.vy)/(Heavy.mass + Light.mass);
+           Heavy.vx = (Heavy.mass*Heavy.vx + Light.mass*Light.vx)/(Heavy.mass + Light.mass);
+           Heavy.vy = (Heavy.mass*Heavy.vy + Light.mass*Light.vy)/(Heavy.mass + Light.mass);
 
-
-
-//           // after collision, modification of the velocities of each particle
-//           // (following the formula on Diego's website)
+           // after collision, modification of the velocities of each particle
+           // (following the formula on Diego's website)
        
 
-//           Light.vx = 0;
-//           Light.vy = 0;
-//           Light.mass = -1;
+           Light.vx = 0;
+           Light.vy = 0;
+           Light.mass = -1;
+           print("Merger triggered between particles",i,j, "with eff", MergerEFF);
 
 
-//           print("Merger triggered between particles",i,j, "with eff", MergerEFF);
-
-
-//         }
-//       }
-//     }
+         }
+       }
+     }
   
 
     // to set the bounderies of the screen and make the particles bounce on the edges of the screen
