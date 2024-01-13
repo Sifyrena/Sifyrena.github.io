@@ -1137,7 +1137,7 @@ function mousePressed() {
       } else if (item === 7){
 
         if (Gravity === 0){
-          Gravity = 0.1;} else {
+          Gravity = 0.01;} else {
             Gravity = 0;
           }
       
@@ -1220,7 +1220,7 @@ function keyPressed(){
   if (key === 'g'){
 
     if (Gravity === 0){
-    Gravity = 0.1;} else {
+    Gravity = 0.01;} else {
       Gravity = 0;
     }
 
