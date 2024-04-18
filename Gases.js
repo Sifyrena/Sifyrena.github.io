@@ -26,8 +26,8 @@ const m2 = 16;
 const m3 = 100;
 
 const r1 = 10;
-const r2 = 40;
-const r3 = 60;
+const r2 = 30;
+const r3 = 40;
 
 const c1 = 'rgba(0, 176, 218, 0.95)';
 const c2 = 'rgba(196, 130, 14, 0.95)';
