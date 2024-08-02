@@ -13,7 +13,7 @@ let mouseIsPressed = false;
 
 // TIMESTEP 
 
-let dt = 1;
+let dt = 0.25;
 
 let Gravity = 0;
 
