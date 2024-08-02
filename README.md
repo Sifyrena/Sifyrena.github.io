@@ -2,7 +2,7 @@
 
 * [UoA PHYS 100/100G Activity 1](Activity1.html)
 
-* [UoA PHYS 100/100G Activity 2](BoxGas.html)
+* [UoA PHYS 100/100G Activity 2](Activity2.html)
 
 * [Massive Circles Playground (With NBody Gravity!)](NBody.html)
 
