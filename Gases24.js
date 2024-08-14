@@ -11,6 +11,9 @@ const BoSIX = BoGX * aCM
 
 let mouseIsPressed = false;
 
+const txptO = 15;
+let txpt = txptO;
+
 // TIMESTEP 
 
 let dt = 1;
@@ -52,8 +55,8 @@ let Fi = 0;
 // Manual Binning of Data
 
 // Overview of plan: 
-let vMax = 10;
-let NBins = 40;
+let vMax = 4;
+let NBins = 50;
 let BIN_WIDTH = vMax/NBins;
 
 let VeloRange = math.multiply(math.range(0,NBins,false),BIN_WIDTH);
@@ -63,8 +66,8 @@ const BIN_UPDATE_TRIGGER = 300;
 let Count_Plus = 0;
 let Count_Minus = 0;
 
-let VData1 = math.zeros(NBins*2);
-let VData2 = math.zeros(NBins*2);
+let VData1 = math.zeros(NBins*5);
+let VData2 = math.zeros(NBins*5);
 
 let DrawTrail = false;
 
@@ -81,29 +84,15 @@ const NUM_SECTIONS = 10;
 const MENU_RATIO = NUM_SECTIONS;
 let particles = [];
 
-
-for (let i = 0; i < 30; i++){
-  for (let j = 0; j < 20; j++){
-    particles.push({
-      x: 600 + 500 * (i/20),
-      y: 100 + 500 * (j/20),
-      r: r1,
-      mass: m1,
-      charge: 0,
-      vx: 0,
-      vy: 0,
-      Species: 'A',
-      })
-  }};
   
   function veloAlpha(vx,vy,color) {
     const vFloor = 0.;
     const vCeil = 4;
 
-    const AlMin = 0.1;
+    const AlMin = 0.15;
     const AlMax = 1;
 
-    const AlPow = 0.7;
+    const AlPow = 0.62;
 
     let AlSt = AlMax - AlMin;
 
@@ -130,16 +119,7 @@ for (let i = 0; i < 30; i++){
     }
 }
 
-particles.push({
-  x: 200 ,
-  y: 350,
-  r: r2,
-  mass: m2,
-  charge: 0,
-  vx: 3,
-  vy: 0.2,
-  Species: 'B',
-  })
+
 
 let vectors = [];
 
@@ -211,6 +191,8 @@ function setup() {
     oldSceneHeight = height;
   }
 
+
+
 } 
 
 function draw() {
@@ -228,6 +210,8 @@ function draw() {
   }
   metersInPixels = METER_RATIO * sceneWidth;
   metersInPixels = BoSIX;
+
+  txpt = min(txptO, metersInPixels/6);
 
   METER_RATIO = metersInPixels / sceneWidth;
 
@@ -452,7 +436,7 @@ function drawTogTrail(x,y,s,c){
   fill(255,255,255);
   stroke(0);
   strokeWeight(0);
-  textSize(10);
+  textSize(txpt*2);
   textAlign(CENTER,CENTER);
 
   text('TRAIL',x,y);
@@ -461,15 +445,15 @@ function drawTogTrail(x,y,s,c){
     fill(255,255,255);
     stroke(0);
     strokeWeight(0);
-    textSize(10);
+    textSize(txpt*4);
   
-    textAlign(LEFT,BOTTOM);
+    textAlign(CENTER,BOTTOM);
 
     if (!DrawTrail){
-    text('......',x-CharaScale/2+5,y+CharaScale/2-5);
+    text('......',x,y+CharaScale/2-5);
     } else {
     fill(255,190,150)
-    text('..x..',x-CharaScale/2+5,y+CharaScale/2-5);
+    text('..x..',x,y+CharaScale/2-5);
     }
   
     
@@ -482,7 +466,7 @@ function drawStill(x,y,s,c){
   fill(255,255,255);
   stroke(0);
   strokeWeight(0);
-  textSize(10);
+  textSize(txpt*2);
 
   textAlign(LEFT,BOTTOM);
 
@@ -501,7 +485,7 @@ function draw20(x,y,s,c){
   fill(255,255,255);
   stroke(0);
   strokeWeight(0);
-  textSize(metersInPixels/1.5);
+  textSize(txpt*3);
 
   textAlign(LEFT,BOTTOM);
 
@@ -534,10 +518,10 @@ function drawT(x,y,s,c){
   fill(255,255,255);
   stroke(0);
   strokeWeight(0);
-  textSize(10);
+  textSize(txpt*2);
   textAlign(CENTER,CENTER);
 
-  text('CHART',x,y);
+  text('HIST.',x,y);
 
 }
 
@@ -1101,6 +1085,7 @@ function windowResized() {
   oldHeight = height;
   oldSceneWidth = sceneWidth;
   oldSceneHeight = sceneHeight;
+  txpt = min(txptO, metersInPixels/6);
 }
 
 function mousePressed() {
@@ -1113,8 +1098,8 @@ function mousePressed() {
     let r = r1;
     let mass = m1;
     let charge = 0.;
-    let vx = 3;
-    let vy = -3;
+    let vx = 1;
+    let vy = -1;
     let Species = 'A';
 
     let item = getSelectedItem();
@@ -1168,8 +1153,8 @@ function mousePressed() {
               r: r1,
               mass: m1,
               charge: 0,
-              vx: 12*(0.5-random()),
-              vy: 12*(0.5-random()),
+              vx: 3*(0.5-random()),
+              vy: 3*(0.5-random()),
               Species: 'A',
             });
 
@@ -1241,7 +1226,7 @@ function keyPressed(){
     paused = !paused;
   }
 
-  if (key === 'a'){
+  if (key === 'A'){
     dt *= 2;
 
 
@@ -1250,7 +1235,7 @@ function keyPressed(){
     }
 }
 
-  if (key === 'z'){
+  if (key === 'Z'){
       dt /= 2;
 
       if (abs(dt-1)<0.0005){
@@ -1259,7 +1244,7 @@ function keyPressed(){
   
   }
 
-  if (key === 'g'){
+  if (key === 'G'){
 
     if (Gravity === 0){
     Gravity = 0.01;} else {
@@ -1270,17 +1255,21 @@ function keyPressed(){
     
   }
 
-  if (key === 't'){
+  if (key === 'T'){
     ShowPlot = !ShowPlot;
     Fi = CountPerFig - 1;
   }
 
-  if (key === 'p'){
+  if (key === 'H'){
+    HideA = !HideA;
+  }
+
+  if (key === 'P'){
     Strata += 1;
   }
 
 
-  if (key === 'o' && Strata >=2){
+  if (key === 'O' && Strata >=2){
     Strata -= 1;
   }
 
