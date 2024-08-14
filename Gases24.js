@@ -569,7 +569,7 @@ function drawTrailB(){
 
 }
 
-const TrailLength = 200;
+const TrailLength = 600;
 
 function drawTrailC(){
 
@@ -1262,6 +1262,10 @@ function keyPressed(){
 
   if (key === 'H'){
     HideA = !HideA;
+  }
+
+  if (key === 'R'){
+    DrawTrail = !DrawTrail;
   }
 
   if (key === 'P'){
