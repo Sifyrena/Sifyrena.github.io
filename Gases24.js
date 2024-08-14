@@ -1086,7 +1086,7 @@ function windowResized() {
   oldHeight = height;
   oldSceneWidth = sceneWidth;
   oldSceneHeight = sceneHeight;
-  if isLandscape(){
+  if(isLandscape()){
   txpt = min(txptO, metersInPixels/6);}
   else{
     txpt = min(txptO, metersInPixels/10);}
