@@ -452,7 +452,7 @@ function drawTogTrail(x,y,s,c){
   fill(255,255,255);
   stroke(0);
   strokeWeight(0);
-  textSize(metersInPixels/2);
+  textSize(10);
   textAlign(CENTER,CENTER);
 
   text('TRAIL',x,y);
@@ -461,7 +461,7 @@ function drawTogTrail(x,y,s,c){
     fill(255,255,255);
     stroke(0);
     strokeWeight(0);
-    textSize(metersInPixels/2);
+    textSize(10);
   
     textAlign(LEFT,BOTTOM);
 
@@ -482,7 +482,7 @@ function drawStill(x,y,s,c){
   fill(255,255,255);
   stroke(0);
   strokeWeight(0);
-  textSize(metersInPixels/2);
+  textSize(10);
 
   textAlign(LEFT,BOTTOM);
 
@@ -534,7 +534,7 @@ function drawT(x,y,s,c){
   fill(255,255,255);
   stroke(0);
   strokeWeight(0);
-  textSize(metersInPixels/2);
+  textSize(10);
   textAlign(CENTER,CENTER);
 
   text('CHART',x,y);
