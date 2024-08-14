@@ -202,16 +202,17 @@ function draw() {
     menuWidth = height/MENU_RATIO;
     sceneWidth = width - menuWidth;
     sceneHeight = height;
+    txpt = min(txptO, metersInPixels/6);
   } else {
     menuWidth = width;
     menuHeight = width/MENU_RATIO;
     sceneWidth = width;
     sceneHeight = height - menuHeight;
+    txpt = min(txptO, metersInPixels/10);
   }
   metersInPixels = METER_RATIO * sceneWidth;
   metersInPixels = BoSIX;
 
-  txpt = min(txptO, metersInPixels/6);
 
   METER_RATIO = metersInPixels / sceneWidth;
 
@@ -1085,7 +1086,10 @@ function windowResized() {
   oldHeight = height;
   oldSceneWidth = sceneWidth;
   oldSceneHeight = sceneHeight;
-  txpt = min(txptO, metersInPixels/6);
+  if isLandscape(){
+  txpt = min(txptO, metersInPixels/6);}
+  else{
+    txpt = min(txptO, metersInPixels/10);}
 }
 
 function mousePressed() {
