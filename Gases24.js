@@ -380,7 +380,7 @@ function drawScene(){
         var trace1 = {
           x: VeloRange.toArray(),
           y: VData1.toArray(),
-          name: 'Gas 1 ('+CountA+')',
+          name: 'A ('+CountA+')',
           type: "bar",
           opacity: 0.87,
           marker: {
@@ -391,7 +391,7 @@ function drawScene(){
         var trace2 = {
           x: VeloRange.toArray(),
           y: VData2.toArray(),
-          name: 'Gas 2 ('+CountB+')',
+          name: 'B ('+CountB+')',
           type: "bar",
           opacity: 0.7,
           marker: {
