@@ -255,23 +255,23 @@ function drawScene(){
     plot_bgcolor: 'rgba(220,220,224,.88)', 
     autosize: false,
     width: 0.40*sceneWidth,
-    height: 0.40*sceneHeight,
+    height: 0.50*sceneHeight,
       xaxis: {
         title: {
-          text: 'Speed (arbitrary units)',
+          text: 'Speed',
           font: {
             family: 'Courier New, monospace',
-            size: 18,
+            size: 14,
             color: '#000000'
           }
         },
       },
       yaxis: {
         title: {
-          text: 'Fraction of Population',
+          text: 'Fraction',
           font: {
             family: 'Courier New, monospace',
-            size: 18,
+            size: 14,
             color: '#000000'
           }
         },
