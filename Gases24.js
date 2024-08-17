@@ -84,6 +84,34 @@ const NUM_SECTIONS = 10;
 const MENU_RATIO = NUM_SECTIONS;
 let particles = [];
 
+for (let i = 0; i < 10; i++){
+  for (let j = 0; j < 10; j++){
+
+    if (j%2 == 0){
+    particles.push({
+      x: 60 + 50 * (i/20),
+      y: 10 + 30 * (j/20),
+      r: r1,
+      mass: m1,
+      charge: 0,
+      vx: random() - 0.5,
+      vy: random() - 0.5,
+      Species: 'A',
+      })}
+      else{
+        particles.push({
+          x: 75 + 50 * (i/20),
+          y: 10 + 30 * (j/20),
+          r: r1,
+          mass: m1,
+          charge: 0,
+          vx: random() - 0.5,
+          vy: random() - 0.5,
+          Species: 'A',
+          })   
+      }
+  }};
+
   
   function veloAlpha(vx,vy,color) {
     const vFloor = 0.;
@@ -123,7 +151,7 @@ let particles = [];
 
 let vectors = [];
 
-let paused = true;
+let paused = false;
 
 
 
