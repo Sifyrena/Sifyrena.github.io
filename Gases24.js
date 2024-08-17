@@ -90,22 +90,22 @@ for (let i = 0; i < 10; i++){
     if (j%2 == 0){
     particles.push({
       x: 60 + 300 * (i/20),
-      y: 10 + 300 * (j/20),
+      y: 10 + 500 * (j/20),
       r: r1,
       mass: m1,
       charge: 0,
       vx: 0,
-      vy: 0.5,
+      vy: 1.2,
       Species: 'A',
       })}
       else{
         particles.push({
           x: 75 + 300 * (i/20),
-          y: 10 + 300 * (j/20),
+          y: 10 + 500 * (j/20),
           r: r1,
           mass: m1,
           charge: 0,
-          vx: 0.1,
+          vx: 0.9,
           vy: -0.2,
           Species: 'A',
           })   
