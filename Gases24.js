@@ -781,7 +781,7 @@ function PrepareV(){ // Do sorting and binning in one function? Do we need sorti
 
   // ONLY CHECK SPECIES 1
 
-  if (Count_Plus == BIN_UPDATE_TRIGGER){
+  if (Count_Plus == BIN_UPDATE_TRIGGER && NBins < 250){
 
     print('Bins Lengthening');
     NBins += 1;
@@ -830,7 +830,7 @@ function PrepareV(){ // Do sorting and binning in one function? Do we need sorti
   }
 
   VData1 = math.multiply(VData1,1/V1Log.length);
-  VData2 = math.multiply(VData2,1/V1Log.length);
+  VData2 = math.multiply(VData2,1/V2Log.length);
 
 
   
