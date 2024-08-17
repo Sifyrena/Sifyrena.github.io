@@ -94,8 +94,8 @@ for (let i = 0; i < 10; i++){
       r: r1,
       mass: m1,
       charge: 0,
-      vx: (random()) - 0.5,
-      vy: (random()) - 0.5,
+      vx: 0,
+      vy: 0.5,
       Species: 'A',
       })}
       else{
@@ -105,8 +105,8 @@ for (let i = 0; i < 10; i++){
           r: r1,
           mass: m1,
           charge: 0,
-          vx: (random()) - 0.5,
-          vy: (random()) - 0.5,
+          vx: 0.1,
+          vy: -0.2,
           Species: 'A',
           })   
       }
