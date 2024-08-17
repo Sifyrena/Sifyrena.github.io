@@ -89,8 +89,8 @@ for (let i = 0; i < 10; i++){
 
     if (j%2 == 0){
     particles.push({
-      x: 60 + 50 * (i/20),
-      y: 10 + 30 * (j/20),
+      x: 60 + 300 * (i/20),
+      y: 10 + 300 * (j/20),
       r: r1,
       mass: m1,
       charge: 0,
@@ -100,8 +100,8 @@ for (let i = 0; i < 10; i++){
       })}
       else{
         particles.push({
-          x: 75 + 50 * (i/20),
-          y: 10 + 30 * (j/20),
+          x: 75 + 300 * (i/20),
+          y: 10 + 300 * (j/20),
           r: r1,
           mass: m1,
           charge: 0,
