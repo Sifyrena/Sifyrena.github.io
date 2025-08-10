@@ -1,10 +1,9 @@
-# Welcome to the List of FW JavaScript Projects
+# Welcome Frank Wang's JS Playground ... 
 
-* [UoA PHYS 100/100G Activity 1](Activity1.html)
+* [Auckland PHYS 100/100G Activity 1](Activity1.html)
 
-* [UoA PHYS 100/100G Activity 2](Activity2.html)
+* [Auckalnd PHYS 100/100G Activity 2](Activity2.html)
 
-* [Massive Circles Playground (With NBody Gravity!)](NBody.html)
+* [Gravity Playground (With NBody Gravity!)](NBody.html)
 
-## Author Contact
-Email ⟨ FW | at | fwphys.com ⟩ or raise an issue on GitHub!
+* [Control Game](Control/index.html)
