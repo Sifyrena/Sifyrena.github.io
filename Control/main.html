@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Orders of Control</title>
+<style>
+    body {
+        margin: 0;
+        font-family: sans-serif;
+        background: #111;
+        color: white;
+        overflow: hidden;
+    }
+    #gameCanvas {
+        display: block;
+        background: #1f1f1f;
+    }
+    #message {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        font-size: 16px;
+        max-width: 400px;
+    }
+</style>
+</head>
+<body>
+<audio id="bgm" src="Paris_01.m4a" loop autoplay></audio>
+
+<canvas id="gameCanvas"></canvas>
+<div id="message">
+    <b>Orders of Control</b><br>
+    (c) FWPhys Interactive 2025<br>
+    (You need a mouse or trackpad for this version!) 
+    <br>
+    <br>
+    Keep the yellow dot in the oscillating green band.<br>
+    Each level increases the <em>order</em> you control — from position to velocity to acceleration to jerk.<br>
+    You can also click your mouse to brake.
+    <br>
+    <br>
+    Score 10 points to level up!
+</div>
+
+<script>
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+
+let W = window.innerWidth;
+let H = window.innerHeight;
+canvas.width = W;
+canvas.height = H;
+
+// Game state variables
+let level = 1; // order of control
+let y = H/2;   // position
+let ydot = 0;  // velocity
+let yddot = 0; // acceleration
+let ydddot = 0; // jerk (3rd derivative if needed)
+
+let targetBand = {center: H/2, height: 100}; 
+let bandWeirdness = 0; // increases with levels
+let mouseY = H/2;
+let score = 0;
+let gameOver = false;
+
+let inTransition = false;
+let transitionTime = 0;
+
+
+// Mouse movement control
+canvas.addEventListener("mousemove", e => {
+    mouseY = e.clientY;
+});
+
+canvas.addEventListener('mousedown', () => {
+    ydot *= 0.4;
+    yddot *= 0.3;
+    ydddot *= 0.2;
+});
+
+// Level progression
+function nextLevel() {
+
+    inTransition = true;
+    transitionTime = 2.0; // seconds
+    level++;
+    bandWeirdness += 0.5;
+    targetBand.height = Math.max(40, targetBand.height - 15);
+
+}
+
+// Main update
+function update(dt) {
+    if (gameOver) return;
+
+    if (!isFinite(dt) || dt <= 0) dt = 0.016;
+
+    if (inTransition) {
+        transitionTime -= dt;
+        if (transitionTime <= 0) {
+            inTransition = false;
+        }
+
+        y += (H/2 - y) * 0.1;
+        ydot = yddot = ydddot = 0;
+        return;
+    }
+
+    // Move band center around in a weird way as levels rise
+    targetBand.center = H/2 + Math.sin(Date.now() * 0.001) * 100 * Math.sin(level + Date.now() * 0.0005 * bandWeirdness);
+
+    // Apply control depending on level
+    if (level === 1) {
+        // Direct control of y
+        y = mouseY;
+    } else if (level === 2) {
+        // Control velocity
+        let amplitude = 0.01
+        let norm = (mouseY - H/2) / (H/2); // normalized to [-1, 1]
+        let control = norm * amplitude;
+        
+        ydot += control;
+        y += ydot;
+    } else if (level === 3) {
+        // Control acceleration
+        let amplitude = 0.005
+        let norm = (mouseY - H/2) / (H/2); // normalized to [-1, 1]
+        let control = norm * amplitude;
+        yddot += control;
+        ydot += yddot;
+        y += ydot;
+    } else if (level >= 4) {
+        // Control jerk (3rd derivative)
+        let amplitude = 0.001
+        let norm = (mouseY - H/2) / (H/2); // normalized to [-1, 1]
+        let control = norm * amplitude;
+        ydddot += control;
+        yddot += ydddot;
+        ydot += yddot;
+        y += ydot;
+    }
+
+    // Check if in band
+    if (y < targetBand.center - targetBand.height/2 || y > targetBand.center + targetBand.height/2) {
+        score -= dt * 0.5;
+        if (score < -5) gameOver = true;
+    } else {
+        score += dt * 1;
+        if (score > 10) {
+            score = 0;
+            nextLevel();
+        }
+    }
+    if (y > 1e5 || y < -1e5){
+        gameOver = True;
+    }
+    if (isNaN(score) || !isFinite(score)) score = 0;
+}
+
+// Draw
+function draw() {
+    ctx.clearRect(0, 0, W, H);
+
+    // Centre Line 
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.3)";
+    ctx.lineWidth = 1;
+    ctx.setLineDash([5, 10]);
+    ctx.beginPath();
+    ctx.moveTo(0, H/2);
+    ctx.lineTo(W, H/2);
+    ctx.stroke();
+    ctx.setLineDash([]); // reset dash
+    // Green band
+    ctx.fillStyle = "rgba(60,238,60,0.3)";
+    ctx.fillRect(0, targetBand.center - targetBand.height/2, W, targetBand.height);
+
+    // Dot (state)
+    ctx.beginPath();
+    ctx.arc(W/2, y, 10, 0, Math.PI*2);
+    ctx.fillStyle = "yellow";
+    ctx.fill();
+
+    ctx.lineWidth = 2;
+
+    // Velocity line (blue)
+    ctx.strokeStyle = "rgba(0, 100, 255, 0.7)";
+    //ctx.setLineDash([8, 6]);
+    ctx.beginPath();
+    let vy = y + ydot * 20; // scale velocity by 20 pixels
+    ctx.moveTo(W/2 - 80, vy);
+    ctx.lineTo(W/2 + 80, vy);
+    ctx.stroke();
+
+    // Acceleration line (orange)
+    ctx.strokeStyle = "rgba(255, 165, 0, 0.7)";
+    ctx.beginPath();
+    let ay = y + yddot * 100; // scale acceleration more
+    ctx.moveTo(W/2 - 80, ay);
+    ctx.lineTo(W/2 + 80, ay);
+    ctx.stroke();
+
+    // Jerk line (purple)
+    ctx.strokeStyle = "rgba(150, 0, 150, 0.7)";
+    ctx.beginPath();
+    let jy = y + ydddot * 500; // scale jerk even more
+    ctx.moveTo(W/2 - 80, jy);
+    ctx.lineTo(W/2 + 80, jy);
+    ctx.stroke();
+
+    ctx.setLineDash([]); // reset dash
+    // HUD
+    ctx.font = "45px sans-serif"; // or 24px, depending on taste
+    ctx.fillStyle = "white";
+    ctx.fillText(`Level: ${level}`, 20, H - 90);
+    ctx.font = "20px sans-serif";
+    ctx.fillText(`Order of Control: ${level === 1 ? "y" : level === 2 ? "y'" : level === 3 ? "y''" : "y'''"}`, 20, H - 25);
+    ctx.fillText(`Score: ${score.toFixed(1)}`, 240, H - 25);
+
+
+    if (inTransition) {
+        ctx.fillStyle = "yellow";
+        ctx.font = "24px sans-serif";
+        ctx.fillText("Level Up!", W/2 - 150, H/2);
+    }
+    if (gameOver) {
+        ctx.fillStyle = "yellow";
+        ctx.font = "24px sans-serif";
+        ctx.fillText("Game Over – Refresh to restart!", W/2 - 150, H/2);
+    }
+}
+
+// Game loop
+let lastTime = null;
+function loop(timestamp) {
+    if (!lastTime) lastTime = timestamp;
+    let dt = (timestamp - lastTime) / 1000; // seconds
+    lastTime = timestamp;
+
+    update(dt);
+    draw();
+    requestAnimationFrame(loop);
+}
+loop();
+
+window.addEventListener("resize", () => {
+    W = window.innerWidth;
+    H = window.innerHeight;
+    canvas.width = W;
+    canvas.height = H;
+});
+</script>
+
+</body>
+</html>
+
