@@ -120,7 +120,7 @@ function update(dt) {
         y = mouseY;
     } else if (level === 2) {
         // Control velocity
-        let amplitude = 0.2
+        let amplitude = 2
         let norm = (mouseY - H/2) / (H/2); // normalized to [-1, 1]
         let control = norm * amplitude;
         
