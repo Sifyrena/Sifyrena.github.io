@@ -1,4 +1,6 @@
-# Welcome Frank Wang's JS Playground ... 
+# Welcome!
+
+Welcome to Frank Wang's JS Playground ... 
 
 * [Auckland PHYS 100/100G Activity 1](Activity1.html)
 
