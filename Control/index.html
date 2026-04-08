@@ -257,6 +257,29 @@
     color: #0a0a0f;
     border-color: #c8f06a;
   }
+
+  /* Mute toggle */
+  #muteBtn {
+    position: absolute;
+    top: 20px;
+    right: 24px;
+    z-index: 25;
+    background: none;
+    border: 1px solid #333;
+    border-radius: 4px;
+    color: #888;
+    padding: 6px 8px;
+    cursor: pointer;
+    transition: color 0.2s ease, border-color 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #muteBtn:hover {
+    color: #c8f06a;
+    border-color: #666;
+  }
 </style>
 </head>
 <body>
@@ -301,6 +324,19 @@
   <button class="start-btn" id="restartBtn">Retry</button>
 </div>
 
+<audio id="bgm" src="https://fwphys.com/wp-content/uploads/2025/08/paris01.mp3" loop preload="auto"></audio>
+
+<button id="muteBtn" aria-label="Toggle music">
+  <svg id="muteIcon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M11 5L6 9H2v6h4l5 4V5z"/>
+    <path id="soundWave1" d="M15.54 8.46a5 5 0 010 7.07"/>
+    <path id="soundWave2" d="M19.07 4.93a10 10 0 010 14.14"/>
+    <!-- muted X lines, hidden by default -->
+    <line id="muteLine1" x1="16" y1="9" x2="22" y2="15" style="display:none"/>
+    <line id="muteLine2" x1="22" y1="9" x2="16" y2="15" style="display:none"/>
+  </svg>
+</button>
+
 <canvas id="gameCanvas"></canvas>
 
 <script>
@@ -318,6 +354,40 @@ const levelUpEl = document.getElementById('levelUp');
 const gameOverScreen = document.getElementById('gameOverScreen');
 const finalStats = document.getElementById('finalStats');
 const restartBtn = document.getElementById('restartBtn');
+const bgm = document.getElementById('bgm');
+const muteBtn = document.getElementById('muteBtn');
+const soundWave1 = document.getElementById('soundWave1');
+const soundWave2 = document.getElementById('soundWave2');
+const muteLine1 = document.getElementById('muteLine1');
+const muteLine2 = document.getElementById('muteLine2');
+
+let audioMuted = true; // start muted until user interacts
+bgm.volume = 0.35;
+
+function updateMuteIcon() {
+  if (audioMuted) {
+    soundWave1.style.display = 'none';
+    soundWave2.style.display = 'none';
+    muteLine1.style.display = '';
+    muteLine2.style.display = '';
+  } else {
+    soundWave1.style.display = '';
+    soundWave2.style.display = '';
+    muteLine1.style.display = 'none';
+    muteLine2.style.display = 'none';
+  }
+}
+updateMuteIcon();
+
+muteBtn.addEventListener('click', () => {
+  audioMuted = !audioMuted;
+  if (audioMuted) {
+    bgm.pause();
+  } else {
+    bgm.play().catch(() => {});
+  }
+  updateMuteIcon();
+});
 
 let W, H;
 function resize() {
@@ -415,6 +485,7 @@ startBtn.addEventListener('click', () => {
   scoreBarWrap.classList.add('visible');
   initGame();
   playing = true;
+  if (!audioMuted) bgm.play().catch(() => {});
 });
 
 restartBtn.addEventListener('click', () => {
@@ -461,6 +532,7 @@ function update(dt) {
 
     // Keep band centered during transition
     bandCenter += (H/2 - bandCenter) * 4 * dt;
+    trail.push({ y: y, inBand: true });
     return;
   }
 
@@ -510,6 +582,9 @@ function update(dt) {
   } else {
     score -= dt * 0.6;
   }
+
+  // Record trail point with stamped band status
+  trail.push({ y: y, inBand: inBand });
 
   // UI
   const pct = Math.max(0, ((score - DEATH_SCORE) / (LEVEL_SCORE - DEATH_SCORE)) * 100);
@@ -603,7 +678,6 @@ function draw() {
   ctx.stroke();
 
   // ─ Trail ─
-  trail.push({ y: y });
   if (trail.length > TRAIL_LENGTH) trail.shift();
 
   const trailW = W * 0.7;
@@ -618,9 +692,8 @@ function draw() {
       const py = trail[i-1].y;
       const ny = trail[i].y;
 
-      // Colour: green if in band, red if not
-      const ptInBand = ny >= bandCenter - halfB && ny <= bandCenter + halfB;
-      const c = ptInBand ? TRAIL_COLOR_IN : TRAIL_COLOR_OUT;
+      // Use the stamped in-band status from when the point was recorded
+      const c = trail[i].inBand ? TRAIL_COLOR_IN : TRAIL_COLOR_OUT;
 
       ctx.strokeStyle = `rgba(${c[0]},${c[1]},${c[2]},${alpha})`;
       ctx.lineWidth = 1.5 + frac * 1.5;
