@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ViRIAL</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@300;400;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #1a2332;
+    --bg-dark: #0f1822;
+    --text: #c8d6e5;
+    --text-dim: #5a6f85;
+    --accent: #e74c3c;
+    --accent-glow: rgba(231, 76, 60, 0.4);
+    --orbit: rgba(200, 214, 229, 0.15);
+    --bound: #3498db;
+    --bound-glow: rgba(52, 152, 219, 0.5);
+    --projectile: #f39c12;
+    --projectile-glow: rgba(243, 156, 18, 0.6);
+    --eject: #2ecc71;
+  }
+
+  body {
+    background: var(--bg-dark);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+    cursor: crosshair;
+    user-select: none;
+  }
+
+  canvas {
+    display: block;
+    position: absolute;
+    top: 0; left: 0;
+  }
+
+  #ui-overlay {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  .hud-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 20px 30px;
+  }
+
+  .build-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #c8e64a;
+    letter-spacing: 0.5px;
+  }
+
+  .score-block {
+    text-align: right;
+  }
+
+  .score-label {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+
+  .score-value {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 36px;
+    font-weight: 900;
+    color: var(--text);
+    letter-spacing: 2px;
+  }
+
+  .score-value.highlight {
+    color: var(--projectile);
+    text-shadow: 0 0 20px var(--projectile-glow);
+  }
+
+  .hud-bottom {
+    position: absolute;
+    bottom: 20px;
+    left: 0; right: 0;
+    text-align: center;
+  }
+
+  .copyright {
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+  }
+
+  .status-bar {
+    position: absolute;
+    bottom: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 30px;
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: var(--text-dim);
+  }
+
+  .status-bar span.val { color: var(--text); }
+
+  /* Title screen overlay */
+  #title-screen {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-dark);
+    transition: opacity 0.8s ease;
+  }
+
+  #title-screen.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .title-text {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 80px;
+    font-weight: 400;
+    letter-spacing: 30px;
+    color: var(--text);
+    margin-bottom: 60px;
+    text-indent: 30px;
+  }
+
+  .title-text .i-dot {
+    position: relative;
+  }
+
+  .press-key {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    letter-spacing: 6px;
+    color: var(--text-dim);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  .title-copyright {
+    position: absolute;
+    bottom: 30px;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+  }
+
+  .title-build {
+    position: absolute;
+    top: 20px;
+    left: 30px;
+    font-size: 11px;
+    color: #c8e64a;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 1; }
+  }
+
+  /* Game over overlay */
+  #game-over {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 50;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(15, 24, 34, 0.85);
+    pointer-events: auto;
+  }
+
+  #game-over.show { display: flex; }
+
+  .go-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 28px;
+    letter-spacing: 10px;
+    color: var(--accent);
+    margin-bottom: 20px;
+  }
+
+  .go-score {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 60px;
+    font-weight: 900;
+    color: var(--text);
+    margin-bottom: 10px;
+  }
+
+  .go-sub {
+    font-size: 12px;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+    margin-bottom: 40px;
+  }
+
+  .go-restart {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    letter-spacing: 4px;
+    color: var(--text-dim);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  .energy-bar-container {
+    position: absolute;
+    left: 30px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 6px;
+    height: 200px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .energy-bar-fill {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    background: var(--bound);
+    border-radius: 3px;
+    transition: height 0.1s, background 0.3s;
+  }
+
+  .energy-label {
+    position: absolute;
+    left: 30px;
+    top: 50%;
+    transform: translateY(-50%) translateY(115px);
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+
+  /* Aim line instructions */
+  .instructions {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 13px;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+    text-align: center;
+    line-height: 2;
+    pointer-events: none;
+    transition: opacity 0.5s;
+  }
+
+  .instructions.hidden { opacity: 0; }
+</style>
+</head>
+<body>
+
+<canvas id="canvas"></canvas>
+
+<div id="title-screen">
+  <div class="title-build">Pre-alpha build v0.01b (04.02.2024)</div>
+  <div class="title-text">ViRIAL</div>
+  <div class="press-key">&gt;PRESS ANY KEY&lt;</div>
+  <div class="title-copyright">(c) 2023 - 2025. FWPhys Interactive. All rights reserved.</div>
+</div>
+
+<div id="ui-overlay">
+  <div class="hud-top">
+    <div class="build-tag">VIRIAL v0.01b</div>
+    <div class="score-block">
+      <div class="score-label">SURVIVAL</div>
+      <div class="score-value" id="score-display">0.00s</div>
+    </div>
+  </div>
+
+  <div class="energy-label">KE/|PE|</div>
+  <div class="energy-bar-container">
+    <div class="energy-bar-fill" id="energy-bar"></div>
+  </div>
+
+  <div class="instructions" id="instructions">
+    CLICK AND DRAG TO AIM<br>RELEASE TO LAUNCH
+  </div>
+
+  <div class="status-bar" id="status-bar">
+    <div>BODIES: <span class="val" id="hud-bodies">0</span></div>
+    <div>BOUND: <span class="val" id="hud-bound">0</span></div>
+    <div>BEST: <span class="val" id="hud-best">0.00s</span></div>
+  </div>
+
+  <div class="hud-bottom">
+    <div class="copyright">(c) 2023 - 2025. FWPhys Interactive.</div>
+  </div>
+</div>
+
+<div id="game-over">
+  <div class="go-title">EJECTED</div>
+  <div class="go-score" id="go-score">0.00s</div>
+  <div class="go-sub" id="go-sub">PROJECTILE ESCAPED THE SYSTEM</div>
+  <div class="go-restart">&gt;CLICK TO RETRY&lt;</div>
+</div>
+
+<script>
+// ── Constants ──
+const G = 800;
+const SOFTENING = 8;
+const DT = 0.0005;
+const STEPS_PER_FRAME = 8;
+const TRAIL_LENGTH = 60;
+const ESCAPE_RADIUS_FACTOR = 3.5;
+const N_CLUSTER = 7;
+const CLUSTER_RADIUS = 120;
+const MASS_MIN = 40;
+const MASS_MAX = 120;
+
+// ── Canvas ──
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+let W, H;
+
+function resize() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resize);
+resize();
+
+// ── State ──
+let bodies = [];
+let projectile = null;
+let gameState = 'title'; // title, aiming, running, over
+let survivalTime = 0;
+let bestTime = 0;
+let aimStart = null;
+let aimEnd = null;
+let centerOfMass = { x: W/2, y: H/2 };
+
+// star field
+let stars = [];
+for (let i = 0; i < 200; i++) {
+  stars.push({
+    x: Math.random() * 4000 - 2000,
+    y: Math.random() * 4000 - 2000,
+    r: Math.random() * 1.2 + 0.3,
+    a: Math.random() * 0.4 + 0.1
+  });
+}
+
+// ── Body creation ──
+function createCluster() {
+  bodies = [];
+  const cx = W / 2;
+  const cy = H / 2;
+
+  for (let i = 0; i < N_CLUSTER; i++) {
+    const angle = (i / N_CLUSTER) * Math.PI * 2 + Math.random() * 0.5;
+    const r = CLUSTER_RADIUS * (0.3 + Math.random() * 0.7);
+    const mass = MASS_MIN + Math.random() * (MASS_MAX - MASS_MIN);
+
+    // Give orbital velocity for quasi-stability
+    const speed = Math.sqrt(G * N_CLUSTER * 60 / (r + SOFTENING)) * (0.4 + Math.random() * 0.4);
+    const vAngle = angle + Math.PI / 2 + (Math.random() - 0.5) * 0.3;
+
+    bodies.push({
+      x: cx + Math.cos(angle) * r,
+      y: cy + Math.sin(angle) * r,
+      vx: Math.cos(vAngle) * speed,
+      vy: Math.sin(vAngle) * speed,
+      mass: mass,
+      radius: Math.sqrt(mass) * 0.6,
+      trail: [],
+      isProjectile: false,
+      color: `hsl(${200 + Math.random() * 30}, 60%, ${55 + Math.random() * 20}%)`
+    });
+  }
+
+  // Subtract center-of-mass velocity so system doesn't drift
+  let totalMass = 0, totalVx = 0, totalVy = 0;
+  for (const b of bodies) {
+    totalMass += b.mass;
+    totalVx += b.vx * b.mass;
+    totalVy += b.vy * b.mass;
+  }
+  for (const b of bodies) {
+    b.vx -= totalVx / totalMass;
+    b.vy -= totalVy / totalMass;
+  }
+}
+
+function computeCOM() {
+  let tx = 0, ty = 0, tm = 0;
+  for (const b of bodies) {
+    if (!b.isProjectile) {
+      tx += b.x * b.mass;
+      ty += b.y * b.mass;
+      tm += b.mass;
+    }
+  }
+  if (tm > 0) {
+    centerOfMass.x = tx / tm;
+    centerOfMass.y = ty / tm;
+  }
+}
+
+// ── Physics ──
+function computeAccelerations(allBodies) {
+  const n = allBodies.length;
+  const ax = new Float64Array(n);
+  const ay = new Float64Array(n);
+
+  for (let i = 0; i < n; i++) {
+    for (let j = i + 1; j < n; j++) {
+      const dx = allBodies[j].x - allBodies[i].x;
+      const dy = allBodies[j].y - allBodies[i].y;
+      const r2 = dx * dx + dy * dy + SOFTENING * SOFTENING;
+      const r = Math.sqrt(r2);
+      const F = G / (r2 * r); // Force / (mi * mj)
+
+      ax[i] += F * dx * allBodies[j].mass;
+      ay[i] += F * dy * allBodies[j].mass;
+      ax[j] -= F * dx * allBodies[i].mass;
+      ay[j] -= F * dy * allBodies[i].mass;
+    }
+  }
+  return { ax, ay };
+}
+
+function leapfrogStep(allBodies, dt) {
+  const { ax, ay } = computeAccelerations(allBodies);
+  const n = allBodies.length;
+
+  // Kick-drift-kick (velocity Verlet)
+  for (let i = 0; i < n; i++) {
+    allBodies[i].vx += ax[i] * dt * 0.5;
+    allBodies[i].vy += ay[i] * dt * 0.5;
+  }
+  for (let i = 0; i < n; i++) {
+    allBodies[i].x += allBodies[i].vx * dt;
+    allBodies[i].y += allBodies[i].vy * dt;
+  }
+
+  const acc2 = computeAccelerations(allBodies);
+  for (let i = 0; i < n; i++) {
+    allBodies[i].vx += acc2.ax[i] * dt * 0.5;
+    allBodies[i].vy += acc2.ay[i] * dt * 0.5;
+  }
+}
+
+function projectileEnergy() {
+  if (!projectile) return { ke: 0, pe: 0 };
+  const ke = 0.5 * projectile.mass * (projectile.vx ** 2 + projectile.vy ** 2);
+  let pe = 0;
+  for (const b of bodies) {
+    if (b === projectile) continue;
+    const dx = projectile.x - b.x;
+    const dy = projectile.y - b.y;
+    const r = Math.sqrt(dx * dx + dy * dy + SOFTENING * SOFTENING);
+    pe -= G * projectile.mass * b.mass / r;
+  }
+  return { ke, pe };
+}
+
+// ── Rendering ──
+function drawStars() {
+  for (const s of stars) {
+    // Parallax relative to COM
+    const px = s.x - (centerOfMass.x - W/2) * 0.05;
+    const py = s.y - (centerOfMass.y - H/2) * 0.05;
+    const sx = ((px % W) + W) % W;
+    const sy = ((py % H) + H) % H;
+    ctx.beginPath();
+    ctx.arc(sx, sy, s.r, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(200, 214, 229, ${s.a})`;
+    ctx.fill();
+  }
+}
+
+function drawBody(b) {
+  // Trail
+  if (b.trail.length > 1) {
+    ctx.beginPath();
+    ctx.moveTo(b.trail[0].x, b.trail[0].y);
+    for (let i = 1; i < b.trail.length; i++) {
+      ctx.lineTo(b.trail[i].x, b.trail[i].y);
+    }
+    const trailColor = b.isProjectile ? 'rgba(243, 156, 18,' : 'rgba(52, 152, 219,';
+    ctx.strokeStyle = trailColor + '0.3)';
+    ctx.lineWidth = b.isProjectile ? 2 : 1;
+    ctx.stroke();
+  }
+
+  // Glow
+  const glowR = b.radius * 3;
+  const grd = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, glowR);
+  if (b.isProjectile) {
+    grd.addColorStop(0, 'rgba(243, 156, 18, 0.5)');
+    grd.addColorStop(1, 'rgba(243, 156, 18, 0)');
+  } else {
+    grd.addColorStop(0, 'rgba(52, 152, 219, 0.3)');
+    grd.addColorStop(1, 'rgba(52, 152, 219, 0)');
+  }
+  ctx.beginPath();
+  ctx.arc(b.x, b.y, glowR, 0, Math.PI * 2);
+  ctx.fillStyle = grd;
+  ctx.fill();
+
+  // Body
+  ctx.beginPath();
+  ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
+  ctx.fillStyle = b.isProjectile ? '#f39c12' : b.color;
+  ctx.fill();
+
+  // Bright core
+  ctx.beginPath();
+  ctx.arc(b.x, b.y, b.radius * 0.4, 0, Math.PI * 2);
+  ctx.fillStyle = b.isProjectile ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.4)';
+  ctx.fill();
+}
+
+function drawAimLine() {
+  if (!aimStart || !aimEnd) return;
+  const dx = aimStart.x - aimEnd.x;
+  const dy = aimStart.y - aimEnd.y;
+  const len = Math.sqrt(dx * dx + dy * dy);
+
+  // Arrow from start in launch direction
+  const launchX = aimStart.x + dx;
+  const launchY = aimStart.y + dy;
+
+  ctx.beginPath();
+  ctx.moveTo(aimStart.x, aimStart.y);
+  ctx.lineTo(aimStart.x + dx * 0.8, aimStart.y + dy * 0.8);
+  ctx.strokeStyle = 'rgba(243, 156, 18, 0.6)';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([8, 6]);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Speed indicator
+  const speed = len * 2;
+  ctx.font = '11px "JetBrains Mono"';
+  ctx.fillStyle = 'rgba(243, 156, 18, 0.8)';
+  ctx.fillText(`v = ${speed.toFixed(0)}`, aimStart.x + dx * 0.4 + 10, aimStart.y + dy * 0.4 - 10);
+
+  // Projectile preview
+  ctx.beginPath();
+  ctx.arc(aimStart.x, aimStart.y, 5, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(243, 156, 18, 0.8)';
+  ctx.fill();
+}
+
+function drawEscapeRadius() {
+  if (!projectile) return;
+  computeCOM();
+  const maxR = CLUSTER_RADIUS * ESCAPE_RADIUS_FACTOR;
+  ctx.beginPath();
+  ctx.arc(centerOfMass.x, centerOfMass.y, maxR, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(231, 76, 60, 0.15)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([4, 8]);
+  ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+// ── Game Logic ──
+function launch() {
+  if (!aimStart || !aimEnd) return;
+  const dx = aimStart.x - aimEnd.x;
+  const dy = aimStart.y - aimEnd.y;
+  const speed = Math.sqrt(dx * dx + dy * dy) * 2;
+  const angle = Math.atan2(dy, dx);
+
+  projectile = {
+    x: aimStart.x,
+    y: aimStart.y,
+    vx: Math.cos(angle) * speed,
+    vy: Math.sin(angle) * speed,
+    mass: 60,
+    radius: Math.sqrt(60) * 0.6,
+    trail: [],
+    isProjectile: true,
+    color: '#f39c12'
+  };
+
+  bodies.push(projectile);
+  survivalTime = 0;
+  gameState = 'running';
+  document.getElementById('instructions').classList.add('hidden');
+}
+
+function checkEscape() {
+  if (!projectile) return false;
+  computeCOM();
+  const dx = projectile.x - centerOfMass.x;
+  const dy = projectile.y - centerOfMass.y;
+  const dist = Math.sqrt(dx * dx + dy * dy);
+  const maxR = CLUSTER_RADIUS * ESCAPE_RADIUS_FACTOR;
+
+  // Must be far AND unbound
+  if (dist > maxR) {
+    const { ke, pe } = projectileEnergy();
+    if (ke + pe > 0) return true;
+  }
+
+  // Also check if just way too far
+  if (dist > maxR * 2.5) return true;
+
+  return false;
+}
+
+function endRun() {
+  gameState = 'over';
+  if (survivalTime > bestTime) bestTime = survivalTime;
+  document.getElementById('go-score').textContent = survivalTime.toFixed(2) + 's';
+  document.getElementById('hud-best').textContent = bestTime.toFixed(2) + 's';
+  document.getElementById('game-over').classList.add('show');
+
+  // Determine end reason
+  const { ke, pe } = projectileEnergy();
+  const sub = document.getElementById('go-sub');
+  if (ke + pe > 0) {
+    sub.textContent = 'PROJECTILE ESCAPED THE SYSTEM — UNBOUND';
+  } else {
+    sub.textContent = 'PROJECTILE LEFT THE INTERACTION REGION';
+  }
+}
+
+function resetGame() {
+  document.getElementById('game-over').classList.remove('show');
+  bodies = bodies.filter(b => !b.isProjectile);
+  projectile = null;
+  survivalTime = 0;
+  gameState = 'aiming';
+  document.getElementById('instructions').classList.remove('hidden');
+  document.getElementById('score-display').textContent = '0.00s';
+  document.getElementById('score-display').classList.remove('highlight');
+  createCluster();
+}
+
+// ── HUD updates ──
+function updateHUD() {
+  const sd = document.getElementById('score-display');
+  sd.textContent = survivalTime.toFixed(2) + 's';
+
+  if (projectile && survivalTime > 3) {
+    sd.classList.add('highlight');
+  } else {
+    sd.classList.remove('highlight');
+  }
+
+  document.getElementById('hud-bodies').textContent = bodies.length;
+  document.getElementById('hud-bound').textContent = bodies.filter(b => !b.isProjectile).length;
+
+  // Energy bar
+  if (projectile) {
+    const { ke, pe } = projectileEnergy();
+    const ratio = Math.min(ke / (Math.abs(pe) + 0.01), 2);
+    const bar = document.getElementById('energy-bar');
+    bar.style.height = Math.min(ratio / 2 * 100, 100) + '%';
+    if (ratio > 1) {
+      bar.style.background = 'var(--accent)';
+    } else if (ratio > 0.7) {
+      bar.style.background = 'var(--projectile)';
+    } else {
+      bar.style.background = 'var(--bound)';
+    }
+  } else {
+    document.getElementById('energy-bar').style.height = '0%';
+  }
+}
+
+// ── Main loop ──
+function frame() {
+  ctx.fillStyle = 'var(--bg-dark)';
+  ctx.fillRect(0, 0, W, H);
+
+  // Background gradient
+  const bgGrad = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, W * 0.6);
+  bgGrad.addColorStop(0, '#1a2332');
+  bgGrad.addColorStop(1, '#0f1822');
+  ctx.fillStyle = bgGrad;
+  ctx.fillRect(0, 0, W, H);
+
+  drawStars();
+
+  if (gameState === 'running' || gameState === 'aiming' || gameState === 'over') {
+    // Physics
+    if (gameState === 'running') {
+      for (let s = 0; s < STEPS_PER_FRAME; s++) {
+        leapfrogStep(bodies, DT);
+      }
+      survivalTime += DT * STEPS_PER_FRAME * 60; // game-time seconds
+
+      if (checkEscape()) {
+        endRun();
+      }
+    } else if (gameState === 'aiming') {
+      // Still evolve cluster gently
+      for (let s = 0; s < STEPS_PER_FRAME; s++) {
+        leapfrogStep(bodies, DT);
+      }
+    }
+
+    // Update trails
+    for (const b of bodies) {
+      b.trail.push({ x: b.x, y: b.y });
+      if (b.trail.length > TRAIL_LENGTH) b.trail.shift();
+    }
+
+    computeCOM();
+    drawEscapeRadius();
+
+    for (const b of bodies) {
+      drawBody(b);
+    }
+
+    if (gameState === 'aiming') {
+      drawAimLine();
+    }
+
+    updateHUD();
+  }
+
+  requestAnimationFrame(frame);
+}
+
+// ── Input ──
+document.getElementById('title-screen').addEventListener('click', () => {
+  document.getElementById('title-screen').classList.add('hidden');
+  gameState = 'aiming';
+  createCluster();
+});
+document.addEventListener('keydown', (e) => {
+  if (gameState === 'title') {
+    document.getElementById('title-screen').classList.add('hidden');
+    gameState = 'aiming';
+    createCluster();
+  }
+});
+
+canvas.addEventListener('mousedown', (e) => {
+  if (gameState === 'aiming') {
+    aimStart = { x: e.clientX, y: e.clientY };
+    aimEnd = { x: e.clientX, y: e.clientY };
+  }
+});
+
+canvas.addEventListener('mousemove', (e) => {
+  if (aimStart && gameState === 'aiming') {
+    aimEnd = { x: e.clientX, y: e.clientY };
+  }
+});
+
+canvas.addEventListener('mouseup', (e) => {
+  if (aimStart && gameState === 'aiming') {
+    aimEnd = { x: e.clientX, y: e.clientY };
+    launch();
+    aimStart = null;
+    aimEnd = null;
+  }
+});
+
+document.getElementById('game-over').addEventListener('click', () => {
+  resetGame();
+});
+
+// Touch support
+canvas.addEventListener('touchstart', (e) => {
+  e.preventDefault();
+  if (gameState === 'aiming') {
+    const t = e.touches[0];
+    aimStart = { x: t.clientX, y: t.clientY };
+    aimEnd = { x: t.clientX, y: t.clientY };
+  }
+});
+
+canvas.addEventListener('touchmove', (e) => {
+  e.preventDefault();
+  if (aimStart && gameState === 'aiming') {
+    const t = e.touches[0];
+    aimEnd = { x: t.clientX, y: t.clientY };
+  }
+});
+
+canvas.addEventListener('touchend', (e) => {
+  e.preventDefault();
+  if (aimStart && gameState === 'aiming') {
+    launch();
+    aimStart = null;
+    aimEnd = null;
+  }
+});
+
+// ── Start ──
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

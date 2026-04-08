@@ -9,3 +9,5 @@ Welcome to Frank Wang's JS Playground ...
 * [Gravity Playground (With NBody Gravity!)](NBody.html)
 
 * [Control Game](Control/index.html)
+
+* [Virial Tech Demo](Virial_1/index.html)
