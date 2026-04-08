@@ -4,257 +4,763 @@
 <meta charset="UTF-8">
 <title>Orders of Control</title>
 <style>
-    body {
-        margin: 0;
-        font-family: sans-serif;
-        background: #111;
-        color: white;
-        overflow: hidden;
-    }
-    #gameCanvas {
-        display: block;
-        background: #1f1f1f;
-    }
-    #message {
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        font-size: 16px;
-        max-width: 400px;
-    }
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Outfit:wght@200;300;400;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0a0a0f;
+    color: #e0e0e0;
+    overflow: hidden;
+    font-family: 'JetBrains Mono', monospace;
+    cursor: none;
+  }
+
+  canvas { display: block; }
+
+  #overlay {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  /* Title card */
+  #titleScreen {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 20;
+    background: #0a0a0f;
+    transition: opacity 0.8s ease;
+  }
+
+  #titleScreen.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  #titleScreen h1 {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 200;
+    font-size: clamp(32px, 6vw, 72px);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #f0f0f0;
+    margin-bottom: 8px;
+  }
+
+  #titleScreen .subtitle {
+    font-size: clamp(11px, 1.5vw, 15px);
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: #666;
+    margin-bottom: 48px;
+  }
+
+  #titleScreen .instructions {
+    max-width: 440px;
+    text-align: center;
+    font-size: 13px;
+    line-height: 1.8;
+    color: #888;
+    margin-bottom: 48px;
+  }
+
+  #titleScreen .instructions em {
+    color: #c8f06a;
+    font-style: normal;
+  }
+
+  #titleScreen .start-btn {
+    pointer-events: all;
+    cursor: pointer;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 14px 48px;
+    border: 1px solid #444;
+    background: transparent;
+    color: #e0e0e0;
+    transition: all 0.3s ease;
+  }
+
+  #titleScreen .start-btn:hover {
+    background: #c8f06a;
+    color: #0a0a0f;
+    border-color: #c8f06a;
+  }
+
+  .credit {
+    position: absolute;
+    bottom: 24px;
+    font-size: 11px;
+    color: #444;
+    letter-spacing: 0.15em;
+  }
+
+  /* HUD */
+  #hud {
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 100%;
+    padding: 20px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    pointer-events: none;
+    z-index: 10;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+
+  #hud.visible { opacity: 1; }
+
+  .hud-left, .hud-right {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .hud-right { align-items: flex-end; }
+
+  .hud-label {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #555;
+  }
+
+  .hud-value {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 200;
+    font-size: 42px;
+    line-height: 1;
+    color: #f0f0f0;
+  }
+
+  .hud-order {
+    font-size: 16px;
+    color: #c8f06a;
+    font-weight: 500;
+  }
+
+  /* Score bar */
+  #scoreBarWrap {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(360px, 60vw);
+    height: 4px;
+    background: #1a1a24;
+    border-radius: 2px;
+    z-index: 10;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+
+  #scoreBarWrap.visible { opacity: 1; }
+
+  #scoreBar {
+    height: 100%;
+    width: 0%;
+    background: #c8f06a;
+    border-radius: 2px;
+    transition: width 0.15s linear, background 0.3s ease;
+  }
+
+  #scoreBar.losing {
+    background: #f06a6a;
+  }
+
+  /* Level-up flash */
+  #levelUp {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 200;
+    font-size: clamp(28px, 5vw, 56px);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #c8f06a;
+    z-index: 15;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+
+  #levelUp.show { opacity: 1; }
+
+  /* Game over */
+  #gameOverScreen {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 20;
+    background: rgba(10,10,15,0.92);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.6s ease;
+  }
+
+  #gameOverScreen.show {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  #gameOverScreen h2 {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 200;
+    font-size: clamp(28px, 5vw, 56px);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  #gameOverScreen .final-stats {
+    font-size: 14px;
+    color: #888;
+    margin-bottom: 36px;
+    letter-spacing: 0.1em;
+  }
+
+  #gameOverScreen .start-btn {
+    pointer-events: all;
+    cursor: pointer;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 14px 48px;
+    border: 1px solid #444;
+    background: transparent;
+    color: #e0e0e0;
+    transition: all 0.3s ease;
+  }
+
+  #gameOverScreen .start-btn:hover {
+    background: #c8f06a;
+    color: #0a0a0f;
+    border-color: #c8f06a;
+  }
 </style>
 </head>
 <body>
-<audio id="bgm" src="https://fwphys.com/wp-content/uploads/2025/08/paris01.mp3" loop autoplay></audio>
 
-<canvas id="gameCanvas"></canvas>
-<div id="message">
-    <b>Orders of Control v0.2</b><br>
-    (c) FWPhys Interactive 2025<br>
-    (You need a mouse or trackpad for this version!) 
-    <br>
-    <br>
-    Keep the yellow dot in the oscillating green band.<br>
-    Each level increases the <em>order</em> you control — from position to velocity to acceleration to jerk.<br>
-    You can also click your mouse to brake.
-    <br>
-    <br>
-    Score 10 points to level up!
+<!-- Title -->
+<div id="titleScreen">
+  <h1>Orders of Control</h1>
+  <div class="subtitle">A game of derivatives</div>
+  <div class="instructions">
+    Keep the marker inside the oscillating band.<br><br>
+    Each level, you control a higher <em>order derivative</em> —<br>
+    from position, to velocity, to acceleration, to jerk.<br><br>
+    Move your mouse vertically to steer. Click to brake.<br>
+    Score 10 to advance. Fall below −5 and it's over.
+  </div>
+  <button class="start-btn" id="startBtn">Begin</button>
+  <div class="credit">v0.3 · FWPhys Interactive · 2025</div>
 </div>
 
+<!-- HUD -->
+<div id="hud">
+  <div class="hud-left">
+    <div class="hud-label">Level</div>
+    <div class="hud-value" id="hudLevel">1</div>
+  </div>
+  <div class="hud-right">
+    <div class="hud-label">Order</div>
+    <div class="hud-order" id="hudOrder">y</div>
+  </div>
+</div>
+
+<div id="scoreBarWrap">
+  <div id="scoreBar"></div>
+</div>
+
+<div id="levelUp">Level Up</div>
+
+<!-- Game Over -->
+<div id="gameOverScreen">
+  <h2>System Diverged</h2>
+  <div class="final-stats" id="finalStats">Reached Level 2 · Order y'</div>
+  <button class="start-btn" id="restartBtn">Retry</button>
+</div>
+
+<canvas id="gameCanvas"></canvas>
+
 <script>
-setTimeout(() => {
-const bgm = document.getElementById('bgm');
-bgm.muted = false;
-}, 1000);
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
+// ─── DOM refs ───
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+const titleScreen = document.getElementById('titleScreen');
+const startBtn = document.getElementById('startBtn');
+const hud = document.getElementById('hud');
+const scoreBarWrap = document.getElementById('scoreBarWrap');
+const scoreBar = document.getElementById('scoreBar');
+const hudLevel = document.getElementById('hudLevel');
+const hudOrder = document.getElementById('hudOrder');
+const levelUpEl = document.getElementById('levelUp');
+const gameOverScreen = document.getElementById('gameOverScreen');
+const finalStats = document.getElementById('finalStats');
+const restartBtn = document.getElementById('restartBtn');
 
-let W = window.innerWidth;
-let H = window.innerHeight;
-canvas.width = W;
-canvas.height = H;
+let W, H;
+function resize() {
+  W = window.innerWidth;
+  H = window.innerHeight;
+  canvas.width = W;
+  canvas.height = H;
+}
+resize();
+window.addEventListener('resize', resize);
 
-// Game state variables
-let level = 1; // order of control
-let y = H/2;   // position
-let ydot = 0;  // velocity
-let yddot = 0; // acceleration
-let ydddot = 0; // jerk (3rd derivative if needed)
+// ─── State ───
+const LEVEL_SCORE = 10;
+const DEATH_SCORE = -5;
+const TRAIL_LENGTH = 180;
 
-let targetBand = {center: H/2, height: 100}; 
-let bandWeirdness = 0; // increases with levels
-let mouseY = H/2;
-let score = 0;
+let playing = false;
 let gameOver = false;
+let level, y, ydot, yddot, ydddot;
+let score, mouseY;
+let bandCenter, bandHeight, bandWeirdness;
+let inTransition, transitionTimer;
+let trail; // array of {x, y}
+let trailX;
+let levelUpTimer;
+let cursorY;
+let maxLevel;
+let t0; // game start time for band motion
 
-let inTransition = false;
-let transitionTime = 0;
+function orderLabel(lv) {
+  return lv === 1 ? 'y' : lv === 2 ? "y\u2032" : lv === 3 ? "y\u2033" : "y\u2034";
+}
 
+function initGame() {
+  level = 1;
+  y = H / 2;
+  ydot = 0;
+  yddot = 0;
+  ydddot = 0;
+  score = 0;
+  mouseY = H / 2;
+  cursorY = H / 2;
+  bandCenter = H / 2;
+  bandHeight = 120;
+  bandWeirdness = 0;
+  inTransition = false;
+  transitionTimer = 0;
+  levelUpTimer = 0;
+  trail = [];
+  trailX = 0;
+  gameOver = false;
+  maxLevel = 1;
+  t0 = performance.now() / 1000;
 
-// Mouse movement control
-canvas.addEventListener("mousemove", e => {
-    mouseY = e.clientY;
-});
+  hudLevel.textContent = '1';
+  hudOrder.textContent = 'y';
+  scoreBar.style.width = '0%';
+  scoreBar.classList.remove('losing');
+  gameOverScreen.classList.remove('show');
+  levelUpEl.classList.remove('show');
+}
+
+// ─── Controls ───
+canvas.addEventListener('mousemove', e => { mouseY = e.clientY; });
+document.addEventListener('mousemove', e => { cursorY = e.clientY; });
 
 canvas.addEventListener('mousedown', () => {
-    ydot *= 0.4;
-    yddot *= 0.3;
-    ydddot *= 0.2;
+  if (!playing || gameOver) return;
+  ydot *= 0.35;
+  yddot *= 0.25;
+  ydddot *= 0.15;
 });
 
-// Level progression
+// Touch support
+canvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+  mouseY = e.touches[0].clientY;
+  cursorY = e.touches[0].clientY;
+}, { passive: false });
+
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  mouseY = e.touches[0].clientY;
+  cursorY = e.touches[0].clientY;
+  if (!playing || gameOver) return;
+  ydot *= 0.35;
+  yddot *= 0.25;
+  ydddot *= 0.15;
+}, { passive: false });
+
+// ─── Start / Restart ───
+startBtn.addEventListener('click', () => {
+  titleScreen.classList.add('hidden');
+  hud.classList.add('visible');
+  scoreBarWrap.classList.add('visible');
+  initGame();
+  playing = true;
+});
+
+restartBtn.addEventListener('click', () => {
+  initGame();
+  playing = true;
+});
+
+// ─── Level up ───
 function nextLevel() {
+  inTransition = true;
+  transitionTimer = 1.8;
+  level++;
+  if (level > maxLevel) maxLevel = level;
+  bandWeirdness += 0.4;
+  bandHeight = Math.max(36, bandHeight - 14);
 
-    inTransition = true;
-    transitionTime = 2.0; // seconds
-    level++;
-    bandWeirdness += 0.5;
-    targetBand.height = Math.max(40, targetBand.height - 15);
+  hudLevel.textContent = level;
+  hudOrder.textContent = orderLabel(level);
 
+  levelUpEl.textContent = `Order ${orderLabel(level)}`;
+  levelUpEl.classList.add('show');
+  levelUpTimer = 1.8;
 }
 
-// Main update
+// ─── Physics update ───
 function update(dt) {
-    if (gameOver) return;
+  if (gameOver || !playing) return;
+  if (!isFinite(dt) || dt <= 0 || dt > 0.1) dt = 1/60;
 
-    if (!isFinite(dt) || dt <= 0) dt = 0.016;
+  // Level-up text fade
+  if (levelUpTimer > 0) {
+    levelUpTimer -= dt;
+    if (levelUpTimer <= 0) levelUpEl.classList.remove('show');
+  }
 
-    if (inTransition) {
-        transitionTime -= dt;
-        if (transitionTime <= 0) {
-            inTransition = false;
-        }
+  // Transition (centering after level-up)
+  if (inTransition) {
+    transitionTimer -= dt;
+    if (transitionTimer <= 0) inTransition = false;
+    y += (H/2 - y) * 4 * dt;
+    ydot *= Math.pow(0.001, dt);
+    yddot *= Math.pow(0.001, dt);
+    ydddot *= Math.pow(0.001, dt);
 
-        y += (H/2 - y) * 0.1;
-        ydot = yddot = ydddot = 0;
-        return;
-    }
+    // Keep band centered during transition
+    bandCenter += (H/2 - bandCenter) * 4 * dt;
+    return;
+  }
 
-    // Move band center around in a weird way as levels rise
-    targetBand.center = H/2 + Math.sin(Date.now() * 0.001) * 100 * Math.sin(level + Date.now() * 0.0005 * bandWeirdness);
+  // Band motion
+  const t = performance.now() / 1000 - t0;
+  bandCenter = H/2
+    + Math.sin(t * 0.7) * 90
+    + Math.sin(t * 0.3 * (1 + bandWeirdness * 0.3)) * 50 * Math.min(bandWeirdness, 3);
 
-    // Apply control depending on level
-    if (level === 1) {
-        // Direct control of y
-        y = mouseY;
-    } else if (level === 2) {
-        // Control velocity
-        let amplitude = 2
-        let norm = (mouseY - H/2) / (H/2); // normalized to [-1, 1]
-        let control = norm * amplitude;
-        
-        ydot = control;
-        y += ydot;
-    } else if (level === 3) {
-        // Control acceleration
-        let amplitude = 0.01
-        let norm = (mouseY - H/2) / (H/2); // normalized to [-1, 1]
-        let control = norm * amplitude;
-        yddot = control;
-        ydot += yddot;
-        y += ydot;
-    } else if (level >= 4) {
-        // Control jerk (3rd derivative)
-        let amplitude = 0.005
-        let norm = (mouseY - H/2) / (H/2); // normalized to [-1, 1]
-        let control = norm * amplitude;
-        ydddot = control;
-        yddot += ydddot;
-        ydot += yddot;
-        y += ydot;
-    }
+  // Clamp band to screen
+  const halfB = bandHeight / 2;
+  bandCenter = Math.max(halfB + 20, Math.min(H - halfB - 20, bandCenter));
 
-    // Check if in band
-    if (y < targetBand.center - targetBand.height/2 || y > targetBand.center + targetBand.height/2) {
-        score -= dt * 0.5;
-        if (score < -5) gameOver = true;
-    } else {
-        score += dt * 1;
-        if (score > 10) {
-            score = 0;
-            nextLevel();
-        }
-    }
-    if (y > 1e5 || y < -1e5){
-        gameOver = True;
-    }
-    if (isNaN(score) || !isFinite(score)) score = 0;
+  // Control input (normalized to [-1, 1])
+  const norm = (mouseY - H/2) / (H/2);
+
+  if (level === 1) {
+    y = mouseY;
+    ydot = 0; yddot = 0; ydddot = 0;
+  } else if (level === 2) {
+    const amp = 300; // px/s
+    ydot = norm * amp;
+    y += ydot * dt;
+    yddot = 0; ydddot = 0;
+  } else if (level === 3) {
+    const amp = 600; // px/s²
+    yddot = norm * amp;
+    ydot += yddot * dt;
+    y += ydot * dt;
+    ydddot = 0;
+  } else {
+    const amp = 900; // px/s³
+    ydddot = norm * amp;
+    yddot += ydddot * dt;
+    ydot += yddot * dt;
+    y += ydot * dt;
+  }
+
+  // Soft boundary damping
+  if (y < 0) { y = 0; ydot = Math.abs(ydot) * 0.3; }
+  if (y > H) { y = H; ydot = -Math.abs(ydot) * 0.3; }
+
+  // Scoring
+  const inBand = y >= bandCenter - halfB && y <= bandCenter + halfB;
+  if (inBand) {
+    score += dt * 1.2;
+  } else {
+    score -= dt * 0.6;
+  }
+
+  // UI
+  const pct = Math.max(0, ((score - DEATH_SCORE) / (LEVEL_SCORE - DEATH_SCORE)) * 100);
+  scoreBar.style.width = pct + '%';
+  if (score < 0) scoreBar.classList.add('losing');
+  else scoreBar.classList.remove('losing');
+
+  if (score >= LEVEL_SCORE) {
+    score = 0;
+    nextLevel();
+  }
+
+  if (score <= DEATH_SCORE) {
+    gameOver = true;
+    const ol = orderLabel(maxLevel);
+    finalStats.textContent = `Reached Level ${maxLevel} · Order ${ol}`;
+    gameOverScreen.classList.add('show');
+  }
+
+  // Divergence check
+  if (!isFinite(y) || Math.abs(y) > 1e6) {
+    gameOver = true;
+    finalStats.textContent = `System diverged at Level ${level}`;
+    gameOverScreen.classList.add('show');
+  }
 }
 
-// Draw
+// ─── Drawing ───
+const GRID_OPACITY = 0.06;
+const BAND_COLOR = 'rgba(200, 240, 106,'; // c8f06a
+const DOT_COLOR = '#f0f0f0';
+const TRAIL_COLOR_IN = [200, 240, 106];
+const TRAIL_COLOR_OUT = [240, 106, 106];
+
 function draw() {
-    ctx.clearRect(0, 0, W, H);
+  ctx.clearRect(0, 0, W, H);
 
-    // Centre Line 
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.3)";
-    ctx.lineWidth = 1;
-    ctx.setLineDash([5, 10]);
+  if (!playing) return;
+
+  // ─ Grid ─
+  ctx.strokeStyle = `rgba(255,255,255,${GRID_OPACITY})`;
+  ctx.lineWidth = 0.5;
+  const gridSpacing = 60;
+  for (let gx = gridSpacing; gx < W; gx += gridSpacing) {
     ctx.beginPath();
-    ctx.moveTo(0, H/2);
-    ctx.lineTo(W, H/2);
+    ctx.moveTo(gx, 0);
+    ctx.lineTo(gx, H);
     ctx.stroke();
-    ctx.setLineDash([]); // reset dash
-    // Green band
-    ctx.fillStyle = "rgba(60,238,60,0.3)";
-    ctx.fillRect(0, targetBand.center - targetBand.height/2, W, targetBand.height);
-
-    // Dot (state)
+  }
+  for (let gy = gridSpacing; gy < H; gy += gridSpacing) {
     ctx.beginPath();
-    ctx.arc(W/2, y, 10, 0, Math.PI*2);
-    ctx.fillStyle = "yellow";
-    ctx.fill();
+    ctx.moveTo(0, gy);
+    ctx.lineTo(W, gy);
+    ctx.stroke();
+  }
 
+  // ─ Centre line ─
+  ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([4, 8]);
+  ctx.beginPath();
+  ctx.moveTo(0, H/2);
+  ctx.lineTo(W, H/2);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // ─ Band ─
+  const halfB = bandHeight / 2;
+  const bandTop = bandCenter - halfB;
+
+  // Band glow
+  const grd = ctx.createLinearGradient(0, bandTop - 20, 0, bandCenter + halfB + 20);
+  grd.addColorStop(0, 'rgba(200,240,106,0)');
+  grd.addColorStop(0.15, 'rgba(200,240,106,0.07)');
+  grd.addColorStop(0.5, 'rgba(200,240,106,0.13)');
+  grd.addColorStop(0.85, 'rgba(200,240,106,0.07)');
+  grd.addColorStop(1, 'rgba(200,240,106,0)');
+  ctx.fillStyle = grd;
+  ctx.fillRect(0, bandTop - 20, W, bandHeight + 40);
+
+  // Band edges
+  ctx.strokeStyle = 'rgba(200,240,106,0.35)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(0, bandTop);
+  ctx.lineTo(W, bandTop);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(0, bandCenter + halfB);
+  ctx.lineTo(W, bandCenter + halfB);
+  ctx.stroke();
+
+  // ─ Trail ─
+  trail.push({ y: y });
+  if (trail.length > TRAIL_LENGTH) trail.shift();
+
+  const trailW = W * 0.7;
+  const trailStartX = (W - trailW) / 2;
+
+  if (trail.length > 1) {
+    for (let i = 1; i < trail.length; i++) {
+      const frac = i / trail.length;
+      const alpha = frac * 0.8;
+      const px = trailStartX + (i - 1) / (TRAIL_LENGTH - 1) * trailW;
+      const nx = trailStartX + i / (TRAIL_LENGTH - 1) * trailW;
+      const py = trail[i-1].y;
+      const ny = trail[i].y;
+
+      // Colour: green if in band, red if not
+      const ptInBand = ny >= bandCenter - halfB && ny <= bandCenter + halfB;
+      const c = ptInBand ? TRAIL_COLOR_IN : TRAIL_COLOR_OUT;
+
+      ctx.strokeStyle = `rgba(${c[0]},${c[1]},${c[2]},${alpha})`;
+      ctx.lineWidth = 1.5 + frac * 1.5;
+      ctx.beginPath();
+      ctx.moveTo(px, py);
+      ctx.lineTo(nx, ny);
+      ctx.stroke();
+    }
+  }
+
+  // ─ Marker (dot) ─
+  const markerX = trailStartX + trailW; // rightmost point of trail
+  const markerY = y;
+
+  // Glow
+  const dotGrd = ctx.createRadialGradient(markerX, markerY, 0, markerX, markerY, 24);
+  dotGrd.addColorStop(0, 'rgba(255,255,255,0.3)');
+  dotGrd.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.fillStyle = dotGrd;
+  ctx.beginPath();
+  ctx.arc(markerX, markerY, 24, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Core dot
+  ctx.beginPath();
+  ctx.arc(markerX, markerY, 5, 0, Math.PI * 2);
+  ctx.fillStyle = DOT_COLOR;
+  ctx.fill();
+
+  // ─ Derivative indicators (right side) ─
+  if (level >= 2) {
+    const indX = markerX + 40;
+    const indLen = 28;
+
+    // Velocity indicator
+    const vScale = ydot / 300;
+    const vLen = Math.max(-indLen, Math.min(indLen, vScale * indLen));
+    ctx.strokeStyle = 'rgba(100, 160, 255, 0.7)';
     ctx.lineWidth = 2;
-
-    // Velocity line (blue)
-    ctx.strokeStyle = "rgba(0, 100, 255, 0.7)";
-    //ctx.setLineDash([8, 6]);
     ctx.beginPath();
-    let vy = y + ydot * 20; // scale velocity by 20 pixels
-    ctx.moveTo(W/2 - 80, vy);
-    ctx.lineTo(W/2 + 80, vy);
+    ctx.moveTo(indX, markerY);
+    ctx.lineTo(indX, markerY + vLen);
     ctx.stroke();
-
-    // Acceleration line (orange)
-    ctx.strokeStyle = "rgba(255, 165, 0, 0.7)";
-    ctx.beginPath();
-    let ay = y + yddot * 100; // scale acceleration more
-    ctx.moveTo(W/2 - 80, ay);
-    ctx.lineTo(W/2 + 80, ay);
-    ctx.stroke();
-
-    // Jerk line (purple)
-    ctx.strokeStyle = "rgba(150, 0, 150, 0.7)";
-    ctx.beginPath();
-    let jy = y + ydddot * 500; // scale jerk even more
-    ctx.moveTo(W/2 - 80, jy);
-    ctx.lineTo(W/2 + 80, jy);
-    ctx.stroke();
-
-    ctx.setLineDash([]); // reset dash
-    // HUD
-    ctx.font = "45px sans-serif"; // or 24px, depending on taste
-    ctx.fillStyle = "white";
-    ctx.fillText(`Level: ${level}`, 20, H - 90);
-    ctx.font = "20px sans-serif";
-    ctx.fillText(`Order of Control: ${level === 1 ? "y" : level === 2 ? "y'" : level === 3 ? "y''" : "y'''"}`, 20, H - 25);
-    ctx.fillText(`Score: ${score.toFixed(1)}`, 240, H - 25);
-
-
-    if (inTransition) {
-        ctx.fillStyle = "yellow";
-        ctx.font = "24px sans-serif";
-        ctx.fillText("Level Up!", W/2 - 150, H/2);
+    // arrowhead
+    const vDir = vLen >= 0 ? 1 : -1;
+    if (Math.abs(vLen) > 4) {
+      ctx.beginPath();
+      ctx.moveTo(indX - 4, markerY + vLen - 5 * vDir);
+      ctx.lineTo(indX, markerY + vLen);
+      ctx.lineTo(indX + 4, markerY + vLen - 5 * vDir);
+      ctx.stroke();
     }
-    if (gameOver) {
-        ctx.fillStyle = "yellow";
-        ctx.font = "24px sans-serif";
-        ctx.fillText("Game Over – Refresh to restart!", W/2 - 150, H/2);
+    ctx.fillStyle = 'rgba(100,160,255,0.5)';
+    ctx.font = '10px JetBrains Mono';
+    ctx.fillText("y\u2032", indX - 5, markerY - 8);
+
+    if (level >= 3) {
+      const aIndX = indX + 24;
+      const aScale = yddot / 600;
+      const aLen = Math.max(-indLen, Math.min(indLen, aScale * indLen));
+      ctx.strokeStyle = 'rgba(255, 180, 60, 0.7)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(aIndX, markerY);
+      ctx.lineTo(aIndX, markerY + aLen);
+      ctx.stroke();
+      if (Math.abs(aLen) > 4) {
+        const aDir = aLen >= 0 ? 1 : -1;
+        ctx.beginPath();
+        ctx.moveTo(aIndX - 4, markerY + aLen - 5 * aDir);
+        ctx.lineTo(aIndX, markerY + aLen);
+        ctx.lineTo(aIndX + 4, markerY + aLen - 5 * aDir);
+        ctx.stroke();
+      }
+      ctx.fillStyle = 'rgba(255,180,60,0.5)';
+      ctx.fillText("y\u2033", aIndX - 5, markerY - 8);
     }
+
+    if (level >= 4) {
+      const jIndX = indX + 48;
+      const jScale = ydddot / 900;
+      const jLen = Math.max(-indLen, Math.min(indLen, jScale * indLen));
+      ctx.strokeStyle = 'rgba(200, 100, 255, 0.7)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(jIndX, markerY);
+      ctx.lineTo(jIndX, markerY + jLen);
+      ctx.stroke();
+      if (Math.abs(jLen) > 4) {
+        const jDir = jLen >= 0 ? 1 : -1;
+        ctx.beginPath();
+        ctx.moveTo(jIndX - 4, markerY + jLen - 5 * jDir);
+        ctx.lineTo(jIndX, markerY + jLen);
+        ctx.lineTo(jIndX + 4, markerY + jLen - 5 * jDir);
+        ctx.stroke();
+      }
+      ctx.fillStyle = 'rgba(200,100,255,0.5)';
+      ctx.fillText("y\u2034", jIndX - 5, markerY - 8);
+    }
+  }
+
+  // ─ Custom cursor (crosshair) ─
+  ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+  ctx.lineWidth = 1;
+  // horizontal
+  ctx.beginPath();
+  ctx.moveTo(W/2 - 12, cursorY);
+  ctx.lineTo(W/2 + 12, cursorY);
+  ctx.stroke();
+  // vertical
+  ctx.beginPath();
+  ctx.moveTo(W/2, cursorY - 12);
+  ctx.lineTo(W/2, cursorY + 12);
+  ctx.stroke();
+
+  // ─ Control axis label (left edge) ─
+  ctx.save();
+  ctx.fillStyle = 'rgba(255,255,255,0.15)';
+  ctx.font = '11px JetBrains Mono';
+  ctx.translate(16, H/2);
+  ctx.rotate(-Math.PI/2);
+  ctx.textAlign = 'center';
+  const axisText = level === 1 ? 'POSITION' : level === 2 ? 'VELOCITY' : level === 3 ? 'ACCELERATION' : 'JERK';
+  ctx.fillText(axisText, 0, 0);
+  ctx.restore();
 }
 
-// Game loop
+// ─── Loop ───
 let lastTime = null;
 function loop(timestamp) {
-    if (!lastTime) lastTime = timestamp;
-    let dt = (timestamp - lastTime) / 1000; // seconds
-    lastTime = timestamp;
+  if (!lastTime) lastTime = timestamp;
+  const dt = (timestamp - lastTime) / 1000;
+  lastTime = timestamp;
 
-    update(dt);
-    draw();
-    requestAnimationFrame(loop);
+  update(dt);
+  draw();
+  requestAnimationFrame(loop);
 }
-loop();
 
-window.addEventListener("resize", () => {
-    W = window.innerWidth;
-    H = window.innerHeight;
-    canvas.width = W;
-    canvas.height = H;
-});
+requestAnimationFrame(loop);
 </script>
-
 </body>
 </html>
-
