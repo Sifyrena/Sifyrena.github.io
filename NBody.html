@@ -106,6 +106,10 @@
   .seg button.on{background:var(--accent-soft);color:var(--ink)}
   .hint{margin:2px 0 0;font-size:10.5px;color:var(--muted);line-height:1.4}
 
+  .subctl{display:flex;flex-direction:column;gap:5px;margin:-1px 0 1px;transition:opacity .15s}
+  .subctl.dim{opacity:.36;pointer-events:none}
+  .subcap{font-size:10px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
+
   .readout{margin-top:auto;display:flex;flex-direction:column;gap:9px;padding-top:12px;border-top:1px solid var(--panel-edge)}
   .stat{display:flex;justify-content:space-between;align-items:baseline;font-size:11px;color:var(--muted)}
   .stat b{font-family:var(--data);font-size:13px;color:var(--ink);font-weight:500}
@@ -157,6 +161,14 @@
     <div class="eyebrow">View</div>
     <div class="toggles">
       <button class="t on" data-toggle="color"><span class="dot"></span>Color by&nbsp;<b id="colorval">speed</b></button>
+      <div class="subctl" id="velscale-wrap">
+        <span class="subcap">Speed scale</span>
+        <div class="seg" id="velscale">
+          <button data-vscale="fixed" title="Constant window — your original">Fixed</button>
+          <button data-vscale="adaptive" class="on" title="Robust 5–95% window, tracked over time">Adaptive</button>
+          <button data-vscale="equalized" title="Histogram equalisation — every hue used equally">Equalized</button>
+        </div>
+      </div>
       <button class="t on" data-toggle="trail"><span class="dot"></span>Trails on heavy bodies</button>
       <button class="t" data-toggle="bound"><span class="dot"></span>Bounded box</button>
       <button class="t" data-toggle="hide"><span class="dot"></span>Hide light bodies</button>
@@ -168,7 +180,7 @@
     <label class="slider"><span>Gravity<b id="v-g"></b></span><input id="s-g" type="range" min="0" max="4" step="0.01"></label>
     <label class="slider"><span>Softening<b id="v-soft"></b></span><input id="s-soft" type="range" min="0" max="40" step="1"></label>
     <label class="slider"><span>Speed<b id="v-dt"></b></span><input id="s-dt" type="range" min="0.1" max="4" step="0.1"></label>
-    <label class="slider"><span>Merge distance<b id="v-merge"></b></span><input id="s-merge" type="range" min="0.3" max="1" step="0.05"></label>
+    <label class="slider"><span>Merge distance<b id="v-merge"></b></span><input id="s-merge" type="range" min="0.0" max="1" step="0.05"></label>
   </div>
 
   <div class="group">
@@ -221,10 +233,10 @@ let paused = true;
 let G        = 1.23;   // gravitational coupling (was GAcc)
 let softening= 8;      // Plummer length, px. 0 -> singular Newtonian
 let dt       = 1.0;    // integration step / sim speed
-let mergeFrac= 0.3;    // merge when centre separation <= mergeFrac*(rA+rB)
+let mergeFrac= 0.0;    // merge when centre separation <= mergeFrac*(rA+rB)
 
 // --- view toggles ---
-let bounded      = true;
+let bounded      = false;
 let drawTrail    = true;
 let colorBySpeed = true;
 let hideLight    = false;   // hide species 'A'
@@ -242,24 +254,52 @@ const cC = 'rgba(124,155,221,0.97)';      // brightened from the old near-black 
 const cTrail = 'rgba(78,196,150,0.30)';
 const TrailLength = 1400, TrailMaxRad = 4;
 
-// --- Magma colormap (FW's cubic fit, preserved) ---
+// --- Magma palette: real perceptual LUT (replaces the clipping cubic fit) ---
 const Pi = Math.PI;
-const vCeil = 20, vFloor = 0.5, VStrata = 59;
-let Magmas = [];
-function splineRGB(x){
-  x = x*3 + 1;
-  const R = -11.833*x*x*x + 73*x*x - 41.167*x + 2;
-  const Gc= -9.5*x*x*x + 98.5*x*x - 213*x + 135;
-  const B = 60.833*x*x*x - 436*x*x + 934.17*x - 501;
-  return {R:Math.round(R), G:Math.round(Gc), B:Math.round(B)};
+const MAGMA = [
+  [0,0,4],[10,7,35],[28,12,69],[54,12,98],[81,18,109],[108,28,110],
+  [135,38,107],[163,47,100],[191,57,90],[218,72,79],[239,98,71],
+  [250,131,77],[254,166,98],[254,201,130],[252,234,173],[252,253,191]
+];
+function magmaRGB(t){
+  t = Math.max(0, Math.min(1, t)) * (MAGMA.length - 1);
+  const i = Math.floor(t), f = t - i, a = MAGMA[i], b = MAGMA[Math.min(i+1, MAGMA.length-1)];
+  return [Math.round(a[0]+(b[0]-a[0])*f), Math.round(a[1]+(b[1]-a[1])*f), Math.round(a[2]+(b[2]-a[2])*f)];
 }
+function magma(t){ const c = magmaRGB(t); return `rgb(${c[0]},${c[1]},${c[2]})`; }
 function CToV(vx,vy){ return Math.sqrt(vx*vx+vy*vy); }
+
+// --- speed -> [0,1] transfer function (the part actually worth making smart) ---
+// 'fixed'     : your original constant [vFloor, vCeil] window
+// 'adaptive'  : robust 5th/95th-percentile window, eased in time so it never flickers
+// 'equalized' : histogram equalisation — every hue is used equally often, so the
+//               full palette spreads across whatever the distribution happens to be
+let vScale = 'adaptive';
+const vFloor = 0.5, vCeil = 20;          // 'fixed' window
+let vLo = vFloor, vHi = vCeil;           // live adaptive window (EMA state)
+let speedSorted = null;                  // sorted speeds, used by 'equalized'
+function prepareVelocityScale(){
+  if (!colorBySpeed || particles.length === 0){ speedSorted = null; return; }
+  if (vScale === 'fixed'){ vLo = vFloor; vHi = vCeil; speedSorted = null; return; }
+  const sp = particles.map(p => CToV(p.vx,p.vy)).sort((a,b)=>a-b);
+  if (vScale === 'equalized'){ speedSorted = sp; return; }
+  const q = f => sp[Math.max(0, Math.min(sp.length-1, Math.round(f*(sp.length-1))))];
+  const lo = q(0.05), hi = Math.max(q(0.95), lo + 1e-3);
+  vLo += (lo - vLo) * 0.08;              // ease toward the new window
+  vHi += (hi - vHi) * 0.08;
+  speedSorted = null;
+}
 function velomap(vx,vy){
   const v = CToV(vx,vy);
-  let x = (v-vFloor)/(vCeil-vFloor)*VStrata;
-  x = Math.max(0, Math.min(VStrata, x));
-  const m = Magmas[Math.round(x)];
-  return `rgba(${m.R},${m.G},${m.B},1)`;
+  let t;
+  if (speedSorted){                       // equalized: this body's fractional rank
+    let lo = 0, hi = speedSorted.length;
+    while (lo < hi){ const mid = (lo+hi)>>1; if (speedSorted[mid] <= v) lo = mid+1; else hi = mid; }
+    t = lo / speedSorted.length;
+  } else {
+    t = (v - vLo) / (vHi - vLo);
+  }
+  return magma(t);
 }
 
 // Schwarzschild-flavoured radius: r ~ M^(1/5). Sub-linear so big bodies stay on-screen.
@@ -269,7 +309,6 @@ let W, H;   // scene = full window
 
 // ----------------------------------------------------------------------- p5
 function setup(){
-  for (let i=0;i<=VStrata;i++) Magmas.push(splineRGB(i/VStrata));
   const cnv = createCanvas(windowWidth, windowHeight);
   cnv.parent('host');
   W = width; H = height;
@@ -407,6 +446,7 @@ function COMCorrect(){
 function drawScene(){
   // deep-space backdrop
   background(5,6,12);
+  prepareVelocityScale();
 
   if (drawTrail && XLog.length){
     noStroke(); fill(cTrail);
@@ -562,7 +602,7 @@ function setDt(v){ dt=Math.max(0.1,Math.min(4,Math.round(v*10)/10)); syncSliders
 function clearAll(){ particles=[]; XLog=[]; YLog=[]; aiming=false; }
 
 function setToggle(name,val){
-  if (name==='color'){ colorBySpeed=val; document.getElementById('colorval').textContent = val?'speed':'species'; }
+  if (name==='color'){ colorBySpeed=val; document.getElementById('colorval').textContent = val?'speed':'species'; syncVelScale(); }
   if (name==='trail'){ drawTrail=val; if(!val){XLog=[];YLog=[];} }
   if (name==='bound'){ bounded=val; }
   if (name==='hide'){  hideLight=val; }
@@ -572,6 +612,9 @@ function syncToggle(name,val){
   const el=document.querySelector(`.t[data-toggle="${name}"]`);
   if (el) el.classList.toggle('on',val);
 }
+function syncVelScale(){
+  document.getElementById('velscale-wrap').classList.toggle('dim', !colorBySpeed);
+}
 function syncSliders(){
   document.getElementById('s-g').value=G;     document.getElementById('v-g').textContent=G.toFixed(2);
   document.getElementById('s-soft').value=softening; document.getElementById('v-soft').textContent=softening+' px';
@@ -580,13 +623,7 @@ function syncSliders(){
 }
 
 // live kinetic-energy readout, coloured along the Magma map
-function magmaHex(t){
-  const stops=[[0,4,4],[28,16,68],[79,18,123],[129,37,129],[181,54,122],[229,80,100],[251,135,97],[254,194,135],[252,253,191]];
-  t=Math.max(0,Math.min(1,t))*(stops.length-1);
-  const i=Math.floor(t), f=t-i, a=stops[i], b=stops[Math.min(i+1,stops.length-1)];
-  const m=k=>Math.round(a[k]+(b[k]-a[k])*f);
-  return `rgb(${m(0)},${m(1)},${m(2)})`;
-}
+function magmaHex(t){ return magma(t); }
 function updateReadout(){
   document.getElementById('r-n').textContent = particles.length;
   document.getElementById('r-dt').textContent = dt.toFixed(1)+'×';
@@ -598,7 +635,7 @@ function updateReadout(){
 }
 
 function initUI(){
-  G=1.23; softening=8; dt=1; mergeFrac=0.6;
+  G=1.23; softening=8; dt=1; mergeFrac=0.0;
   syncSliders(); syncPlay();
 
   document.querySelectorAll('.b[data-spawn]').forEach(b=>b.addEventListener('click',()=>{
@@ -618,6 +655,12 @@ function initUI(){
   document.getElementById('s-soft').addEventListener('input',e=>{softening=+e.target.value; document.getElementById('v-soft').textContent=softening+' px';});
   document.getElementById('s-dt').addEventListener('input',e=>{dt=+e.target.value; document.getElementById('v-dt').textContent=dt.toFixed(1)+'×';});
   document.getElementById('s-merge').addEventListener('input',e=>{mergeFrac=+e.target.value; document.getElementById('v-merge').textContent=mergeFrac.toFixed(2);});
+
+  document.querySelectorAll('#velscale button').forEach(b=>b.addEventListener('click',()=>{
+    vScale=b.dataset.vscale;
+    document.querySelectorAll('#velscale button').forEach(x=>x.classList.toggle('on',x===b));
+  }));
+  syncVelScale();
 
   document.querySelectorAll('#clickmode button').forEach(b=>b.addEventListener('click',()=>{
     clickMode=b.dataset.click;
