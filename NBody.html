@@ -1,24 +1,638 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta name="viewport" content="user-scalable=no"/>
-    <meta charset="utf-8">
-    <title>FW NBody Toy</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.min.js"></script>
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/9.4.4/math.js"></script>
-    <script src="NBody.js"></script>
-    <link rel="stylesheet" type="text/css" href="style2.css">
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>Gravity Playground — FW N-body Toy</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+<style>
+  :root{
+    --space-0:#05060c;
+    --space-1:#0a0d18;
+    --panel:rgba(11,13,20,0.82);
+    --panel-edge:rgba(255,255,255,0.06);
+    --ink:#e7e9f0;
+    --muted:#878fa3;
+    --mono:#f4c685;            /* data readouts */
+    --accent:#e0892e;          /* brand burnt-orange, brightened */
+    --accent-soft:rgba(224,137,46,0.16);
+    --danger:#b8443a;
+    --sp-a:#fffffd; --sp-b:#e0a020; --sp-c:#7c9bdd;
+    --magma:linear-gradient(90deg,#000004,#1c1044,#4f127b,#812581,#b5367a,#e55064,#fb8761,#fec287,#fcfdbf);
+    --r:11px;
+    --font:"Avenir Next",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+    --data:ui-monospace,"SF Mono","Roboto Mono",Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;height:100%;background:var(--space-0);overflow:hidden;font-family:var(--font);color:var(--ink)}
+  #host{position:fixed;inset:0;z-index:0}
+  canvas{display:block}
 
-  <body> 
+  /* ---- console ---- */
+  .panel{
+    position:fixed;top:0;left:0;z-index:10;
+    width:300px;height:100%;
+    display:flex;flex-direction:column;gap:14px;
+    padding:18px 16px 16px;
+    background:var(--panel);
+    backdrop-filter:blur(14px) saturate(1.1);
+    -webkit-backdrop-filter:blur(14px) saturate(1.1);
+    border-right:1px solid var(--panel-edge);
+    overflow-y:auto;overscroll-behavior:contain;
+    transition:transform .32s cubic-bezier(.4,0,.1,1);
+  }
+  /* signature: a sliver of the Magma colormap riding the console's edge */
+  .panel::after{content:"";position:absolute;top:0;right:-1px;width:2px;height:100%;background:var(--magma)}
+  .panel.collapsed{transform:translateX(-101%)}
 
+  .brand{display:flex;align-items:center;gap:11px}
+  .brand-mark{width:16px;height:16px;border-radius:50%;background:var(--magma);box-shadow:0 0 14px rgba(229,80,100,.55);flex:none}
+  .brand-title{font-size:14px;font-weight:700;letter-spacing:.2px;line-height:1.1}
+  .brand-sub{font-size:10.5px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-top:2px}
+  .iconbtn{margin-left:auto;background:transparent;border:0;color:var(--muted);font-size:20px;line-height:1;cursor:pointer;padding:2px 6px;border-radius:8px}
+  .iconbtn:hover{color:var(--ink);background:rgba(255,255,255,.06)}
 
-    <div id = "Sim">
+  .play{
+    display:flex;align-items:center;justify-content:center;gap:10px;
+    width:100%;padding:13px;border:0;border-radius:var(--r);cursor:pointer;
+    background:var(--accent);color:#1a0e03;font-weight:800;font-size:13px;
+    text-transform:uppercase;letter-spacing:.08em;
+    transition:filter .15s, background .15s;
+  }
+  .play:hover{filter:brightness(1.08)}
+  .play.running{background:#1c2030;color:var(--ink);box-shadow:inset 0 0 0 1px var(--panel-edge)}
+  .play-ico{width:0;height:0;border-style:solid;border-width:6px 0 6px 10px;border-color:transparent transparent transparent currentColor}
+  .play.running .play-ico{width:9px;height:11px;border:0;background:currentColor;box-shadow:inset 3px 0 currentColor;background:
+    linear-gradient(currentColor,currentColor) left/3px 100% no-repeat,
+    linear-gradient(currentColor,currentColor) right/3px 100% no-repeat}
 
+  .group{display:flex;flex-direction:column;gap:8px}
+  .eyebrow{font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+
+  .b{
+    padding:10px 8px;border-radius:9px;cursor:pointer;
+    background:#13151f;color:var(--ink);border:1px solid var(--panel-edge);
+    font-size:12px;font-weight:600;letter-spacing:.02em;
+    transition:background .14s,border-color .14s,transform .05s;
+  }
+  .b:hover{background:#1a1d2a;border-color:rgba(255,255,255,.14)}
+  .b:active{transform:translateY(1px)}
+  .b.danger{color:#f1a59c}
+  .b.danger:hover{background:rgba(184,68,58,.18);border-color:rgba(184,68,58,.5)}
+
+  .toggles{display:flex;flex-direction:column;gap:7px}
+  .t{
+    display:flex;align-items:center;gap:9px;width:100%;text-align:left;
+    padding:9px 11px;border-radius:9px;cursor:pointer;
+    background:#13151f;color:var(--muted);border:1px solid var(--panel-edge);
+    font-size:12px;font-weight:600;transition:.14s;
+  }
+  .t .dot{width:9px;height:9px;border-radius:50%;background:#3a3f4d;flex:none;transition:.14s}
+  .t b{color:inherit;font-weight:700}
+  .t.on{color:var(--ink);background:var(--accent-soft);border-color:rgba(224,137,46,.45)}
+  .t.on .dot{background:var(--accent);box-shadow:0 0 8px var(--accent)}
+
+  .slider{display:flex;flex-direction:column;gap:6px;font-size:11.5px;color:var(--muted)}
+  .slider>span{display:flex;justify-content:space-between;align-items:baseline}
+  .slider b{font-family:var(--data);font-size:12px;color:var(--mono);font-weight:500}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:3px;border-radius:3px;background:#272b38;outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;background:var(--accent);cursor:pointer;border:2px solid var(--space-1);box-shadow:0 0 0 1px var(--accent)}
+  input[type=range]::-moz-range-thumb{width:13px;height:13px;border-radius:50%;background:var(--accent);cursor:pointer;border:2px solid var(--space-1)}
+
+  .seg{display:flex;gap:0;border:1px solid var(--panel-edge);border-radius:9px;overflow:hidden}
+  .seg button{flex:1;padding:8px 0;background:#13151f;color:var(--muted);border:0;border-right:1px solid var(--panel-edge);cursor:pointer;font-size:12px;font-weight:600}
+  .seg button:last-child{border-right:0}
+  .seg button.on{background:var(--accent-soft);color:var(--ink)}
+  .hint{margin:2px 0 0;font-size:10.5px;color:var(--muted);line-height:1.4}
+
+  .readout{margin-top:auto;display:flex;flex-direction:column;gap:9px;padding-top:12px;border-top:1px solid var(--panel-edge)}
+  .stat{display:flex;justify-content:space-between;align-items:baseline;font-size:11px;color:var(--muted)}
+  .stat b{font-family:var(--data);font-size:13px;color:var(--ink);font-weight:500}
+  .ke>span{font-size:11px;color:var(--muted);display:block;margin-bottom:5px}
+  .bar{height:6px;border-radius:6px;background:#1a1d28;overflow:hidden}
+  .bar i{display:block;height:100%;width:0;transition:width .2s linear,background .2s linear}
+  .keys{font-size:10px;color:#5b6276;line-height:1.5;letter-spacing:.02em}
+
+  .show{position:fixed;top:14px;left:14px;z-index:11;border:1px solid var(--panel-edge);background:var(--panel);
+    backdrop-filter:blur(10px);color:var(--ink);font-weight:700;font-size:12px;letter-spacing:.06em;text-transform:uppercase;
+    padding:9px 13px;border-radius:10px;cursor:pointer}
+  .show[hidden]{display:none}
+
+  @media (max-width:640px){
+    .panel{width:100%;height:auto;max-height:64%;top:auto;bottom:0;border-right:0;border-top:1px solid var(--panel-edge);border-radius:16px 16px 0 0}
+    .panel::after{top:auto;bottom:0;right:0;width:100%;height:2px}
+    .panel.collapsed{transform:translateY(101%)}
+    .show{top:auto;bottom:14px}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div id="host"></div>
+
+<aside id="panel" class="panel">
+  <div class="brand">
+    <span class="brand-mark"></span>
+    <div>
+      <div class="brand-title">Gravity Playground</div>
+      <div class="brand-sub">FW N-body Toy</div>
     </div>
+    <button id="collapse" class="iconbtn" aria-label="Hide controls" title="Hide controls">‹</button>
+  </div>
 
-    <div id = "Fig" class = "BGT">
+  <button id="playpause" class="play"><span class="play-ico"></span><span id="playlabel">Run</span></button>
 
+  <div class="group">
+    <div class="eyebrow">Spawn a scene</div>
+    <div class="grid2">
+      <button class="b" data-spawn="disk">Disk</button>
+      <button class="b" data-spawn="binary">Binary</button>
+      <button class="b" data-spawn="three">Three-body</button>
+      <button class="b" data-spawn="cluster">Cold cluster</button>
     </div>
-  </body>
+  </div>
+
+  <div class="group">
+    <div class="eyebrow">View</div>
+    <div class="toggles">
+      <button class="t on" data-toggle="color"><span class="dot"></span>Color by&nbsp;<b id="colorval">speed</b></button>
+      <button class="t on" data-toggle="trail"><span class="dot"></span>Trails on heavy bodies</button>
+      <button class="t" data-toggle="bound"><span class="dot"></span>Bounded box</button>
+      <button class="t" data-toggle="hide"><span class="dot"></span>Hide light bodies</button>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="eyebrow">Forces</div>
+    <label class="slider"><span>Gravity<b id="v-g"></b></span><input id="s-g" type="range" min="0" max="4" step="0.01"></label>
+    <label class="slider"><span>Softening<b id="v-soft"></b></span><input id="s-soft" type="range" min="0" max="40" step="1"></label>
+    <label class="slider"><span>Speed<b id="v-dt"></b></span><input id="s-dt" type="range" min="0.1" max="4" step="0.1"></label>
+    <label class="slider"><span>Merge distance<b id="v-merge"></b></span><input id="s-merge" type="range" min="0.3" max="1" step="0.05"></label>
+  </div>
+
+  <div class="group">
+    <div class="eyebrow">Click on space</div>
+    <div class="seg" id="clickmode">
+      <button data-click="launch" class="on">Launch</button>
+      <button data-click="erase">Erase</button>
+    </div>
+    <div class="seg" id="launchsize">
+      <button data-size="S">Light</button>
+      <button data-size="M" class="on">Medium</button>
+      <button data-size="L">Massive</button>
+    </div>
+    <p class="hint">Drag to fling a body in the drag direction. Longer drag, faster throw.</p>
+  </div>
+
+  <div class="group">
+    <div class="grid2">
+      <button class="b" id="recenter">Recenter</button>
+      <button class="b danger" id="clear">Clear all</button>
+    </div>
+  </div>
+
+  <footer class="readout">
+    <div class="stat"><span>Bodies</span><b id="r-n">0</b></div>
+    <div class="stat"><span>Time step</span><b id="r-dt">1.0×</b></div>
+    <div class="ke">
+      <span>Kinetic energy</span>
+      <div class="bar"><i id="r-ke"></i></div>
+    </div>
+    <div class="keys">Space&nbsp;run&nbsp;·&nbsp;A/Z&nbsp;speed&nbsp;·&nbsp;G&nbsp;recenter&nbsp;·&nbsp;T&nbsp;color&nbsp;·&nbsp;B&nbsp;bound&nbsp;·&nbsp;C&nbsp;clear</div>
+  </footer>
+</aside>
+
+<button id="show" class="show" hidden>Controls</button>
+
+<script>
+/* =========================================================================
+   Gravity Playground — overhauled N-body core
+   - Plummer-softened gravity (no more singular slingshots / energy blow-ups)
+   - Mergers that conserve total mass AND momentum, with safe chained merging
+   - All control state lives in plain globals driven by the HTML console
+   ========================================================================= */
+
+// --- bodies & run state ---
+let particles = [];
+let paused = true;
+
+// --- physics knobs (wired to sliders) ---
+let G        = 1.23;   // gravitational coupling (was GAcc)
+let softening= 8;      // Plummer length, px. 0 -> singular Newtonian
+let dt       = 1.0;    // integration step / sim speed
+let mergeFrac= 0.3;    // merge when centre separation <= mergeFrac*(rA+rB)
+
+// --- view toggles ---
+let bounded      = true;
+let drawTrail    = true;
+let colorBySpeed = true;
+let hideLight    = false;   // hide species 'A'
+
+// --- canvas click behaviour ---
+let clickMode  = 'launch';  // 'launch' | 'erase'
+let launchSize = 'M';
+
+// --- masses, radii, colours (kept from original) ---
+const m1 = 5, m2 = 10, m3 = 20;
+const r1 = 1.8;
+const cA = 'rgba(255,255,253,0.96)';
+const cB = 'rgba(224,160,32,0.96)';
+const cC = 'rgba(124,155,221,0.97)';      // brightened from the old near-black navy
+const cTrail = 'rgba(78,196,150,0.30)';
+const TrailLength = 1400, TrailMaxRad = 4;
+
+// --- Magma colormap (FW's cubic fit, preserved) ---
+const Pi = Math.PI;
+const vCeil = 20, vFloor = 0.5, VStrata = 59;
+let Magmas = [];
+function splineRGB(x){
+  x = x*3 + 1;
+  const R = -11.833*x*x*x + 73*x*x - 41.167*x + 2;
+  const Gc= -9.5*x*x*x + 98.5*x*x - 213*x + 135;
+  const B = 60.833*x*x*x - 436*x*x + 934.17*x - 501;
+  return {R:Math.round(R), G:Math.round(Gc), B:Math.round(B)};
+}
+function CToV(vx,vy){ return Math.sqrt(vx*vx+vy*vy); }
+function velomap(vx,vy){
+  const v = CToV(vx,vy);
+  let x = (v-vFloor)/(vCeil-vFloor)*VStrata;
+  x = Math.max(0, Math.min(VStrata, x));
+  const m = Magmas[Math.round(x)];
+  return `rgba(${m.R},${m.G},${m.B},1)`;
+}
+
+// Schwarzschild-flavoured radius: r ~ M^(1/5). Sub-linear so big bodies stay on-screen.
+function Schwarz(mass){ return Math.pow(Math.max(mass,0.001)*m1, 0.2) * r1; }
+
+let W, H;   // scene = full window
+
+// ----------------------------------------------------------------------- p5
+function setup(){
+  for (let i=0;i<=VStrata;i++) Magmas.push(splineRGB(i/VStrata));
+  const cnv = createCanvas(windowWidth, windowHeight);
+  cnv.parent('host');
+  W = width; H = height;
+}
+function windowResized(){ resizeCanvas(windowWidth, windowHeight); W = width; H = height; }
+
+function draw(){
+  if (!paused) updateNB(dt);
+  drawScene();
+  if (frameCount % 5 === 0) updateReadout();
+}
+
+// ------------------------------------------------------------------- physics
+// Plummer-softened acceleration on body i from all others.
+// a = sum_j  G m_j (r_j - r_i) / (|r|^2 + eps^2)^{3/2}
+function accelArrays(){
+  const n = particles.length;
+  const ax = new Float64Array(n), ay = new Float64Array(n);
+  const eps2 = softening*softening;
+  for (let i=0;i<n;i++){
+    const A = particles[i];
+    let sx=0, sy=0;
+    for (let j=0;j<n;j++){
+      if (j===i) continue;
+      const B = particles[j];
+      const dx = B.x-A.x, dy = B.y-A.y;
+      const d2 = dx*dx + dy*dy + eps2;
+      const inv = G*B.mass / (d2*Math.sqrt(d2));
+      sx += inv*dx; sy += inv*dy;
+    }
+    ax[i]=sx; ay[i]=sy;
+  }
+  return {ax,ay};
+}
+
+function updateNB(h){
+  const n = particles.length;
+  if (n===0) return;
+
+  // Euler–Cromer (semi-implicit, symplectic): kick on old positions, then drift.
+  const {ax,ay} = accelArrays();
+  for (let i=0;i<n;i++){
+    const p = particles[i];
+    p.vx += ax[i]*h;  p.vy += ay[i]*h;
+  }
+  for (let i=0;i<n;i++){
+    const p = particles[i];
+    p.x += p.vx*h;  p.y += p.vy*h;
+  }
+
+  resolveMergers();
+  logTrail();
+  handleBounds();
+}
+
+// Inelastic accretion. Each pairwise merge conserves total mass and total
+// momentum exactly; a body may absorb several partners in one frame, and the
+// cumulative result still conserves both. Dead bodies are skipped, then swept.
+function resolveMergers(){
+  let any = false;
+  for (let i=0;i<particles.length;i++){
+    const A = particles[i];
+    if (A.dead) continue;
+    for (let j=i+1;j<particles.length;j++){
+      const B = particles[j];
+      if (B.dead) continue;
+
+      const dx = B.x-A.x, dy = B.y-A.y;
+      const d  = Math.hypot(dx,dy);
+      const touch = A.r + B.r;
+      if (d > touch*mergeFrac) continue;
+
+      // only merge bodies actually closing on each other
+      const dvx = B.vx-A.vx, dvy = B.vy-A.vy;
+      if (dvx*dx + dvy*dy >= 0) continue;
+
+      const mA = A.mass, mB = B.mass, M = mA + mB;
+      // momentum-conserving velocity (uses ORIGINAL masses — the old bug was
+      // computing this after A.mass had already been inflated)
+      A.vx = (mA*A.vx + mB*B.vx)/M;
+      A.vy = (mA*A.vy + mB*B.vy)/M;
+      // centre-of-mass position (old code kept the heavier body's position)
+      A.x  = (mA*A.x + mB*B.x)/M;
+      A.y  = (mA*A.y + mB*B.y)/M;
+      A.Species = (mA >= mB) ? A.Species : B.Species;  // inherit dominant species
+      A.mass = M;
+      A.r = Schwarz(M);
+      B.dead = true;
+      any = true;
+    }
+  }
+  if (any) particles = particles.filter(p => !p.dead);
+}
+
+let XLog = [], YLog = [];
+function logTrail(){
+  if (!drawTrail) return;
+  for (const p of particles) if (p.mass >= m3){ XLog.push(p.x); YLog.push(p.y); }
+  if (XLog.length > TrailLength){
+    const cut = XLog.length - TrailLength;
+    XLog.splice(0,cut); YLog.splice(0,cut);
+  }
+}
+
+const BoundaryTol = 3, restitution = 1;
+function handleBounds(){
+  for (let k=particles.length-1;k>=0;k--){
+    const p = particles[k];
+    if (!bounded){
+      if (p.x >= W*BoundaryTol || p.x <= -(BoundaryTol-1)*W ||
+          p.y >= H*BoundaryTol || p.y <= -(BoundaryTol-1)*H){
+        particles.splice(k,1);
+      }
+    } else {
+      if (p.x+p.r >= W){ p.vx*=-restitution; p.x = W-p.r; }
+      else if (p.x-p.r <= 0){ p.vx*=-restitution; p.x = p.r; }
+      if (p.y+p.r >= H){ p.vy*=-restitution; p.y = H-p.r; }
+      else if (p.y-p.r <= 0){ p.vy*=-restitution; p.y = p.r; }
+    }
+  }
+}
+
+function COMCorrect(){
+  XLog=[]; YLog=[];
+  let mx=0,my=0,mvx=0,mvy=0,mt=0;
+  for (const p of particles){ mx+=p.mass*p.x; my+=p.mass*p.y; mvx+=p.mass*p.vx; mvy+=p.mass*p.vy; mt+=p.mass; }
+  if (mt===0) return;
+  for (const p of particles){
+    p.x -= mx/mt - W/2;  p.y -= my/mt - H/2;
+    p.vx -= mvx/mt;      p.vy -= mvy/mt;
+  }
+}
+
+// ------------------------------------------------------------------- drawing
+function drawScene(){
+  // deep-space backdrop
+  background(5,6,12);
+
+  if (drawTrail && XLog.length){
+    noStroke(); fill(cTrail);
+    for (let i=0;i<XLog.length;i++) ellipse(XLog[i],YLog[i],TrailMaxRad);
+  }
+
+  for (const p of particles){
+    if (hideLight && p.Species==='A') continue;
+    let c;
+    if (colorBySpeed) c = velomap(p.vx,p.vy);
+    else c = p.Species==='A'?cA : p.Species==='B'?cB : cC;
+    const big = p.mass >= m3;
+    if (big){ drawingContext.shadowBlur = p.r*2.4; drawingContext.shadowColor = c; }
+    noStroke(); fill(c); ellipse(p.x,p.y,2*p.r,2*p.r);
+    if (big) drawingContext.shadowBlur = 0;
+  }
+
+  if (aiming) drawAim();
+
+  if (paused) drawPausedHint();
+}
+
+function drawPausedHint(){
+  noStroke(); fill('rgba(231,233,240,0.18)');
+  textFont('Avenir Next'); textAlign(CENTER,CENTER);
+  textSize(Math.min(W,H)/16);
+  text('Paused', W/2, H/2 - 14);
+  textSize(Math.min(W,H)/40);
+  fill('rgba(231,233,240,0.12)');
+  text('spawn a scene or press Run', W/2, H/2 + Math.min(W,H)/22);
+}
+
+// ------------------------------------------------------------------ spawning
+function pushBody(x,y,vx,vy,mass,r,Species){
+  particles.push({x,y,vx,vy,mass,r,Species,dead:false});
+}
+
+function spawnDisk(){
+  for (let i=0;i<200;i++){
+    const pos = Math.min(W,H)/2 * Math.random();
+    const ang = 2*Pi*Math.random();
+    const dev = Pi*Math.random()/10 - Pi/5;
+    const vM  = 4*Math.random();
+    pushBody(pos*Math.cos(ang)+W/2, pos*Math.sin(ang)+H/2,
+             -vM*Math.sin(ang+dev), vM*Math.cos(ang+dev), m1, r1, 'A');
+  }
+  paused=false; syncPlay();
+}
+
+function spawnBinary(){
+  const pos = Math.min(W,H)/3 * Math.random();
+  const a = 2*Pi*Math.random();
+  const cx = pos*Math.cos(a)+W/2, cy = pos*Math.sin(a)+H/2;
+  const Mass = 2*(1+Math.random())*m3;
+  pushBody(cx, cy, 0, 0, Mass, Schwarz(Mass), 'B');
+  const semi = (0.75*Math.random()+0.25)*Math.min(W,H)/4;
+  const sa = 2*Pi*Math.random();
+  const ratio = 0.5+Math.random()/2;
+  const vMag = 1.6*Math.random();
+  pushBody(cx+semi*Math.cos(sa), cy+semi*Math.sin(sa),
+           -vMag*Math.sin(sa), vMag*Math.cos(sa), ratio*Mass, Schwarz(ratio*Mass), 'B');
+  paused=false; syncPlay();
+}
+
+function spawnThreeBody(){
+  for (let i=0;i<3;i++){
+    const pos = Math.min(W,H)/3 * (0.75*Math.random()+0.25);
+    const a = 2*Pi*Math.random();
+    const Mass = m3*(1+Math.random());
+    pushBody(pos*Math.cos(a)+W/2, pos*Math.sin(a)+H/2,
+             2*(Math.random()-0.5), 2*(Math.random()-0.5), Mass, Schwarz(Mass), 'C');
+  }
+  drawTrail = true; syncToggle('trail',true);
+  paused=false; syncPlay();
+}
+
+// new: a cold, slow cloud that gravitationally collapses and merges hierarchically
+function spawnCluster(){
+  const N=70, R=Math.min(W,H)/4;
+  for (let i=0;i<N;i++){
+    const pos = R*Math.sqrt(Math.random());
+    const a = 2*Pi*Math.random();
+    const heavy = Math.random()<0.12;
+    const mass = heavy ? m2*(1+Math.random()) : m1;
+    pushBody(pos*Math.cos(a)+W/2, pos*Math.sin(a)+H/2,
+             0.6*(Math.random()-0.5), 0.6*(Math.random()-0.5),
+             mass, heavy?Schwarz(mass):r1, heavy?'B':'A');
+  }
+  paused=false; syncPlay();
+}
+
+// --------------------------------------------------------------- interaction
+let aiming=false, aimX=0, aimY=0;
+function overPanel(){
+  const el = document.elementFromPoint(mouseX, mouseY);
+  return el && el.closest && el.closest('#panel, #show');
+}
+function mousePressed(){
+  if (overPanel()) return;
+  if (clickMode==='erase'){
+    for (let i=particles.length-1;i>=0;i--){
+      const p=particles[i];
+      if ((p.x-mouseX)**2 + (p.y-mouseY)**2 < 1.6*p.r*p.r){ particles.splice(i,1); XLog=[];YLog=[]; }
+    }
+    return;
+  }
+  aiming=true; aimX=mouseX; aimY=mouseY;
+}
+function mouseDragged(){ /* aim end tracked live via mouseX/Y in drawAim */ }
+function mouseReleased(){
+  if (!aiming) return;
+  aiming=false;
+  const dx = mouseX-aimX, dy = mouseY-aimY;
+  const mass = launchSize==='S'?m1 : launchSize==='L'?2*m3 : m2;
+  const sp = launchSize==='S'?'A' : launchSize==='L'?'C' : 'B';
+  pushBody(aimX, aimY, dx*0.05, dy*0.05, mass, Schwarz(mass), sp);
+}
+function drawAim(){
+  push();
+  stroke(224,137,46,200); strokeWeight(2);
+  line(aimX,aimY,mouseX,mouseY);
+  const ang = Math.atan2(mouseY-aimY, mouseX-aimX);
+  const L = Math.hypot(mouseX-aimX, mouseY-aimY);
+  translate(mouseX,mouseY); rotate(ang);
+  const h = Math.min(14, L/3);
+  line(0,0,-h, h*0.6); line(0,0,-h,-h*0.6);
+  pop();
+  noStroke(); fill(224,137,46,160);
+  const mass = launchSize==='S'?m1 : launchSize==='L'?2*m3 : m2;
+  ellipse(aimX,aimY,2*Schwarz(mass));
+}
+
+// ------------------------------------------------------------- keyboard
+function keyPressed(){
+  if (key===' '){ togglePlay(); return false; }
+  if (key==='a'||key==='A'){ setDt(dt*2); }
+  if (key==='z'||key==='Z'){ setDt(dt/2); }
+  if (key==='g'||key==='G'){ COMCorrect(); }
+  if (key==='t'||key==='T'){ setToggle('color', !colorBySpeed); }
+  if (key==='b'||key==='B'){ setToggle('bound', !bounded); }
+  if (key==='c'||key==='C'){ clearAll(); }
+  if (key==='d'||key==='D'){ setToggle('trail', !drawTrail); }
+}
+
+// ----------------------------------------------------------------- UI wiring
+function togglePlay(){ paused=!paused; syncPlay(); }
+function syncPlay(){
+  const b=document.getElementById('playpause');
+  b.classList.toggle('running', !paused);
+  document.getElementById('playlabel').textContent = paused ? 'Run' : 'Pause';
+}
+function setDt(v){ dt=Math.max(0.1,Math.min(4,Math.round(v*10)/10)); syncSliders(); }
+function clearAll(){ particles=[]; XLog=[]; YLog=[]; aiming=false; }
+
+function setToggle(name,val){
+  if (name==='color'){ colorBySpeed=val; document.getElementById('colorval').textContent = val?'speed':'species'; }
+  if (name==='trail'){ drawTrail=val; if(!val){XLog=[];YLog=[];} }
+  if (name==='bound'){ bounded=val; }
+  if (name==='hide'){  hideLight=val; }
+  syncToggle(name,val);
+}
+function syncToggle(name,val){
+  const el=document.querySelector(`.t[data-toggle="${name}"]`);
+  if (el) el.classList.toggle('on',val);
+}
+function syncSliders(){
+  document.getElementById('s-g').value=G;     document.getElementById('v-g').textContent=G.toFixed(2);
+  document.getElementById('s-soft').value=softening; document.getElementById('v-soft').textContent=softening+' px';
+  document.getElementById('s-dt').value=dt;    document.getElementById('v-dt').textContent=dt.toFixed(1)+'×';
+  document.getElementById('s-merge').value=mergeFrac; document.getElementById('v-merge').textContent=mergeFrac.toFixed(2);
+}
+
+// live kinetic-energy readout, coloured along the Magma map
+function magmaHex(t){
+  const stops=[[0,4,4],[28,16,68],[79,18,123],[129,37,129],[181,54,122],[229,80,100],[251,135,97],[254,194,135],[252,253,191]];
+  t=Math.max(0,Math.min(1,t))*(stops.length-1);
+  const i=Math.floor(t), f=t-i, a=stops[i], b=stops[Math.min(i+1,stops.length-1)];
+  const m=k=>Math.round(a[k]+(b[k]-a[k])*f);
+  return `rgb(${m(0)},${m(1)},${m(2)})`;
+}
+function updateReadout(){
+  document.getElementById('r-n').textContent = particles.length;
+  document.getElementById('r-dt').textContent = dt.toFixed(1)+'×';
+  let ke=0; for (const p of particles) ke += 0.5*p.mass*(p.vx*p.vx+p.vy*p.vy);
+  const t = particles.length ? Math.min(1, Math.log10(1+ke)/4.5) : 0;
+  const bar=document.getElementById('r-ke');
+  bar.style.width=(t*100).toFixed(0)+'%';
+  bar.style.background=magmaHex(t);
+}
+
+function initUI(){
+  G=1.23; softening=8; dt=1; mergeFrac=0.6;
+  syncSliders(); syncPlay();
+
+  document.querySelectorAll('.b[data-spawn]').forEach(b=>b.addEventListener('click',()=>{
+    ({disk:spawnDisk, binary:spawnBinary, three:spawnThreeBody, cluster:spawnCluster})[b.dataset.spawn]();
+  }));
+  document.getElementById('playpause').addEventListener('click',togglePlay);
+  document.getElementById('recenter').addEventListener('click',COMCorrect);
+  document.getElementById('clear').addEventListener('click',clearAll);
+
+  document.querySelectorAll('.t[data-toggle]').forEach(b=>b.addEventListener('click',()=>{
+    const n=b.dataset.toggle;
+    const cur={color:colorBySpeed,trail:drawTrail,bound:bounded,hide:hideLight}[n];
+    setToggle(n,!cur);
+  }));
+
+  document.getElementById('s-g').addEventListener('input',e=>{G=+e.target.value; document.getElementById('v-g').textContent=G.toFixed(2);});
+  document.getElementById('s-soft').addEventListener('input',e=>{softening=+e.target.value; document.getElementById('v-soft').textContent=softening+' px';});
+  document.getElementById('s-dt').addEventListener('input',e=>{dt=+e.target.value; document.getElementById('v-dt').textContent=dt.toFixed(1)+'×';});
+  document.getElementById('s-merge').addEventListener('input',e=>{mergeFrac=+e.target.value; document.getElementById('v-merge').textContent=mergeFrac.toFixed(2);});
+
+  document.querySelectorAll('#clickmode button').forEach(b=>b.addEventListener('click',()=>{
+    clickMode=b.dataset.click;
+    document.querySelectorAll('#clickmode button').forEach(x=>x.classList.toggle('on',x===b));
+  }));
+  document.querySelectorAll('#launchsize button').forEach(b=>b.addEventListener('click',()=>{
+    launchSize=b.dataset.size;
+    document.querySelectorAll('#launchsize button').forEach(x=>x.classList.toggle('on',x===b));
+  }));
+
+  const panel=document.getElementById('panel'), show=document.getElementById('show');
+  document.getElementById('collapse').addEventListener('click',()=>{panel.classList.add('collapsed'); show.hidden=false;});
+  show.addEventListener('click',()=>{panel.classList.remove('collapsed'); show.hidden=true;});
+}
+window.addEventListener('load', initUI);
+</script>
+</body>
 </html>
